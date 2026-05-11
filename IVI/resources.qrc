@@ -13,5 +13,6 @@
         <file>assets/icons/radio.png</file>
         <file>assets/icons/wifi.png</file>
         <file>assets/icons/bt.png</file>
+        <file>assets/videos/splash.mp4</file>
     </qresource>
 </RCC>

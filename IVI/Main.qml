@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
+import QtMultimedia
 
 ApplicationWindow {
     id: mainWindow
@@ -9,6 +10,38 @@ ApplicationWindow {
     visible: true
     title: qsTr("IVI Dashboard")
     flags: Qt.FramelessWindowHint | Qt.Window
+
+    property bool splashDone: false
+
+    // Splash screen
+    Item{
+        id: splashScreen
+        anchors.fill: parent
+        visible: !mainWindow.splashDone
+        z: 10
+
+        Behavior on opacity {
+            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+        }
+        Behavior on scale {
+            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+        }
+
+        Video{
+            id: splashVideo
+            anchors.fill: parent
+            source: "qrc:/assets/videos/splash.mp4"
+            autoPlay: true
+            loops: MediaPlayer.Once
+            fillMode: VideoOutput.PreserveAspectCrop
+
+            onPlaybackStateChanged:{
+                if(playbackState === MediaPlayer.StoppedState){
+                    mainWindow.splashDone = true
+                }
+            }
+        }
+    }
 
     WindowBar {
         id: titleBar

@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="/qt/qml/IVI/">
+    <file alias="Main.qml">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/Main.qml</file>
+    <file alias="Components/AppCard.qml">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/Components/AppCard.qml</file>
+    <file alias="pages/WeatherPage.qml">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/pages/WeatherPage.qml</file>
+    <file alias="pages/ClimateControlPage.qml">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/pages/ClimateControlPage.qml</file>
+    <file alias="API/WeatherAPI.qml">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/API/WeatherAPI.qml</file>
+    <file alias="Components/WindowBar.qml">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/Components/WindowBar.qml</file>
+    <file alias="Components/WindowResize.qml">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/Components/WindowResize.qml</file>
+  </qresource>
+</RCC>
+

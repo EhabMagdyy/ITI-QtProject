@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- Weather assets -->
+        <file>images/weatherbackground.jpg</file>
+        <!-- Climate Control assets -->
+        <file>assets/icons/fan.png</file>
+        <file>assets/icons/cool.png</file>
+        <file>assets/icons/auto.png</file>
+        <file>assets/icons/heat.png</file>
+        <file>assets/icons/humidity.png</file>
+        <file>assets/icons/air.png</file>
+    </qresource>
+</RCC>

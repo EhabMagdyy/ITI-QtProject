@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/qt/qml/IVI/">
+    <file alias="Components/qmldir">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/build/IVI/Components/qmldir</file>
+    <file alias="pages/qmldir">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/build/IVI/pages/qmldir</file>
+    <file alias="API/qmldir">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/build/IVI/API/qmldir</file>
+  </qresource>
+</RCC>
+

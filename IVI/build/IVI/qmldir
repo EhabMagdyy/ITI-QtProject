@@ -1,0 +1,12 @@
+module IVI
+typeinfo appIVI.qmltypes
+prefer :/qt/qml/IVI/
+Main 1.0 Main.qml
+AppCard 1.0 Components/AppCard.qml
+WeatherPage 1.0 pages/WeatherPage.qml
+ClimateControlPage 1.0 pages/ClimateControlPage.qml
+WeatherAPI 1.0 API/WeatherAPI.qml
+WindowBar 1.0 Components/WindowBar.qml
+WindowResize 1.0 Components/WindowResize.qml
+depends QtQuick
+

@@ -11,5 +11,7 @@
         <file>assets/icons/video.png</file>
         <file>assets/icons/audio.png</file>
         <file>assets/icons/radio.png</file>
+        <file>assets/icons/wifi.png</file>
+        <file>assets/icons/bt.png</file>
     </qresource>
 </RCC>

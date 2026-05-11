@@ -3,6 +3,8 @@
 #include <QQmlContext>
 #include "Backend/BluetoothManager.hpp"
 #include "Backend/USBManager.hpp"
+#include "Backend/WifiManager.hpp"
+#include "Backend/BluetoothHWManager.hpp"
 
 int main(int argc, char *argv[]){
     QGuiApplication app(argc, argv);
@@ -20,6 +22,12 @@ int main(int argc, char *argv[]){
     UsbManager usbManager;
     engine.rootContext()->setContextProperty("btManager", &btManager);
     engine.rootContext()->setContextProperty("usbManager", &usbManager);
+    
+    // Settings Managers
+    WifiManager wifiManager;
+    BluetoothHWManager bluetoothManager;
+    engine.rootContext()->setContextProperty("WifiManager", &wifiManager);
+    engine.rootContext()->setContextProperty("BluetoothManager", &bluetoothManager);
 
     engine.loadFromModule("IVI", "Main");
 

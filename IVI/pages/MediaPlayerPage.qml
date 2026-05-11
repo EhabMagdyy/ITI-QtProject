@@ -24,7 +24,7 @@ Item {
     // ============================================ Main Content ================================================
     Rectangle {
         anchors.fill: parent
-        radius: mainWindow.width / 100
+        radius: root.width / 100
         border.color: '#005045'
         border.width: 2
         gradient: Gradient {
@@ -45,11 +45,11 @@ Item {
                     Row {
                         id: mainRow
                         anchors.centerIn: parent
-                        spacing: mainWindow.width / 15
+                        spacing: root.width / 15
                         MediaCard {
-                            cardWidth: mainWindow.width / 5.5
-                            cardHeight: mainWindow.height / 2.2
-                            cardColSpacing: cardHeight / 20
+                            cardWidth: root.width / 5.5
+                            cardHeight: root.height / 2.2
+                            cardColSpacing: cardHeight / 40
                             first: '#55ffda'
                             second: '#00bb92'
                             third: '#00886a'
@@ -59,7 +59,7 @@ Item {
                             cardOpacity: 0.8
                             cardText: qsTr("Radio")
                             cardIcon: "qrc:/assets//icons/radio.png"
-                            cardTextFontSize: mainWindow.fontSize * 1.1
+                            cardTextFontSize: root.fontSize * 1.1
                             cardTextFontFamily: "Arial"
                             cardTextColor: '#f8ffff'
                             cardIconWidth: cardWidth / 1.4
@@ -79,9 +79,9 @@ Item {
                         }
 
                         MediaCard {
-                            cardWidth: mainWindow.width / 5.5
-                            cardHeight: mainWindow.height / 2.2
-                            cardColSpacing: cardHeight / 20
+                            cardWidth: root.width / 5.5
+                            cardHeight: root.height / 2.2
+                            cardColSpacing: cardHeight / 12
                             first: '#55ffda'
                             second: '#00bb92'
                             third: '#00886a'
@@ -91,7 +91,7 @@ Item {
                             cardOpacity: 0.8
                             cardText: qsTr("Audio")
                             cardIcon: "qrc:/assets//icons/audio.png"
-                            cardTextFontSize: mainWindow.fontSize * 1.1
+                            cardTextFontSize: root.fontSize * 1.1
                             cardTextFontFamily: "Arial"
                             cardTextColor: '#f8ffff'
                             cardIconWidth: cardWidth / 1.6
@@ -111,8 +111,8 @@ Item {
                         }
 
                         MediaCard {
-                            cardWidth: mainWindow.width / 5.5
-                            cardHeight: mainWindow.height / 2.2
+                            cardWidth: root.width / 5.5
+                            cardHeight: root.height / 2.2
                             cardColSpacing: cardHeight / 20
                             first: '#55ffda'
                             second: '#00bb92'
@@ -123,7 +123,7 @@ Item {
                             cardOpacity: 0.8
                             cardText: qsTr("Video")
                             cardIcon: "qrc:/assets//icons/video.png"
-                            cardTextFontSize: mainWindow.fontSize * 1.1
+                            cardTextFontSize: root.fontSize * 1.1
                             cardTextFontFamily: "Arial"
                             cardTextColor: '#f8ffff'
                             cardIconWidth: cardWidth / 1.5

@@ -43,10 +43,12 @@ ApplicationWindow {
             signal openWeather()
             signal openClimateControl()
             signal openMedia()
+            signal openSettings()
 
             onOpenWeather: stackView.push(weatherPage)
             onOpenClimateControl: stackView.push(climatePage)
             onOpenMedia: stackView.push(mediaPage)
+            onOpenSettings: stackView.push(settingPage)
 
             Timer {
                 interval: 1000
@@ -128,7 +130,7 @@ ApplicationWindow {
             // Center: App cards
             Row {
                 anchors.centerIn: parent
-                spacing: launcherItem.width * 0.045
+                spacing: launcherItem.width * 0.035
 
                 AppCard {
                     title: "Weather"
@@ -160,6 +162,15 @@ ApplicationWindow {
                     onClicked: launcherItem.openMedia()
                 }
 
+                AppCard {
+                    title: "Settings"
+                    subtitle: "Wi-Fi, Bluetooth & more"
+                    emoji: "⚙️"
+                    accentColor: '#f79b55'
+                    cardWidth:  launcherItem.width * 0.2
+                    cardHeight: launcherItem.height * 0.35
+                    onClicked: launcherItem.openSettings()
+                }
             }
         }
     }
@@ -184,6 +195,13 @@ ApplicationWindow {
     Component {
         id: mediaPage
         MediaPlayerPage {
+            onGoBack: stackView.pop()
+        }
+    }
+
+    Component {
+        id: settingPage
+        SettingPage {
             onGoBack: stackView.pop()
         }
     }

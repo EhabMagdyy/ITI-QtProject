@@ -13,6 +13,8 @@ qt_add_executable(appIVI
     main.cpp
     Backend/BluetoothManager.cpp
     Backend/USBManager.cpp
+    Backend/BluetoothHWManager.cpp
+    Backend/WifiManager.cpp
 )
 
 qt_add_qml_module(appIVI
@@ -20,17 +22,21 @@ qt_add_qml_module(appIVI
     VERSION 1.0
     QML_FILES
         Main.qml
-        Components/AppCard.qml
         pages/WeatherPage.qml
         pages/ClimateControlPage.qml
         pages/MediaPlayerPage.qml
+        pages/SettingPage.qml
         API/WeatherAPI.qml
+        Components/AppCard.qml
         Components/WindowBar.qml
         Components/WindowResize.qml
+        Components/NetworkCard.qml
         Components/MediaCard.qml
         MediaPages/Audio.qml
         MediaPages/Video.qml
         MediaPages/Radio.qml
+        SettingPages/BluetoothPage.qml
+        SettingPages/WiFiPage.qml
     RESOURCES
         resources.qrc
 )
@@ -43,9 +49,7 @@ set_target_properties(appIVI PROPERTIES
 )
 
 target_link_libraries(appIVI
-    PRIVATE Qt6::Quick
-    PRIVATE Qt6::DBus
-    PRIVATE Qt6::Concurrent
+    PRIVATE Qt6::Quick Qt6::DBus  Qt6::Concurrent
 )
 
 include(GNUInstallDirs)

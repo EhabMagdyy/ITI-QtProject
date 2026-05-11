@@ -40,7 +40,7 @@ ApplicationWindow {
             signal openWeather()
             signal openClimateControl()
 
-            onOpenWeather:        stackView.push(weatherPage)
+            onOpenWeather: stackView.push(weatherPage)
             onOpenClimateControl: stackView.push(climatePage)
 
             Timer {
@@ -83,74 +83,66 @@ ApplicationWindow {
                 }
             }
 
-            // Content
+            // Top-left: Time & Date
             Column {
-                anchors.centerIn: parent
-                spacing: launcherItem.height * 0.05
+                anchors { top: parent.top; left: parent.left; topMargin: launcherItem.height * 0.1; leftMargin: launcherItem.width * 0.05 }
+                spacing: 4
 
-                // Header
-                Column {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: parent.spacing * 0.5
-
-                    Text {
-                        text: "IVI Dashboard"
-                        color: "#ffffff"
-                        font { pointSize: launcherItem.height * 0.032; bold: true; family: "Arial" }
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    Row{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: parent.spacing * 0.4
-                        Text {
-                            id: dateText
-                            color: "#ffffff"
-                            font { pointSize: launcherItem.height * 0.03; family: "Arial" }
-                        }
-                        Text {
-                            id: timeText
-                            color: "#ffffff"
-                            font { pointSize: launcherItem.height * 0.03; family: "Arial" }
-                        }
-                    }
-                }
-
-                // Separator
-                Rectangle {
-                    width: launcherItem.width * 0.35
-                    height: 1
+                Text {
+                    id: timeText
                     color: "#ffffff"
-                    opacity: 0.12
+                    font { pointSize: launcherItem.height * 0.035; bold: true; family: "Arial" }
+                }
+                Text {
+                    id: dateText
+                    color: '#a3b0ca'
+                    font { pointSize: launcherItem.height * 0.021; family: "Arial" }
+                }
+            }
+
+            // Top-right: Mercedes logo & name
+            Column {
+                anchors { top: parent.top; right: parent.right; topMargin: launcherItem.height * 0.08; rightMargin: launcherItem.width * 0.05 }
+                spacing: 6
+
+                Image {
+                    source: "qrc:/assets/images/mercedes.png"
+                    width:  launcherItem.height * 0.1
+                    height: launcherItem.height * 0.1
+                    fillMode: Image.PreserveAspectFit
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
-
-                // App cards row
-                Row {
+                Text {
+                    text: "Mercedes-Benz"
+                    color: '#d2d9eb'
+                    font { pointSize: launcherItem.height * 0.018; bold: true; family: "Arial" }
                     anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: launcherItem.width * 0.045
+                }
+            }
 
-                    // Weather card
-                    AppCard {
-                        title: "Weather"
-                        subtitle: "Live forecasts & hourly data"
-                        emoji: "🌤️"
-                        accentColor: '#36a9de'
-                        cardWidth: launcherItem.width * 0.22
-                        cardHeight: launcherItem.height * 0.38
-                        onClicked: launcherItem.openWeather()
-                    }
+            // Center: App cards
+            Row {
+                anchors.centerIn: parent
+                spacing: launcherItem.width * 0.045
 
-                    // Climate Control card
-                    AppCard {
-                        title: "Climate Control"
-                        subtitle: "HVAC, fan speed & humidity"
-                        emoji: "❄️"
-                        accentColor: '#21cfa4'
-                        cardWidth: launcherItem.width * 0.22
-                        cardHeight: launcherItem.height * 0.38
-                        onClicked: launcherItem.openClimateControl()
-                    }
+                AppCard {
+                    title: "Weather"
+                    subtitle: "Live forecasts & hourly data"
+                    emoji: "🌤️"
+                    accentColor: "#36a9de"
+                    cardWidth:  launcherItem.width * 0.22
+                    cardHeight: launcherItem.height * 0.38
+                    onClicked: launcherItem.openWeather()
+                }
+
+                AppCard {
+                    title: "Climate Control"
+                    subtitle: "HVAC, fan speed & humidity"
+                    emoji: "❄️"
+                    accentColor: "#21cfa4"
+                    cardWidth:  launcherItem.width * 0.22
+                    cardHeight: launcherItem.height * 0.38
+                    onClicked: launcherItem.openClimateControl()
                 }
             }
         }

@@ -7,5 +7,6 @@
         <file>assets/icons/humidity.png</file>
         <file>assets/icons/air.png</file>
         <file>assets/images/weatherbackground.jpg</file>
+        <file>assets/images/mercedes.png</file>
     </qresource>
 </RCC>

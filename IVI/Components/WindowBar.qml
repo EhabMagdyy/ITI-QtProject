@@ -9,9 +9,9 @@ Rectangle {
     anchors.horizontalCenter: parent.horizontalCenter
     gradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.0; color: '#01012e' }
-        GradientStop { position: 0.5; color: '#011129' }
-        GradientStop { position: 1.0; color: '#011a27' }
+        GradientStop { position: 0.0; color: titleBar.color0 }
+        GradientStop { position: 0.5; color: titleBar.color1 }
+        GradientStop { position: 1.0; color: titleBar.color2 }
     }
     opacity: 0.9
     anchors.topMargin: 10
@@ -25,6 +25,9 @@ Rectangle {
     required property var window
     required property string titleName
     required property bool showBackButton
+    required property string color0
+    required property string color1
+    required property string color2
 
     signal backRequested()
 

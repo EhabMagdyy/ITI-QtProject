@@ -36,13 +36,16 @@ Item {
         }
     }
 
-   WindowBar {
+    WindowBar {
         id: titleBar
         z: 1
         window: mainWindow
         titleName: "HVAC"
         showBackButton: true
         onBackRequested: root.goBack()
+        color0: '#01012e'
+        color1: '#011129'
+        color2: '#011a27'
     }
 
     // Main content

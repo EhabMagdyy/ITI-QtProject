@@ -33,6 +33,9 @@ Item {
         titleName: "Weather"
         showBackButton: true
         onBackRequested: root.goBack()
+        color0: '#01012e'
+        color1: '#011129'
+        color2: '#011a27'
     }
 
     // Weather helper

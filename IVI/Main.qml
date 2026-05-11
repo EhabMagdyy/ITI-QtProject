@@ -17,6 +17,9 @@ ApplicationWindow {
         titleName: "IVI Dashboard"
         showBackButton: false
         visible: stackView.depth === 1
+        color0: '#01012e'
+        color1: '#011129'
+        color2: '#011a27'
     }
 
     // Handle window resizing
@@ -39,9 +42,11 @@ ApplicationWindow {
             id: launcherItem
             signal openWeather()
             signal openClimateControl()
+            signal openMedia()
 
             onOpenWeather: stackView.push(weatherPage)
             onOpenClimateControl: stackView.push(climatePage)
+            onOpenMedia: stackView.push(mediaPage)
 
             Timer {
                 interval: 1000
@@ -130,8 +135,8 @@ ApplicationWindow {
                     subtitle: "Live forecasts & hourly data"
                     emoji: "🌤️"
                     accentColor: "#36a9de"
-                    cardWidth:  launcherItem.width * 0.22
-                    cardHeight: launcherItem.height * 0.38
+                    cardWidth:  launcherItem.width * 0.2
+                    cardHeight: launcherItem.height * 0.35
                     onClicked: launcherItem.openWeather()
                 }
 
@@ -140,10 +145,21 @@ ApplicationWindow {
                     subtitle: "HVAC, fan speed & humidity"
                     emoji: "❄️"
                     accentColor: "#21cfa4"
-                    cardWidth:  launcherItem.width * 0.22
-                    cardHeight: launcherItem.height * 0.38
+                    cardWidth:  launcherItem.width * 0.2
+                    cardHeight: launcherItem.height * 0.35
                     onClicked: launcherItem.openClimateControl()
                 }
+
+                AppCard {
+                    title: "Media Player"
+                    subtitle: "Audio, video & radio"
+                    emoji: "🎵"
+                    accentColor: "#a855f7"
+                    cardWidth:  launcherItem.width * 0.2
+                    cardHeight: launcherItem.height * 0.35
+                    onClicked: launcherItem.openMedia()
+                }
+
             }
         }
     }
@@ -161,6 +177,13 @@ ApplicationWindow {
     Component {
         id: climatePage
         ClimateControlPage {
+            onGoBack: stackView.pop()
+        }
+    }
+
+    Component {
+        id: mediaPage
+        MediaPlayerPage {
             onGoBack: stackView.pop()
         }
     }

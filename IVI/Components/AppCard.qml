@@ -63,8 +63,8 @@ Item {
 
             // Big emoji icon
             Rectangle {
-                width: cardHeight * 0.22
-                height: cardHeight * 0.22
+                width: cardHeight * 0.32
+                height: cardHeight * 0.32
                 radius: width / 2
                 color: Qt.rgba(
                     card.accentColor.r,
@@ -84,7 +84,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: card.emoji
-                    font.pointSize: cardHeight * 0.07
+                    font.pointSize: cardHeight * 0.15
                 }
             }
 
@@ -92,7 +92,7 @@ Item {
             Text {
                 text: card.title
                 color: "#ffffff"
-                font { bold: true; family: "Arial"; pointSize: cardHeight * 0.058 }
+                font { bold: true; family: "Arial"; pointSize: cardHeight * 0.065 }
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
@@ -100,7 +100,7 @@ Item {
             Text {
                 text: card.subtitle
                 color: "#8899bb"
-                font { family: "Arial"; pointSize: cardHeight * 0.038 }
+                font { family: "Arial"; pointSize: cardHeight * 0.045 }
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap

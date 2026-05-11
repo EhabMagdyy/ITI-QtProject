@@ -8,5 +8,8 @@
         <file>assets/icons/air.png</file>
         <file>assets/images/weatherbackground.jpg</file>
         <file>assets/images/mercedes.png</file>
+        <file>assets/icons/video.png</file>
+        <file>assets/icons/audio.png</file>
+        <file>assets/icons/radio.png</file>
     </qresource>
 </RCC>

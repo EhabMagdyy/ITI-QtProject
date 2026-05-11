@@ -5,12 +5,14 @@ project(IVI VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Quick DBus Concurrent)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(appIVI
     main.cpp
+    Backend/BluetoothManager.cpp
+    Backend/USBManager.cpp
 )
 
 qt_add_qml_module(appIVI
@@ -21,9 +23,14 @@ qt_add_qml_module(appIVI
         Components/AppCard.qml
         pages/WeatherPage.qml
         pages/ClimateControlPage.qml
+        pages/MediaPlayerPage.qml
         API/WeatherAPI.qml
         Components/WindowBar.qml
         Components/WindowResize.qml
+        Components/MediaCard.qml
+        MediaPages/Audio.qml
+        MediaPages/Video.qml
+        MediaPages/Radio.qml
     RESOURCES
         resources.qrc
 )
@@ -37,6 +44,8 @@ set_target_properties(appIVI PROPERTIES
 
 target_link_libraries(appIVI
     PRIVATE Qt6::Quick
+    PRIVATE Qt6::DBus
+    PRIVATE Qt6::Concurrent
 )
 
 include(GNUInstallDirs)

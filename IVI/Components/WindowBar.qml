@@ -23,6 +23,10 @@ Rectangle {
     bottomRightRadius: 15
 
     required property var window
+    required property string titleName
+    required property bool showBackButton
+
+    signal backRequested()
 
     Behavior on opacity {NumberAnimation {duration: 120}}
 
@@ -34,9 +38,38 @@ Rectangle {
         onExited: titleBar.opacity = 0.9
     }
 
+    // back button that made of a rectnagle (text, mouse area), required visiblity and onClicked signal on the left of the title bar
+    Rectangle {
+        id: backBtn
+        width: 90
+        height: 35
+        color: "transparent"
+        anchors.left: parent.left
+        anchors.leftMargin: 12
+        anchors.verticalCenter: parent.verticalCenter
+        visible: showBackButton
+
+        Text {
+            anchors.centerIn: parent
+            text: "< Back"
+            color: "white"
+            font.bold: true
+            font.family: "Arial"
+            font.pointSize: 16
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: titleBar.backRequested()
+            hoverEnabled: true
+            onEntered: parent.scale = 1.1
+            onExited: parent.scale = 1.0
+        }
+    }
+
     Text {
         anchors.centerIn: parent
-        text: "Weather"
+        text: titleName
         color: "white"
         font.bold: true
         font.family: "Arial"

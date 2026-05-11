@@ -8,76 +8,44 @@ Item {
 
     signal goBack()
 
-    // ── Background ─────────────────────────────────────────────────────────────
+    // Background
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
             orientation: Gradient.Vertical
-            GradientStop { position: 0.0; color: "#062429" }
-            GradientStop { position: 0.5; color: "#052227" }
-            GradientStop { position: 1.0; color: "#073036" }
+            GradientStop { position: 0.0; color: "#0a1628" }
+            GradientStop { position: 0.5; color: "#0d1f3c" }
+            GradientStop { position: 1.0; color: "#0a1628" }
         }
     }
 
-    // ── Custom title bar ───────────────────────────────────────────────────────
-    Rectangle {
+    Canvas {
+        anchors.fill: parent
+        opacity: 0.1
+        onPaint: {
+            var ctx = getContext("2d")
+            ctx.fillStyle = "#ffffff"
+            var step = 40
+            for (var x = 0; x < width; x += step) {
+                for (var y = 0; y < height; y += step) {
+                    ctx.beginPath()
+                    ctx.arc(x, y, 1.5, 0, Math.PI * 2)
+                    ctx.fill()
+                }
+            }
+        }
+    }
+
+   WindowBar {
         id: titleBar
-        width: parent.width - 20; height: 38
-        anchors { top: parent.top; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-        color: "#0d3f48"; opacity: 0.9; radius: 12
-        border.color: "#ffffff"; border.width: 1
-        z: 10
-
-        Behavior on opacity { NumberAnimation { duration: 120 } }
-
-        MouseArea {
-            anchors.fill: parent
-            onPressed: {
-                var win = root
-                while (win && !(win instanceof Window)) win = win.parent
-                if (win) win.startSystemMove()
-            }
-            hoverEnabled: true
-            onEntered: titleBar.opacity = 1.0
-            onExited:  titleBar.opacity = 0.9
-        }
-
-        // ← Back button
-        Text {
-            id: backBtn
-            text: "← Back"
-            color: "#44e0b8"
-            font { bold: true; family: "Arial"; pointSize: 13 }
-            anchors { left: parent.left; leftMargin: 14; verticalCenter: parent.verticalCenter }
-            Behavior on opacity { NumberAnimation { duration: 100 } }
-            MouseArea {
-                anchors.fill: parent; hoverEnabled: true
-                onEntered: backBtn.opacity = 0.7
-                onExited:  backBtn.opacity = 1.0
-                onClicked: root.goBack()
-            }
-        }
-
-        Text {
-            anchors.centerIn: parent
-            text: "Climate Control"
-            color: "#ffffff"
-            font { bold: true; family: "Arial"; pointSize: 14 }
-        }
-
-        Row {
-            spacing: 14
-            anchors { right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
-            Text { text: "−"; color: "#ffffff"; font { bold: true; pointSize: 16 }
-                MouseArea { anchors.fill: parent; onClicked: { var w = root; while (w && !(w instanceof Window)) w = w.parent; if(w) w.showMinimized() } } }
-            Text { text: "□"; color: "#ffffff"; font { bold: true; pointSize: 14 }
-                MouseArea { anchors.fill: parent; onClicked: { var w = root; while (w && !(w instanceof Window)) w = w.parent; if(w) w.visibility === Window.Maximized ? w.showNormal() : w.showMaximized() } } }
-            Text { text: "✕"; color: "#ffffff"; font { bold: true; pointSize: 14 }
-                MouseArea { anchors.fill: parent; onClicked: Qt.quit() } }
-        }
+        z: 1
+        window: mainWindow
+        titleName: "HVAC"
+        showBackButton: true
+        onBackRequested: root.goBack()
     }
 
-    // ── Main content (centred column, preserves original HVAC layout) ──────────
+    // Main content
     Column {
         id: main
         anchors {
@@ -102,14 +70,14 @@ Item {
         // Mode selector panel
         Rectangle {
             id: modePanel
-            width: parent.width * 0.9
+            width: parent.width * 0.8
             height: (root.height - titleBar.height - 60) * 0.28
             anchors.horizontalCenter: parent.horizontalCenter
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: "#0d3f48" }
-                GradientStop { position: 0.5; color: "#0c4048" }
-                GradientStop { position: 1.0; color: "#0b414a" }
+                GradientStop { position: 0.0; color: '#0e1639' }
+                GradientStop { position: 0.5; color: '#0f1739' }
+                GradientStop { position: 1.0; color: '#0e1536' }
             }
             radius: 12; border.color: "white"; border.width: 1
 
@@ -131,10 +99,10 @@ Item {
                     anchors.top: modeContent.top
                     anchors.topMargin: modeContent.height * 0.3
 
-                    ModeIcon { iconSource: "qrc:/assets/icons/cool.png"; iconSize: modePanel.height * 0.45; onClicked: console.log("Cool") }
-                    ModeIcon { iconSource: "qrc:/assets/icons/fan.png";  iconSize: modePanel.height * 0.45; onClicked: console.log("Fan")  }
-                    ModeIcon { iconSource: "qrc:/assets/icons/heat.png"; iconSize: modePanel.height * 0.45; onClicked: console.log("Heat") }
-                    ModeIcon { iconSource: "qrc:/assets/icons/auto.png"; iconSize: modePanel.height * 0.45; onClicked: console.log("Auto") }
+                    ModeIcon { iconSource: "qrc:/assets/icons/cool.png"; iconSize: modePanel.height * 0.55; onClicked: console.log("Cool") }
+                    ModeIcon { iconSource: "qrc:/assets/icons/fan.png";  iconSize: modePanel.height * 0.55; onClicked: console.log("Fan")  }
+                    ModeIcon { iconSource: "qrc:/assets/icons/heat.png"; iconSize: modePanel.height * 0.55; onClicked: console.log("Heat") }
+                    ModeIcon { iconSource: "qrc:/assets/icons/auto.png"; iconSize: modePanel.height * 0.55; onClicked: console.log("Auto") }
                 }
             }
         }
@@ -142,14 +110,14 @@ Item {
         // Controls panel
         Rectangle {
             id: controlsPanel
-            width: parent.width * 0.9
+            width: parent.width * 0.8
             height: (root.height - titleBar.height - 60) * 0.5
             anchors.horizontalCenter: parent.horizontalCenter
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: "#0d3f48" }
-                GradientStop { position: 0.5; color: "#0c4048" }
-                GradientStop { position: 1.0; color: "#0b414a" }
+                GradientStop { position: 0.0; color: '#0e1639' }
+                GradientStop { position: 0.5; color: '#0f1739' }
+                GradientStop { position: 1.0; color: '#0e1536' }
             }
             radius: 12; border.color: "white"; border.width: 1
 
@@ -159,7 +127,7 @@ Item {
 
                 Text {
                     text: "Controls"
-                    font { pixelSize: controlsContent.height * 0.045; bold: true }
+                    font { pixelSize: controlsContent.height * 0.06; bold: true }
                     color: "white"; opacity: 0.7
                     Layout.leftMargin: 2; Layout.topMargin: 2
                 }
@@ -179,19 +147,17 @@ Item {
         }
     }
 
-    // ── Inline components (kept local, identical to Task07) ────────────────────
-
     component ModeIcon: Rectangle {
         id: modeIcon
         property string iconSource: ""
-        property real   iconSize:   60
+        property real iconSize: 60
         signal clicked()
 
         width: iconSize; height: iconSize
         gradient: Gradient {
             orientation: Gradient.Vertical
-            GradientStop { position: 0.0; color: "#04171a" }
-            GradientStop { position: 1.0; color: "#072a31" }
+            GradientStop { position: 0.0; color: '#04091a' }
+            GradientStop { position: 1.0; color: '#071131' }
         }
         radius: height * 0.2; border.color: "#1e6e7d"; border.width: 1
 
@@ -211,20 +177,20 @@ Item {
         property string labelText:   ""
         property int    percentage:  0
 
-        Layout.fillWidth: true; Layout.leftMargin: 12; Layout.rightMargin: 12
+        Layout.fillWidth: true; Layout.leftMargin: 18; Layout.rightMargin: 18
 
         Row {
             spacing: 8
-            Image { source: controlLabel.iconSource; width: 20; height: 20; anchors.verticalCenter: parent.verticalCenter }
+            Image { source: controlLabel.iconSource; width: 30; height: 30; anchors.verticalCenter: parent.verticalCenter }
             Text  { 
                 text: controlLabel.labelText
-                font { pixelSize: 14; bold: true }
+                font { pixelSize: 20; bold: true }
                 color: "white"; anchors.verticalCenter: parent.verticalCenter 
             }
         }
         Item { Layout.fillWidth: true }
         Text { text: controlLabel.percentage + "%"
-            font { pixelSize: 14; bold: true }
+            font { pixelSize: 20; bold: true }
             color: "white" 
         }
     }
@@ -235,8 +201,8 @@ Item {
         property color trackColorRight: "#2266aa"
         property alias value: slider.value
 
-        Layout.fillWidth: true; Layout.leftMargin: 12; Layout.rightMargin: 12
-        implicitHeight: 28
+        Layout.fillWidth: true; Layout.leftMargin: 18; Layout.rightMargin: 18
+        implicitHeight: 32
 
         Slider {
             id: slider
@@ -244,7 +210,7 @@ Item {
             from: 0; to: 100; stepSize: 1
 
             background: Item {
-                implicitHeight: 28
+                implicitHeight: 32
                 Rectangle { anchors.verticalCenter: parent.verticalCenter; width: parent.width; height: 6; radius: 3; color: Qt.rgba(1,1,1,0.10); border.color: Qt.rgba(1,1,1,0.06); border.width: 1 }
                 Rectangle {
                     anchors.verticalCenter: parent.verticalCenter

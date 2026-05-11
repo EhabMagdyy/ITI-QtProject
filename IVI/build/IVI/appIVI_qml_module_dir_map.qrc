@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/">
-    <file alias="/qt/qml/IVI">/home/ehab/Documents/ITI_9Months/CoursesProject/Qt/build/IVI</file>
-
-  </qresource>
-</RCC>

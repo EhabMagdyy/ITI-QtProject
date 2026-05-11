@@ -15,7 +15,7 @@ Item {
     Image {
         id: backgroundImage
         anchors.fill: parent
-        source: "qrc:/images/weatherbackground.jpg"
+        source: "qrc:/assets/images/weatherbackground.jpg"
         fillMode: Image.PreserveAspectCrop
     }
 
@@ -30,6 +30,9 @@ Item {
         id: titleBar
         z: 1
         window: mainWindow
+        titleName: "Weather"
+        showBackButton: true
+        onBackRequested: root.goBack()
     }
 
     // Weather helper

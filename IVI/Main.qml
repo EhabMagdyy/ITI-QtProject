@@ -7,13 +7,15 @@ ApplicationWindow {
     width: Screen.width
     height: Screen.height
     visible: true
-    title: qsTr("App Launcher")
+    title: qsTr("IVI Dashboard")
     flags: Qt.FramelessWindowHint | Qt.Window
 
     WindowBar {
         id: titleBar
         z: 1
         window: mainWindow
+        titleName: "IVI Dashboard"
+        showBackButton: false
         visible: stackView.depth === 1
     }
 
@@ -41,6 +43,18 @@ ApplicationWindow {
             onOpenWeather:        stackView.push(weatherPage)
             onOpenClimateControl: stackView.push(climatePage)
 
+            Timer {
+                interval: 1000
+                running: true
+                repeat: true
+                triggeredOnStart: true
+                onTriggered: {
+                    var now = new Date()
+                    dateText.text = now.toLocaleDateString(Qt.locale(), "dddd, MMM d yyyy")
+                    timeText.text = now.toLocaleTimeString(Qt.locale(), "hh:mm:ss AP")
+                }
+            }
+
             // Background
             Rectangle {
                 anchors.fill: parent
@@ -52,10 +66,9 @@ ApplicationWindow {
                 }
             }
 
-            // Subtle grid-dot pattern overlay
             Canvas {
                 anchors.fill: parent
-                opacity: 0.06
+                opacity: 0.1
                 onPaint: {
                     var ctx = getContext("2d")
                     ctx.fillStyle = "#ffffff"
@@ -70,7 +83,7 @@ ApplicationWindow {
                 }
             }
 
-            // Center content
+            // Content
             Column {
                 anchors.centerIn: parent
                 spacing: launcherItem.height * 0.05
@@ -78,19 +91,28 @@ ApplicationWindow {
                 // Header
                 Column {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 8
+                    spacing: parent.spacing * 0.5
 
                     Text {
-                        text: "🏠  Home"
+                        text: "IVI Dashboard"
                         color: "#ffffff"
                         font { pointSize: launcherItem.height * 0.032; bold: true; family: "Arial" }
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
-                    Text {
-                        text: "Select an application to launch"
-                        color: "#8899bb"
-                        font { pointSize: launcherItem.height * 0.018; family: "Arial" }
+
+                    Row{
                         anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: parent.spacing * 0.4
+                        Text {
+                            id: dateText
+                            color: "#ffffff"
+                            font { pointSize: launcherItem.height * 0.03; family: "Arial" }
+                        }
+                        Text {
+                            id: timeText
+                            color: "#ffffff"
+                            font { pointSize: launcherItem.height * 0.03; family: "Arial" }
+                        }
                     }
                 }
 
@@ -113,7 +135,7 @@ ApplicationWindow {
                         title: "Weather"
                         subtitle: "Live forecasts & hourly data"
                         emoji: "🌤️"
-                        accentColor: "#4fc3f7"
+                        accentColor: '#36a9de'
                         cardWidth: launcherItem.width * 0.22
                         cardHeight: launcherItem.height * 0.38
                         onClicked: launcherItem.openWeather()
@@ -124,7 +146,7 @@ ApplicationWindow {
                         title: "Climate Control"
                         subtitle: "HVAC, fan speed & humidity"
                         emoji: "❄️"
-                        accentColor: "#44e0b8"
+                        accentColor: '#21cfa4'
                         cardWidth: launcherItem.width * 0.22
                         cardHeight: launcherItem.height * 0.38
                         onClicked: launcherItem.openClimateControl()

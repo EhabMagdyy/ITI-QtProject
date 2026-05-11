@@ -10,28 +10,32 @@
 │   │   ├── air.png
 │   │   ├── audio.png
 │   │   ├── auto.png
+│   │   ├── bt.png
 │   │   ├── cool.png
 │   │   ├── fan.png
 │   │   ├── heat.png
 │   │   ├── humidity.png
 │   │   ├── radio.png
-│   │   └── video.png
+│   │   ├── video.png
+│   │   └── wifi.png
 │   └── images
 │       ├── mercedes.png
 │       └── weatherbackground.jpg
 ├── Backend
+│   ├── BluetoothHWManager.cpp
+│   ├── BluetoothHWManager.hpp
 │   ├── BluetoothManager.cpp
 │   ├── BluetoothManager.hpp
 │   ├── USBManager.cpp
-│   └── USBManager.hpp
-├── CMakeLists.txt
+│   ├── USBManager.hpp
+│   ├── WifiManager.cpp
+│   └── WifiManager.hpp
 ├── Components
 │   ├── AppCard.qml
 │   ├── MediaCard.qml
+│   ├── NetworkCard.qml
 │   ├── WindowBar.qml
 │   └── WindowResize.qml
-├── main.cpp
-├── Main.qml
 ├── MediaPages
 │   ├── Audio.qml
 │   ├── Radio.qml
@@ -39,7 +43,14 @@
 ├── pages
 │   ├── ClimateControlPage.qml
 │   ├── MediaPlayerPage.qml
+│   ├── SettingPage.qml
 │   └── WeatherPage.qml
-├── README.md
-└── resources.qrc
+└── SettingPages
+    ├── BluetoothPage.qml
+    └── WiFiPage.qml
+├── main.cpp
+├── Main.qml
+├── CMakeLists.txt
+├── resources.qrc
+└── README.md
 ```

@@ -5,8 +5,8 @@ import QtMultimedia
 
 ApplicationWindow {
     id: mainWindow
-    width: Screen.width
-    height: Screen.height
+    width: Screen.width  // 1024
+    height: Screen.height // 600
     visible: true
     title: qsTr("IVI Dashboard")
     flags: Qt.FramelessWindowHint | Qt.Window
@@ -98,10 +98,43 @@ ApplicationWindow {
             signal openMedia()
             signal openSettings()
 
-            onOpenWeather: stackView.push(weatherPage)
+            property string currentTemp:  "--"
+            property string currentEmoji: "🌡️"
+            property string currentDesc:  "Loading..."
+
+            onOpenWeather:        stackView.push(weatherPage)
             onOpenClimateControl: stackView.push(climatePage)
-            onOpenMedia: stackView.push(mediaPage)
-            onOpenSettings: stackView.push(settingPage)
+            onOpenMedia:          stackView.push(mediaPage)
+            onOpenSettings:       stackView.push(settingPage)
+
+            Component.onCompleted: weatherAPI.fetch("Giza")
+
+            WeatherAPI {
+                id: weatherAPI
+                onWeatherReceived: function(current, daily, hourly, location) {
+                    launcherItem.currentTemp = Math.round(current.temperature_2m) + "°C"
+                    var code = current.weather_code
+                    var d    = current.is_day
+                    launcherItem.currentDesc = code === 0 ? (d ? "Clear Sky" : "Clear Night")
+                        : code <= 2  ? "Partly Cloudy"
+                        : code === 3 ? "Overcast"
+                        : code <= 48 ? "Foggy"
+                        : code <= 55 ? "Drizzle"
+                        : code <= 65 ? "Rainy"
+                        : code <= 75 ? "Snowy"
+                        : code <= 82 ? "Rain Showers"
+                        : "Thunderstorm"
+                    launcherItem.currentEmoji = code === 0 ? (d ? "☀️" : "🌙")
+                        : code <= 2  ? (d ? "🌤️" : "🌙")
+                        : code === 3 ? "☁️"
+                        : code <= 48 ? "🌫️"
+                        : code <= 57 ? "🌦️"
+                        : code <= 65 ? "🌧️"
+                        : code <= 75 ? "❄️"
+                        : code <= 82 ? "🌦️"
+                        : "⛈️"
+                }
+            }
 
             Timer {
                 interval: 1000
@@ -118,6 +151,8 @@ ApplicationWindow {
             // Background
             Rectangle {
                 anchors.fill: parent
+                border.color: '#031c4f'
+                border.width: 4
                 gradient: Gradient {
                     orientation: Gradient.Vertical
                     GradientStop { position: 0.0; color: "#0a1628" }
@@ -143,6 +178,54 @@ ApplicationWindow {
                 }
             }
 
+            // Top-center: Giza weather card
+            Rectangle {
+                id: weatherCard
+                anchors {
+                    top: parent.top
+                    topMargin: launcherItem.height * 0.1
+                    horizontalCenter: parent.horizontalCenter
+                }
+                width: launcherItem.width  * 0.2
+                height: launcherItem.height * 0.16
+                radius: height * 0.25
+                color: "#0d1f3c"
+                border.color: '#2674cc'
+                border.width: 1
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: weatherCard.width * 0.1
+
+                    Text {
+                        text: launcherItem.currentEmoji
+                        font.pointSize: weatherCard.height * 0.35
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 4
+
+                        Text {
+                            text: launcherItem.currentTemp
+                            color: "#ffffff"
+                            font { pointSize: weatherCard.height * 0.25; bold: true; family: "Arial" }
+                        }
+                        Text {
+                            text: launcherItem.currentDesc
+                            color: "#8899bb"
+                            font { pointSize: weatherCard.height * 0.12; family: "Arial" }
+                        }
+                        Text {
+                            text: "📍 Giza, Egypt"
+                            color: "#6677aa"
+                            font { pointSize: weatherCard.height * 0.1; family: "Arial" }
+                        }
+                    }
+                }
+            }
+
             // Top-left: Time & Date
             Column {
                 anchors { top: parent.top; left: parent.left; topMargin: launcherItem.height * 0.1; leftMargin: launcherItem.width * 0.05 }
@@ -151,12 +234,12 @@ ApplicationWindow {
                 Text {
                     id: timeText
                     color: "#ffffff"
-                    font { pointSize: launcherItem.height * 0.035; bold: true; family: "Arial" }
+                    font { pointSize: launcherItem.height * 0.036; bold: true; family: "Arial" }
                 }
                 Text {
                     id: dateText
                     color: '#a3b0ca'
-                    font { pointSize: launcherItem.height * 0.021; family: "Arial" }
+                    font { pointSize: launcherItem.height * 0.02; family: "Arial" }
                 }
             }
 
@@ -182,7 +265,9 @@ ApplicationWindow {
 
             // Center: App cards
             Row {
-                anchors.centerIn: parent
+                anchors.top : weatherCard.bottom
+                anchors.topMargin: launcherItem.height * 0.1
+                anchors.horizontalCenter: parent.horizontalCenter
                 spacing: launcherItem.width * 0.035
 
                 AppCard {

@@ -20,13 +20,6 @@ ApplicationWindow {
         visible: !mainWindow.splashDone
         z: 10
 
-        Behavior on opacity {
-            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
-        }
-        Behavior on scale {
-            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
-        }
-
         Video{
             id: splashVideo
             anchors.fill: parent
@@ -66,6 +59,33 @@ ApplicationWindow {
         id: stackView
         anchors.fill: parent
         initialItem: launcherPage
+
+        opacity: 0 
+        // Fade in when splash finishes
+        OpacityAnimator {
+            id: fadeIn
+            target: stackView
+            from: 0; to: 1
+            duration: 400
+            easing.type: Easing.InOutQuad
+            running: false
+        }
+    }
+
+    YAnimator {
+        id: slideUp
+        target: stackView
+        from: mainWindow.height * 0.05; to: 0
+        duration: 400
+        easing.type: Easing.OutCubic
+        running: false
+    }
+
+    onSplashDoneChanged: {
+        if(splashDone) {
+            fadeIn.start()
+            slideUp.start()
+        }
     }
 
     Component {

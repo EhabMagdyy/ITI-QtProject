@@ -27,6 +27,7 @@ qt_add_qml_module(appIVI
         pages/MediaPlayerPage.qml
         pages/SettingPage.qml
         API/WeatherAPI.qml
+        API/RadioAPI.qml
         Components/AppCard.qml
         Components/WindowBar.qml
         Components/WindowResize.qml

@@ -24,7 +24,6 @@ Item {
     // ============================================ Main Content ================================================
     Rectangle {
         anchors.fill: parent
-        radius: root.width / 100
         border.color: '#005045'
         border.width: 2
         gradient: Gradient {

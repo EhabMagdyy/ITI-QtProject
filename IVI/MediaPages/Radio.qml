@@ -8,69 +8,15 @@ Rectangle {
     anchors.fill: parent
     color: "transparent"
 
-    // State
-    property var    currentStation: null
-    property int    currentPage:    0
-    property int    itemsPerPage:   10
-    property bool   hasNextPage:    false
-    property string searchQuery:    ""
-    property string tagFilter:      ""
+    property var currentStation: null
+    property string searchQuery: ""
+    property string tagFilter: ""
 
-    // API
-    function fetchData(url, callback) {
-        var xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) callback(xhr.responseText)
-                else callback(null)
-            }
-        }
-        xhr.open("GET", url)
-        xhr.send()
-    }
-
-    function buildURL() {
-        var url = "https://de1.api.radio-browser.info/json/stations/search?"
-        url += "hidebroken=true"
-        url += "&limit=" + itemsPerPage
-        url += "&offset=" + (currentPage * itemsPerPage)
-        url += "&order=votes&reverse=true"
-        if (searchQuery) url += "&name=" + encodeURIComponent(searchQuery)
-        if (tagFilter)   url += "&tag="  + encodeURIComponent(tagFilter)
-        return url
-    }
-
-    function fetchStations() {
-        stationsModel.clear()
-        fetchData(buildURL(), function(response) {
-            if (!response) return
-            var data = JSON.parse(response)
-            hasNextPage = (data.length === itemsPerPage)
-            for (var i = 0; i < data.length; i++) {
-                stationsModel.append({
-                    stationuuid: data[i].stationuuid,
-                    name:        data[i].name,
-                    url:         data[i].url_resolved || data[i].url,
-                    favicon:     data[i].favicon || "",
-                    codec:       data[i].codec,
-                    tags:        data[i].tags,
-                    country:     data[i].country,
-                    votes:       data[i].votes
-                })
-            }
-        })
-    }
-
-    function playStation(station) {
-        currentStation = station
-        radioPlayer.stop()
-        radioPlayer.source = station.url
-        fetchData("https://de1.api.radio-browser.info/json/url/" + station.stationuuid, function() {})
-        radioPlayer.play()
-    }
-
-    function togglePlayPause() {
-        radioPlayer.playbackState === MediaPlayer.PlayingState ? radioPlayer.pause() : radioPlayer.play()
+    RadioAPI {
+        id: api
+        stationsModel: stationsModel
+        radioPlayer:   radioPlayer
+        radioPage:     radioPage
     }
 
     ListModel { id: stationsModel }
@@ -83,17 +29,17 @@ Rectangle {
             volume: volumeSlider.value
         }
         onMediaStatusChanged: {
-            if      (mediaStatus === MediaPlayer.BufferingMedia) statusDot.color = "#ffaa00"
-            else if (mediaStatus === MediaPlayer.BufferedMedia)  statusDot.color = "#00ffaa"
-            else if (mediaStatus === MediaPlayer.StalledMedia)   statusDot.color = "#ff4444"
-            else if (mediaStatus === MediaPlayer.NoMedia)        statusDot.color = "#555555"
+            if (mediaStatus === MediaPlayer.BufferingMedia) statusDot.color = "#ffaa00"
+            else if (mediaStatus === MediaPlayer.BufferedMedia) statusDot.color = "#00ffaa"
+            else if (mediaStatus === MediaPlayer.StalledMedia) statusDot.color = "#ff4444"
+            else if (mediaStatus === MediaPlayer.NoMedia) statusDot.color = "#555555"
         }
     }
 
     // Layout
     Column {
         anchors.fill: parent
-        anchors.margins: radioPage.width / 30
+        anchors.margins: radioPage.width / 20
         anchors.topMargin: radioPage.height / 10
         spacing: radioPage.height / 40
 
@@ -120,7 +66,7 @@ Rectangle {
                     font.family: "Arial"
                     clip: true
                     onTextChanged: radioPage.searchQuery = text
-                    onAccepted: { radioPage.currentPage = 0; fetchStations() }
+                    onAccepted: api.fetchStations()
 
                     Text {
                         anchors.fill: parent
@@ -156,7 +102,7 @@ Rectangle {
                     id: searchBtnArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: { radioPage.currentPage = 0; fetchStations() }
+                    onClicked: api.fetchStations()
                 }
             }
 
@@ -192,7 +138,7 @@ Rectangle {
         // Station list
         Rectangle {
             width: parent.width
-            height: radioPage.height * 0.5
+            height: radioPage.height * 0.6
             radius: radioPage.height / 50
             color: "#0d2b30"
             border.color: "#204d55"
@@ -309,9 +255,9 @@ Rectangle {
                                 hoverEnabled: true
                                 onClicked: {
                                     if (radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name)
-                                        togglePlayPause()
+                                        api.togglePlayPause()
                                     else
-                                        playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
+                                        api.playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
                                                       url: stationDelegate.url, favicon: stationDelegate.favicon,
                                                       country: stationDelegate.country, codec: stationDelegate.codec,
                                                       tags: stationDelegate.tags })
@@ -344,198 +290,105 @@ Rectangle {
             }
         }
 
-        // Pagination
         Row {
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: radioPage.width / 30
-            height: radioPage.height / 16
-
-            Rectangle {
-                width: prevText.width + 40
-                height: parent.height
-                radius: height / 2
-                opacity: currentPage > 0 ? 1.0 : 0.35
-                color: prevArea.containsMouse && currentPage > 0 ? "#1a3a40" : "#204d55"
-                border.color: "#00ffaa44"; border.width: 1
-                Behavior on color { ColorAnimation { duration: 150 } }
-                Text { id: prevText; anchors.centerIn: parent; text: "◀  Previous"; color: "#e7f1ef"; font { pixelSize: radioPage.width / 70; family: "Arial"; bold: true } }
-                MouseArea { id: prevArea; anchors.fill: parent; hoverEnabled: true; onClicked: if (currentPage > 0) { currentPage--; fetchStations() } }
-            }
-
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: "Page " + (currentPage + 1)
-                color: "#7abfc7"
-                font { pixelSize: radioPage.width / 65; family: "Arial" }
-            }
-
-            Rectangle {
-                width: nextText.width + 40
-                height: parent.height
-                radius: height / 2
-                opacity: hasNextPage ? 1.0 : 0.35
-                color: nextArea.containsMouse && hasNextPage ? "#1a3a40" : "#204d55"
-                border.color: "#00ffaa44"; border.width: 1
-                Behavior on color { ColorAnimation { duration: 150 } }
-                Text { id: nextText; anchors.centerIn: parent; text: "Next  ▶"; color: "#e7f1ef"; font { pixelSize: radioPage.width / 70; family: "Arial"; bold: true } }
-                MouseArea { id: nextArea; anchors.fill: parent; hoverEnabled: true; onClicked: if (hasNextPage) { currentPage++; fetchStations() } }
-            }
-        }
-
-        // Controls bar
-        Rectangle {
-            id: audioContainer
+            id: audioContRow
             width: parent.width
-            height: radioPage.height / 14
-            radius: height / 2
-            color: "#368e91"
+            height: radioPage.height / 15
+            
+            spacing: parent.width / 80
 
-            Row {
-                id: audioContRow
-                anchors.centerIn: parent
-                spacing: audioContainer.width / 80
+            // Play/Pause
+            Rectangle {
+                id: playBtn
+                anchors.verticalCenter: parent.verticalCenter
+                width:  parent.width / 20
+                height: width
+                radius: width / 2
+                anchors.left: parent.left
+                anchors.leftMargin: parent.width / 2
+                color:  playArea.containsMouse ? "#021316" : "#042929"
+                border.color: "#00e4ffff"; border.width: 1
+                Behavior on color { ColorAnimation { duration: 150 } }
 
-                // Play/Pause
-                Rectangle {
-                    id: playBtn
-                    anchors.verticalCenter: parent.verticalCenter
-                    width:  audioContainer.width / 25
-                    height: audioContainer.height / 1.4
-                    radius: height / 10
-                    color:  playArea.containsMouse ? "#021418" : "#072a30"
-                    border.color: "#00e4ffff"; border.width: 1
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    opacity: radioPage.currentStation ? 1.0 : 0.4
+                Text {
+                    anchors.centerIn: parent
+                    text: radioPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
+                    color: '#ffffff'
+                    font.pixelSize: radioPlayer.playbackState === MediaPlayer.PlayingState ? (parent.width + parent.height) / 5 : (parent.width + parent.height) / 4
+                    font.family: "Arial"; font.bold: true
+                }
+                MouseArea {
+                    id: playArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: if (radioPage.currentStation) api.togglePlayPause()
+                }
+            }
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: radioPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                        color: "#ffffff"
-                        font.pixelSize: radioPlayer.playbackState === MediaPlayer.PlayingState
-                                        ? (parent.width + parent.height) / 5
-                                        : (parent.width + parent.height) / 4
-                        font.family: "Arial"; font.bold: true
-                    }
-                    MouseArea {
-                        id: playArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: if (radioPage.currentStation) togglePlayPause()
+            Rectangle { width: audioContainer.width / 4; height: 1; color: "transparent" }
+
+            // Mute
+            Rectangle {
+                id: volumeBtn
+                property bool muted: false
+                anchors.verticalCenter: parent.verticalCenter
+                width:  parent.width / 25
+                height: width
+                radius: width / 2
+                anchors.left: playBtn.right
+                anchors.leftMargin: parent.width / 10
+                color:  muteArea.containsMouse ? "#021316" : "#042929"
+                border.color: "#00e4ffff"; border.width: 1
+                Behavior on color { ColorAnimation { duration: 150 } }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: volumeBtn.muted ? "🔇" : volumeSlider.value < 0.5 ? "🔉" : "🔊"
+                    font.pixelSize: (parent.width + parent.height) / 4
+                    font.family: "Arial"
+                }
+                MouseArea {
+                    id: muteArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        volumeBtn.muted = !volumeBtn.muted
+                        audioOut.muted  = volumeBtn.muted
                     }
                 }
+            }
 
-                // Stop
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width:  audioContainer.width / 25
-                    height: audioContainer.height / 1.4
-                    radius: height / 10
-                    color:  stopArea.containsMouse ? "#021418" : "#072a30"
-                    border.color: "#00e4ffff"; border.width: 1
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    opacity: radioPage.currentStation ? 1.0 : 0.4
+            // Volume slider
+            Slider {
+                id: volumeSlider
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: volumeBtn.right
+                anchors.leftMargin: parent.width / 50
+                width: parent.width / 7
+                from: 0; to: 1; value: 0.6
+                onValueChanged: { audioOut.volume = value; volumeBtn.muted = false; audioOut.muted = false }
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: "⏹"
-                        color: "#ffffff"
-                        font.pixelSize: (parent.width + parent.height) / 5
-                        font.family: "Arial"
-                    }
-                    MouseArea {
-                        id: stopArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: { radioPlayer.stop(); radioPage.currentStation = null }
-                    }
-                }
-
-                Rectangle { height: 1; width: audioContainer.width / 100; color: "transparent" }
-
-                // Buffer progress bar
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: audioContainer.width / 1.9
-                    height: 4; radius: 2
-                    color: "#106372"
-
+                background: Rectangle {
+                    x: volumeSlider.leftPadding
+                    y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
+                    width: volumeSlider.availableWidth; height: 6; radius: 3
+                    color: "#05262c"
                     Rectangle {
-                        width: parent.width * radioPlayer.bufferProgress
+                        width: volumeSlider.visualPosition * parent.width
                         height: parent.height; radius: parent.radius
-                        color: "#002a31"
-                        Behavior on width { NumberAnimation { duration: 300 } }
-                    }
-                    Rectangle {
-                        id: statusDot
-                        x: (parent.width * radioPlayer.bufferProgress) - width / 2
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 10; height: 10; radius: 5
-                        color: "#1a1b1b"
-                        Behavior on x { NumberAnimation { duration: 300 } }
-                    }
-                }
-
-                Rectangle { height: 1; width: audioContainer.width / 60; color: "transparent" }
-
-                // Mute
-                Rectangle {
-                    id: volumeBtn
-                    property bool muted: false
-                    anchors.verticalCenter: parent.verticalCenter
-                    width:  audioContainer.width / 30
-                    height: audioContainer.height / 1.4
-                    radius: height / 10
-                    color:  muteArea.containsMouse ? "#021316" : "#042929"
-                    border.color: "#00e4ffff"; border.width: 1
-                    Behavior on color { ColorAnimation { duration: 150 } }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: volumeBtn.muted ? "🔇" : volumeSlider.value < 0.5 ? "🔉" : "🔊"
-                        font.pixelSize: (parent.width + parent.height) / 4
-                        font.family: "Arial"
-                    }
-                    MouseArea {
-                        id: muteArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: {
-                            volumeBtn.muted = !volumeBtn.muted
-                            audioOut.muted  = volumeBtn.muted
-                        }
-                    }
-                }
-
-                // Volume slider
-                Slider {
-                    id: volumeSlider
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: audioContainer.width / 7
-                    from: 0; to: 1; value: 0.6
-                    onValueChanged: { audioOut.volume = value; volumeBtn.muted = false; audioOut.muted = false }
-
-                    background: Rectangle {
-                        x: volumeSlider.leftPadding
-                        y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                        width: volumeSlider.availableWidth; height: 6; radius: 3
-                        color: "#05262c"
-                        Rectangle {
-                            width: volumeSlider.visualPosition * parent.width
-                            height: parent.height; radius: parent.radius
-                            gradient: Gradient {
-                                orientation: Gradient.Horizontal
-                                GradientStop { position: 0.0; color: "#37c596" }
-                                GradientStop { position: 1.0; color: "#15966b" }
-                            }
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0.0; color: "#37c596" }
+                            GradientStop { position: 1.0; color: '#138660' }
                         }
                     }
                 }
             }
         }
-
+        
         // Back button
         Rectangle {
-            width: backText.width + 40
+            width: backText.width + 50
             height: backText.height + 18
             radius: height / 3
             color: backArea.containsMouse ? "#1a3a40" : "#204d55"

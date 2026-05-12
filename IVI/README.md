@@ -4,23 +4,12 @@
 ```
 .
 ├── API
+│   ├── RadioAPI.qml
 │   └── WeatherAPI.qml
 ├── assets
 │   ├── icons
-│   │   ├── air.png
-│   │   ├── audio.png
-│   │   ├── auto.png
-│   │   ├── bt.png
-│   │   ├── cool.png
-│   │   ├── fan.png
-│   │   ├── heat.png
-│   │   ├── humidity.png
-│   │   ├── radio.png
-│   │   ├── video.png
-│   │   └── wifi.png
-│   └── images
-│       ├── mercedes.png
-│       └── weatherbackground.jpg
+│   ├── images
+│   └── videos
 ├── Backend
 │   ├── BluetoothHWManager.cpp
 │   ├── BluetoothHWManager.hpp
@@ -45,12 +34,11 @@
 │   ├── MediaPlayerPage.qml
 │   ├── SettingPage.qml
 │   └── WeatherPage.qml
-└── SettingPages
-    ├── BluetoothPage.qml
-    └── WiFiPage.qml
+├── SettingPages
+│   ├── BluetoothPage.qml
+│   └── WiFiPage.qml
 ├── main.cpp
 ├── Main.qml
 ├── CMakeLists.txt
-├── resources.qrc
-└── README.md
+└── resources.qrc
 ```

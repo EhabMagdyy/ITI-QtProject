@@ -8,258 +8,552 @@ Rectangle {
     anchors.fill: parent
     color: "transparent"
 
-    // ========================================= Radio Player ================================================
-    MediaPlayer {
-        id: radioPlayer
-        source: "https://stream.radioparadise.com/aac-320"
-        audioOutput: AudioOutput { id: audioOut; volume: volumeSlider.value }
+    // State
+    property var    currentStation: null
+    property int    currentPage:    0
+    property int    itemsPerPage:   10
+    property bool   hasNextPage:    false
+    property string searchQuery:    ""
+    property string tagFilter:      ""
 
-        onMediaStatusChanged: {
-            if (mediaStatus === MediaPlayer.BufferingMedia) statusDot.color = "#ffaa00"
-            else if (mediaStatus === MediaPlayer.BufferedMedia) statusDot.color = "#00ffaa"
-            else if (mediaStatus === MediaPlayer.StalledMedia) statusDot.color = "#ff4444"
-            else if (mediaStatus === MediaPlayer.NoMedia) statusDot.color = "#555555"
-        }
-    }
-    // ========================================= Title & Status ================================================
-    Rectangle {
-        id: titleContainer
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: radioPage.height / 5
-        width: titleText.width + titleText.width / 5
-        height: titleText.height + titleText.height / 8
-        color: "#204d55"
-        border.color: '#efffffff'
-        border.width: 2
-        radius: height / 5
-
-        Text {
-            id: titleText
-            anchors.centerIn: parent
-            text: "Radio Paradise"
-            color: '#e7f1ef'
-            font.pixelSize: radioPage.width / 30
-            font.family: "Arial"
-            font.bold: true
-        }
-    }
-    Rectangle {
-        anchors.top: titleContainer.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: titleContainer.height / 2
-        width: iconsText.width + iconsText.width / 5
-        height: iconsText.height + iconsText.height / 8
-        color: "transparent"
-
-        Text {
-            id: iconsText
-            anchors.centerIn: parent
-            text: "📻 LIVE"
-            color: '#e7f1ef'
-            font.pixelSize: radioPage.width / 40
-            font.family: "Arial"
-            font.bold: true
-        }
-        Text {
-            id: redDot
-            anchors.left: iconsText.right
-            text: "🔴"
-            color: '#e7f1ef'
-            font.pixelSize: radioPage.width / 40
-            font.family: "Arial"
-            font.bold: true
-            SequentialAnimation on opacity {
-                running: true
-                loops: Animation.Infinite
-                NumberAnimation { to: 1.0; duration: 800; easing.type: Easing.InOutQuad }
-                NumberAnimation { to: 0.4; duration: 800; easing.type: Easing.InOutQuad }
+    // API
+    function fetchData(url, callback) {
+        var xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) callback(xhr.responseText)
+                else callback(null)
             }
         }
+        xhr.open("GET", url)
+        xhr.send()
     }
-    // ====================================== Audio Control Container =======================================
-    Rectangle{
-        id: audioContainer
-        anchors.centerIn: parent
-        width: radioPage.width / 1.9
-        height: radioPage.height / 18
-        radius: height / 2
-        color: '#368e91'
-    
-        Row{
-            id: audioContRow
-            anchors.centerIn: parent
-            spacing: audioContainer.width / 80
-            // ========================================= Play/Pause Button ================================================
+
+    function buildURL() {
+        var url = "https://de1.api.radio-browser.info/json/stations/search?"
+        url += "hidebroken=true"
+        url += "&limit=" + itemsPerPage
+        url += "&offset=" + (currentPage * itemsPerPage)
+        url += "&order=votes&reverse=true"
+        if (searchQuery) url += "&name=" + encodeURIComponent(searchQuery)
+        if (tagFilter)   url += "&tag="  + encodeURIComponent(tagFilter)
+        return url
+    }
+
+    function fetchStations() {
+        stationsModel.clear()
+        fetchData(buildURL(), function(response) {
+            if (!response) return
+            var data = JSON.parse(response)
+            hasNextPage = (data.length === itemsPerPage)
+            for (var i = 0; i < data.length; i++) {
+                stationsModel.append({
+                    stationuuid: data[i].stationuuid,
+                    name:        data[i].name,
+                    url:         data[i].url_resolved || data[i].url,
+                    favicon:     data[i].favicon || "",
+                    codec:       data[i].codec,
+                    tags:        data[i].tags,
+                    country:     data[i].country,
+                    votes:       data[i].votes
+                })
+            }
+        })
+    }
+
+    function playStation(station) {
+        currentStation = station
+        radioPlayer.stop()
+        radioPlayer.source = station.url
+        fetchData("https://de1.api.radio-browser.info/json/url/" + station.stationuuid, function() {})
+        radioPlayer.play()
+    }
+
+    function togglePlayPause() {
+        radioPlayer.playbackState === MediaPlayer.PlayingState ? radioPlayer.pause() : radioPlayer.play()
+    }
+
+    ListModel { id: stationsModel }
+
+    // Player
+    MediaPlayer {
+        id: radioPlayer
+        audioOutput: AudioOutput {
+            id: audioOut
+            volume: volumeSlider.value
+        }
+        onMediaStatusChanged: {
+            if      (mediaStatus === MediaPlayer.BufferingMedia) statusDot.color = "#ffaa00"
+            else if (mediaStatus === MediaPlayer.BufferedMedia)  statusDot.color = "#00ffaa"
+            else if (mediaStatus === MediaPlayer.StalledMedia)   statusDot.color = "#ff4444"
+            else if (mediaStatus === MediaPlayer.NoMedia)        statusDot.color = "#555555"
+        }
+    }
+
+    // Layout
+    Column {
+        anchors.fill: parent
+        anchors.margins: radioPage.width / 30
+        anchors.topMargin: radioPage.height / 10
+        spacing: radioPage.height / 40
+
+        // Search bar
+        Row {
+            width: parent.width
+            spacing: radioPage.width / 60
+            height: radioPage.height / 18
+
             Rectangle {
-                id: playBtn
-                anchors.verticalCenter: parent.verticalCenter
-                width: audioContainer.width / 25
-                height: audioContainer.height / 1.4
-                radius: height / 10
-                color: playArea.containsMouse ? '#021418' : '#072a30'
-                border.color: '#00e4ffff'
+                width: parent.width * 0.35
+                height: parent.height
+                radius: height / 2
+                color: "#102a30"
+                border.color: "#204d55"
+                border.width: 1
+
+                TextInput {
+                    id: searchField
+                    anchors { fill: parent; leftMargin: 14; rightMargin: 14; verticalCenter: parent.verticalCenter }
+                    verticalAlignment: TextInput.AlignVCenter
+                    color: "#e7f1ef"
+                    font.pixelSize: radioPage.width / 60
+                    font.family: "Arial"
+                    clip: true
+                    onTextChanged: radioPage.searchQuery = text
+                    onAccepted: { radioPage.currentPage = 0; fetchStations() }
+
+                    Text {
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        text: "🔍 Search station name..."
+                        color: "#557a7f"
+                        font.pixelSize: radioPage.width / 65
+                        font.family: "Arial"
+                        visible: searchField.text === ""
+                    }
+                }
+            }
+
+            // Search button
+            Rectangle {
+                width: parent.width * 0.15
+                height: parent.height
+                radius: height / 2
+                color: searchBtnArea.containsMouse ? "#1a5c66" : "#204d55"
+                border.color: "#00ffaa44"
                 border.width: 1
                 Behavior on color { ColorAnimation { duration: 150 } }
 
                 Text {
-                    id: playText
                     anchors.centerIn: parent
-                    text: radioPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                    color: '#ffffff'
-                    font.pixelSize: radioPlayer.playbackState === MediaPlayer.PlayingState ? (parent.width + parent.height) / 5 : (parent.width + parent.height) / 4
+                    text: "Search"
+                    color: "#e7f1ef"
+                    font.pixelSize: radioPage.width / 60
                     font.family: "Arial"
                     font.bold: true
                 }
-
                 MouseArea {
-                    id: playArea
+                    id: searchBtnArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: {
-                        radioPlayer.playbackState === MediaPlayer.PlayingState ? radioPlayer.pause() : radioPlayer.play()
-                    }
-                }
-            }
-            
-            Rectangle{
-                height: 1
-                width: audioContainer.width / 100
-                color: "transparent"
-            }
-            // ========================================= Buffering Indicator ================================================
-            Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
-                width: audioContainer.width / 1.8
-                height: 4
-                radius: 2
-                color: '#106372'
-
-                // Blue filled portion
-                Rectangle {
-                    width: parent.width * radioPlayer.bufferProgress
-                    height: parent.height
-                    radius: parent.radius
-                    color: '#002a31'
-                    Behavior on width { NumberAnimation { duration: 300 } }
-                }
-
-                // White dot handle at the end
-                Rectangle {
-                    id: statusDot
-                    x: (parent.width * radioPlayer.bufferProgress) - width / 2
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 10
-                    height: 10
-                    radius: 5
-                    color: '#1a1b1b'
-                    Behavior on x { NumberAnimation { duration: 300 } }
+                    onClicked: { radioPage.currentPage = 0; fetchStations() }
                 }
             }
 
             Rectangle{
+                width: 40
                 height: 1
-                width: audioContainer.width / 80
                 color: "transparent"
             }
-            // ========================================= Mute Button ================================================
-            Rectangle {
-                id: volumeBtn
-                anchors.verticalCenter: parent.verticalCenter
-                width: audioContainer.width / 30
-                height: audioContainer.height / 1.4
-                radius: height / 10
-                color: muteArea.containsMouse ? '#021316' : '#042929'
-                border.color: '#00e4ffff'
-                border.width: 1
-                Behavior on color { ColorAnimation { duration: 150 } }
 
-                property bool muted: false
+            // Title label
+            Rectangle {
+                width: parent.width / 4
+                height: parent.height
+                radius: height / 5
+                color: "#204d55"
+                border.color: "#efffffff"
+                border.width: 2
 
                 Text {
                     anchors.centerIn: parent
-                    text: volumeBtn.muted ? "🔈" : volumeSlider.value < 0.5 ? "🔉" : "🔊"
-                    font.pixelSize: (parent.width + parent.height) / 4
+                    text: radioPage.currentStation ? radioPage.currentStation.name : "📻  Radio Browser"
+                    color: "#e7f1ef"
+                    font.pixelSize: radioPage.width / 70
                     font.family: "Arial"
-                }
-
-                MouseArea {
-                    id: muteArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: {
-                        volumeBtn.muted = !volumeBtn.muted
-                        audioOut.muted = volumeBtn.muted
-                    }
+                    font.bold: true
+                    elide: Text.ElideRight
+                    width: parent.width - 20
+                    horizontalAlignment: Text.AlignHCenter
                 }
             }
-            // ========================================= Volume Slider ================================================
-            Slider {
-                id: volumeSlider
-                anchors.verticalCenter: parent.verticalCenter
-                width: audioContainer.width / 7
-                from: 0; to: 1; value: 0.6
-                
-                onValueChanged: {
-                    audioOut.volume = value
-                    volumeBtn.muted = false      // unmute when slider moves
-                    audioOut.muted = false       // unmute the actual output too
+        }
+
+        // Station list
+        Rectangle {
+            width: parent.width
+            height: radioPage.height * 0.5
+            radius: radioPage.height / 50
+            color: "#0d2b30"
+            border.color: "#204d55"
+            border.width: 1
+
+            ListView {
+                id: stationList
+                anchors { fill: parent; margins: 6 }
+                model: stationsModel
+                clip: true
+                spacing: 4
+
+                delegate: Rectangle {
+                    id: stationDelegate
+                    required property string stationuuid
+                    required property string name
+                    required property string url
+                    required property string favicon
+                    required property string codec
+                    required property string tags
+                    required property string country
+                    required property int index
+
+                    width: stationList.width
+                    height: radioPage.height / 12
+                    radius: height / 8
+                    color: delegateArea.containsMouse ? "#1a4a52" : (radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name ? "#163f47" : "#102a30")
+                    border.color: radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name ? "#00ffaa" : "#204d55"
+                    border.width: 1
+                    Behavior on color { ColorAnimation { duration: 120 } }
+
+                    Row {
+                        anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
+                        spacing: 12
+
+                        // Favicon
+                        Rectangle {
+                            width: parent.height * 0.7
+                            height: parent.height * 0.7
+                            anchors.verticalCenter: parent.verticalCenter
+                            radius: width / 5
+                            color: "#204d55"
+
+                            Image {
+                                anchors.fill: parent
+                                anchors.margins: 3
+                                source: stationDelegate.favicon
+                                fillMode: Image.PreserveAspectFit
+                                visible: status === Image.Ready
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: "📻"
+                                font.pixelSize: parent.width * 0.5
+                                visible: parent.children[0].status !== Image.Ready
+                            }
+                        }
+
+                        // Info
+                        Column {
+                            width: parent.width * 0.6
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.left: parent.children[0].right
+                            anchors.leftMargin: 8
+                            spacing: 1
+
+                            Text {
+                                text: stationDelegate.name
+                                color: "#e7f1ef"
+                                font { pixelSize: radioPage.width / 80; bold: true; family: "Arial" }
+                                elide: Text.ElideRight
+                                width: parent.width
+                            }
+                            Text {
+                                text: stationDelegate.country + " • " + stationDelegate.codec
+                                color: "#7abfc7"
+                                font { pixelSize: radioPage.width / 90; family: "Arial" }
+                                elide: Text.ElideRight
+                                width: parent.width
+                            }
+                            Text {
+                                text: stationDelegate.tags
+                                color: "#557a7f"
+                                font { pixelSize: radioPage.width / 95; family: "Arial" }
+                                elide: Text.ElideRight
+                                width: parent.width
+                            }
+                        }
+
+                        // Play button
+                        Rectangle {
+                            width: parent.height * 0.6
+                            height: parent.height * 0.6
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.right: parent.right
+                            anchors.rightMargin: 12
+                            radius: height / 5
+                            color: playBtnArea.containsMouse ? "#021418" : "#072a30"
+                            border.color: "#00e4ffff"
+                            border.width: 1
+                            Behavior on color { ColorAnimation { duration: 150 } }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name
+                                      && radioPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
+                                color: "#ffffff"
+                                font { pixelSize: parent.width * 0.35; family: "Arial"; bold: true }
+                            }
+
+                            MouseArea {
+                                id: playBtnArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: {
+                                    if (radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name)
+                                        togglePlayPause()
+                                    else
+                                        playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
+                                                      url: stationDelegate.url, favicon: stationDelegate.favicon,
+                                                      country: stationDelegate.country, codec: stationDelegate.codec,
+                                                      tags: stationDelegate.tags })
+                                }
+                            }
+                        }
+                    }
+
+                    MouseArea {
+                        id: delegateArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        z: -1
+                        onDoubleClicked: playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
+                                                       url: stationDelegate.url, favicon: stationDelegate.favicon,
+                                                       country: stationDelegate.country, codec: stationDelegate.codec,
+                                                       tags: stationDelegate.tags })
+                    }
                 }
 
-                background: Rectangle {
-                    x: volumeSlider.leftPadding
-                    y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                    width: volumeSlider.availableWidth
-                    height: 6
-                    radius: 3
-                    color: '#05262c'
+                // Empty state
+                Text {
+                    anchors.centerIn: parent
+                    text: "No stations.\nSearch or filter above."
+                    color: "#557a7f"
+                    horizontalAlignment: Text.AlignHCenter
+                    font { pixelSize: radioPage.width / 55; family: "Arial" }
+                    visible: stationsModel.count === 0
+                }
+            }
+        }
+
+        // Pagination
+        Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: radioPage.width / 30
+            height: radioPage.height / 16
+
+            Rectangle {
+                width: prevText.width + 40
+                height: parent.height
+                radius: height / 2
+                opacity: currentPage > 0 ? 1.0 : 0.35
+                color: prevArea.containsMouse && currentPage > 0 ? "#1a3a40" : "#204d55"
+                border.color: "#00ffaa44"; border.width: 1
+                Behavior on color { ColorAnimation { duration: 150 } }
+                Text { id: prevText; anchors.centerIn: parent; text: "◀  Previous"; color: "#e7f1ef"; font { pixelSize: radioPage.width / 70; family: "Arial"; bold: true } }
+                MouseArea { id: prevArea; anchors.fill: parent; hoverEnabled: true; onClicked: if (currentPage > 0) { currentPage--; fetchStations() } }
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Page " + (currentPage + 1)
+                color: "#7abfc7"
+                font { pixelSize: radioPage.width / 65; family: "Arial" }
+            }
+
+            Rectangle {
+                width: nextText.width + 40
+                height: parent.height
+                radius: height / 2
+                opacity: hasNextPage ? 1.0 : 0.35
+                color: nextArea.containsMouse && hasNextPage ? "#1a3a40" : "#204d55"
+                border.color: "#00ffaa44"; border.width: 1
+                Behavior on color { ColorAnimation { duration: 150 } }
+                Text { id: nextText; anchors.centerIn: parent; text: "Next  ▶"; color: "#e7f1ef"; font { pixelSize: radioPage.width / 70; family: "Arial"; bold: true } }
+                MouseArea { id: nextArea; anchors.fill: parent; hoverEnabled: true; onClicked: if (hasNextPage) { currentPage++; fetchStations() } }
+            }
+        }
+
+        // Controls bar
+        Rectangle {
+            id: audioContainer
+            width: parent.width
+            height: radioPage.height / 14
+            radius: height / 2
+            color: "#368e91"
+
+            Row {
+                id: audioContRow
+                anchors.centerIn: parent
+                spacing: audioContainer.width / 80
+
+                // Play/Pause
+                Rectangle {
+                    id: playBtn
+                    anchors.verticalCenter: parent.verticalCenter
+                    width:  audioContainer.width / 25
+                    height: audioContainer.height / 1.4
+                    radius: height / 10
+                    color:  playArea.containsMouse ? "#021418" : "#072a30"
+                    border.color: "#00e4ffff"; border.width: 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    opacity: radioPage.currentStation ? 1.0 : 0.4
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: radioPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
+                        color: "#ffffff"
+                        font.pixelSize: radioPlayer.playbackState === MediaPlayer.PlayingState
+                                        ? (parent.width + parent.height) / 5
+                                        : (parent.width + parent.height) / 4
+                        font.family: "Arial"; font.bold: true
+                    }
+                    MouseArea {
+                        id: playArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: if (radioPage.currentStation) togglePlayPause()
+                    }
+                }
+
+                // Stop
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width:  audioContainer.width / 25
+                    height: audioContainer.height / 1.4
+                    radius: height / 10
+                    color:  stopArea.containsMouse ? "#021418" : "#072a30"
+                    border.color: "#00e4ffff"; border.width: 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    opacity: radioPage.currentStation ? 1.0 : 0.4
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "⏹"
+                        color: "#ffffff"
+                        font.pixelSize: (parent.width + parent.height) / 5
+                        font.family: "Arial"
+                    }
+                    MouseArea {
+                        id: stopArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: { radioPlayer.stop(); radioPage.currentStation = null }
+                    }
+                }
+
+                Rectangle { height: 1; width: audioContainer.width / 100; color: "transparent" }
+
+                // Buffer progress bar
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: audioContainer.width / 1.9
+                    height: 4; radius: 2
+                    color: "#106372"
 
                     Rectangle {
-                        width: volumeSlider.visualPosition * parent.width
-                        height: parent.height
-                        radius: parent.radius
-                        gradient: Gradient {
-                            orientation: Gradient.Horizontal
-                            GradientStop { position: 0.0; color: '#37c596' }
-                            GradientStop { position: 1.0; color: '#15966b' }
+                        width: parent.width * radioPlayer.bufferProgress
+                        height: parent.height; radius: parent.radius
+                        color: "#002a31"
+                        Behavior on width { NumberAnimation { duration: 300 } }
+                    }
+                    Rectangle {
+                        id: statusDot
+                        x: (parent.width * radioPlayer.bufferProgress) - width / 2
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 10; height: 10; radius: 5
+                        color: "#1a1b1b"
+                        Behavior on x { NumberAnimation { duration: 300 } }
+                    }
+                }
+
+                Rectangle { height: 1; width: audioContainer.width / 60; color: "transparent" }
+
+                // Mute
+                Rectangle {
+                    id: volumeBtn
+                    property bool muted: false
+                    anchors.verticalCenter: parent.verticalCenter
+                    width:  audioContainer.width / 30
+                    height: audioContainer.height / 1.4
+                    radius: height / 10
+                    color:  muteArea.containsMouse ? "#021316" : "#042929"
+                    border.color: "#00e4ffff"; border.width: 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: volumeBtn.muted ? "🔇" : volumeSlider.value < 0.5 ? "🔉" : "🔊"
+                        font.pixelSize: (parent.width + parent.height) / 4
+                        font.family: "Arial"
+                    }
+                    MouseArea {
+                        id: muteArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            volumeBtn.muted = !volumeBtn.muted
+                            audioOut.muted  = volumeBtn.muted
+                        }
+                    }
+                }
+
+                // Volume slider
+                Slider {
+                    id: volumeSlider
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: audioContainer.width / 7
+                    from: 0; to: 1; value: 0.6
+                    onValueChanged: { audioOut.volume = value; volumeBtn.muted = false; audioOut.muted = false }
+
+                    background: Rectangle {
+                        x: volumeSlider.leftPadding
+                        y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
+                        width: volumeSlider.availableWidth; height: 6; radius: 3
+                        color: "#05262c"
+                        Rectangle {
+                            width: volumeSlider.visualPosition * parent.width
+                            height: parent.height; radius: parent.radius
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "#37c596" }
+                                GradientStop { position: 1.0; color: "#15966b" }
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
-    // ============================================ Back button ===============================================
-    Rectangle {
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.bottomMargin: radioPage.height / 15
-        anchors.leftMargin: radioPage.width / 25
-        width: backText.width + 40
-        height: backText.height + 18
-        radius: height / 1.5
-        color: backArea.containsMouse ? "#1a3a40" : '#204d55'
-        border.color: "#00ffaa44"
-        border.width: 1
-        Behavior on color { ColorAnimation { duration: 150 } }
+        // Back button
+        Rectangle {
+            width: backText.width + 40
+            height: backText.height + 18
+            radius: height / 3
+            color: backArea.containsMouse ? "#1a3a40" : "#204d55"
+            border.color: "#00ffaa44"; border.width: 1
+            Behavior on color { ColorAnimation { duration: 150 } }
 
-        Text {
-            id: backText
-            anchors.centerIn: parent
-            text: "Back"
-            color: '#e7f1ef'
-            font.pixelSize: radioPage.width / 60
-            font.family: "Arial"
-            font.bold: true
-        }
-
-        MouseArea {
-            id: backArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: {
-                radioPlayer.stop()
-                radioPage.stackView.pop()
+            Text {
+                id: backText
+                anchors.centerIn: parent
+                text: "Back"
+                color: "#e7f1ef"
+                font { pixelSize: radioPage.width / 50; family: "Arial"; bold: true }
+            }
+            MouseArea {
+                id: backArea
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: { radioPlayer.stop(); radioPage.stackView.pop() }
             }
         }
     }

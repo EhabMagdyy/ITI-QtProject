@@ -8,8 +8,22 @@
 │   └── WeatherAPI.qml
 ├── assets
 │   ├── icons
+│   │   ├── air.png
+│   │   ├── audio.png
+│   │   ├── auto.png
+│   │   ├── bt.png
+│   │   ├── cool.png
+│   │   ├── fan.png
+│   │   ├── heat.png
+│   │   ├── humidity.png
+│   │   ├── radio.png
+│   │   ├── video.png
+│   │   └── wifi.png
 │   ├── images
+│   │   ├── mercedes.png
+│   │   └── weatherbackground.jpg
 │   └── videos
+│       └── splash.mp4
 ├── Backend
 │   ├── BluetoothHWManager.cpp
 │   ├── BluetoothHWManager.hpp

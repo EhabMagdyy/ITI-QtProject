@@ -66,7 +66,7 @@ ApplicationWindow {
             id: fadeIn
             target: stackView
             from: 0; to: 1
-            duration: 400
+            duration: 200
             easing.type: Easing.InOutQuad
             running: false
         }
@@ -76,7 +76,7 @@ ApplicationWindow {
         id: slideUp
         target: stackView
         from: mainWindow.height * 0.05; to: 0
-        duration: 400
+        duration: 200
         easing.type: Easing.OutCubic
         running: false
     }

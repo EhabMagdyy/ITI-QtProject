@@ -321,7 +321,9 @@ Rectangle {
                     id: playArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: if (radioPage.currentStation) api.togglePlayPause()
+                    onClicked: if (radioPage.currentStation){
+                        radioPlayer.playbackState === MediaPlayer.PlayingState ? radioPlayer.pause() : radioPlayer.play()
+                    }
                 }
             }
 

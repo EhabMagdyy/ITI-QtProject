@@ -51,15 +51,15 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: wifiPage.width * 0.06
-        anchors.topMargin: wifiPage.height * 0.05
+        anchors.topMargin: wifiPage.height * 0.08
         anchors.bottomMargin: wifiPage.height * 0.05
         spacing: wifiPage.height * 0.02
 
         // Page Title
         Text {
             text: qsTr("Wi-Fi Settings")
-            font.pixelSize: wifiPage.width / 22
-            color: '#ffedea'
+            font.pixelSize: wifiPage.width / 28
+            color: '#ffffff'
             font.bold: true
             font.family: "Arial"
             anchors.horizontalCenter: parent.horizontalCenter
@@ -69,7 +69,7 @@ Rectangle {
         Rectangle {
             width: parent.width
             height: 1
-            color: '#ff6c55'
+            color: '#2674cc'
             opacity: 0.5
         }
 
@@ -79,10 +79,10 @@ Rectangle {
             height: wifiPage.height / 10
             radius: height / 4
             gradient: Gradient {
-                GradientStop { position: 0.0; color: '#2a0a08' }
-                GradientStop { position: 1.0; color: '#1a0504' }
+                GradientStop { position: 0.0; color: '#0d1f3c' }
+                GradientStop { position: 1.0; color: '#0a1628' }
             }
-            border.color: wifiSwitch.checked ? '#ff6c55' : '#5a2a25'
+            border.color: wifiSwitch.checked ? '#2674cc' : '#1a3a5c'
             border.width: 2
 
             Row {
@@ -97,14 +97,14 @@ Rectangle {
                     Text {
                         text: qsTr("Wi-Fi")
                         font.pixelSize: wifiPage.height * 0.025
-                        color: '#ffedea'
+                        color: '#ffffff'
                         font.bold: true
                         font.family: "Arial"
                     }
                     Text {
                         text: wifiSwitch.checked ? qsTr("ON") : qsTr("OFF")
                         font.pixelSize: wifiPage.height * 0.022
-                        color: wifiSwitch.checked ? '#ff8a7a' : '#7a4a45'
+                        color: wifiSwitch.checked ? '#36a9de' : '#8899bb'
                         font.family: "Arial"
                     }
                 }
@@ -125,10 +125,10 @@ Rectangle {
             radius: height / 4
             opacity: wifiSwitch.checked ? 1.0 : 0.4
             gradient: Gradient {
-                GradientStop { id: stop11; position: 0.0; color: '#ff8a7a' }
-                GradientStop { id: stop12; position: 1.0; color: '#e95441' }
+                GradientStop { id: stop11; position: 0.0; color: '#36a9de' }
+                GradientStop { id: stop12; position: 1.0; color: '#1e6ab8' }
             }
-            border.color: '#ffb3a9'
+            border.color: '#4a9de0'
             border.width: 1
 
             Row {
@@ -137,13 +137,13 @@ Rectangle {
                 Text {
                     text: "⟳"
                     font.pixelSize: parent.parent.height * 0.45
-                    color: '#fff5f3'
+                    color: '#ffffff'
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Text {
                     text: qsTr("Scan for Networks")
                     font.pixelSize: parent.parent.height * 0.38
-                    color: '#fff5f3'
+                    color: '#ffffff'
                     font.bold: true
                     font.family: "Arial"
                     anchors.verticalCenter: parent.verticalCenter
@@ -155,8 +155,8 @@ Rectangle {
                 anchors.fill: parent
                 enabled: wifiSwitch.checked
                 hoverEnabled: true
-                onEntered: { stop11.color = '#cc4433'; stop12.color = '#aa2211' }
-                onExited:  { stop11.color = '#ff8a7a'; stop12.color = '#e95441' }
+                onEntered: { stop11.color = '#2674cc'; stop12.color = '#155a9e' }
+                onExited:  { stop11.color = '#36a9de'; stop12.color = '#1e6ab8' }
                 onClicked:  WifiManager.scanNetworks()
             }
         }
@@ -165,7 +165,7 @@ Rectangle {
         Rectangle {
             width: parent.width
             height: 1
-            color: '#ff6c55'
+            color: '#2674cc'
             opacity: 0.3
         }
 
@@ -176,10 +176,10 @@ Rectangle {
             radius: wifiPage.height * 0.02
             opacity: wifiSwitch.checked ? 1.0 : 0.4
             gradient: Gradient {
-                GradientStop { position: 0.0; color: '#2a0a08' }
-                GradientStop { position: 1.0; color: '#1a0504' }
+                GradientStop { position: 0.0; color: '#0d1f3c' }
+                GradientStop { position: 1.0; color: '#0a1628' }
             }
-            border.color: '#5a2a25'
+            border.color: '#1a3a5c'
             border.width: 2
 
             Column {
@@ -193,7 +193,7 @@ Rectangle {
                 Text {
                     text: qsTr("Connect to Hidden Networks")
                     font.pixelSize: wifiPage.height * 0.03
-                    color: '#ffedea'
+                    color: '#ffffff'
                     font.bold: true
                     font.family: "Arial"
                 }
@@ -203,8 +203,8 @@ Rectangle {
                     width: parent.width
                     height: wifiPage.height / 13
                     radius: height / 4
-                    color: '#0d0302'
-                    border.color: ssidField.activeFocus ? '#ff6c55' : '#5a2a25'
+                    color: '#0a1628'
+                    border.color: ssidField.activeFocus ? '#2674cc' : '#1a3a5c'
                     border.width: ssidField.activeFocus ? 2 : 1
 
                     TextInput {
@@ -214,7 +214,7 @@ Rectangle {
                         anchors.rightMargin: parent.width * 0.05
                         verticalAlignment: TextInput.AlignVCenter
                         font.pixelSize: parent.height * 0.38
-                        color: '#ffedea'
+                        color: '#ffffff'
                         font.family: "Arial"
                         enabled: wifiSwitch.checked
                         clip: true
@@ -223,7 +223,7 @@ Rectangle {
                             verticalAlignment: Text.AlignVCenter
                             text: qsTr("Network Name (SSID)")
                             font.pixelSize: parent.height * 0.38
-                            color: '#7a4a45'
+                            color: '#8899bb'
                             font.family: "Arial"
                             visible: !ssidField.text && !ssidField.activeFocus
                         }
@@ -235,8 +235,8 @@ Rectangle {
                     width: parent.width
                     height: wifiPage.height / 13
                     radius: height / 4
-                    color: '#0d0302'
-                    border.color: passField.activeFocus ? '#ff6c55' : '#5a2a25'
+                    color: '#0a1628'
+                    border.color: passField.activeFocus ? '#2674cc' : '#1a3a5c'
                     border.width: passField.activeFocus ? 2 : 1
 
                     TextInput {
@@ -246,7 +246,7 @@ Rectangle {
                         anchors.rightMargin: parent.width * 0.05
                         verticalAlignment: TextInput.AlignVCenter
                         font.pixelSize: parent.height * 0.38
-                        color: '#ffedea'
+                        color: '#ffffff'
                         font.family: "Arial"
                         echoMode: TextInput.Password
                         enabled: wifiSwitch.checked
@@ -256,7 +256,7 @@ Rectangle {
                             verticalAlignment: Text.AlignVCenter
                             text: qsTr("Password")
                             font.pixelSize: parent.height * 0.38
-                            color: '#7a4a45'
+                            color: '#8899bb'
                             font.family: "Arial"
                             visible: !passField.text && !passField.activeFocus
                         }
@@ -278,17 +278,17 @@ Rectangle {
                     height: wifiPage.height / 12
                     radius: height / 4
                     gradient: Gradient {
-                        GradientStop { id: stop1; position: 0.0; color: connectArea.pressed ? '#cc4433' : '#ff6c55' }
-                        GradientStop { id: stop2; position: 1.0; color: connectArea.pressed ? '#aa2211' : '#c94030' }
+                        GradientStop { id: stop1; position: 0.0; color: connectArea.pressed ? '#155a9e' : '#2674cc' }
+                        GradientStop { id: stop2; position: 1.0; color: connectArea.pressed ? '#0d4a85' : '#1e6ab8' }
                     }
-                    border.color: '#ffb3a9'
+                    border.color: '#4a9de0'
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         text: qsTr("Connect")
                         font.pixelSize: parent.height * 0.38
-                        color: '#fff5f3'
+                        color: '#ffffff'
                         font.bold: true
                         font.family: "Arial"
                     }
@@ -298,8 +298,8 @@ Rectangle {
                         anchors.fill: parent
                         enabled: wifiSwitch.checked
                         hoverEnabled: true
-                        onEntered: { stop1.color = '#cc4433'; stop2.color = '#aa2211' }
-                        onExited:  { stop1.color = '#ff6c55'; stop2.color = '#c94030' }
+                        onEntered: { stop1.color = '#155a9e'; stop2.color = '#0d4a85' }
+                        onExited:  { stop1.color = '#2674cc'; stop2.color = '#1e6ab8' }
                         onClicked: {
                             if (ssidField.text !== "" && passField.text.length >= 8)
                                 WifiManager.connectToNetwork(ssidField.text, passField.text)
@@ -326,11 +326,11 @@ Rectangle {
 
         background: Rectangle {
             gradient: Gradient {
-                GradientStop { position: 0.0; color: '#1e0604' }
-                GradientStop { position: 1.0; color: '#120302' }
+                GradientStop { position: 0.0; color: '#0d1f3c' }
+                GradientStop { position: 1.0; color: '#0a1628' }
             }
             radius: 10
-            border.color: '#ff5f46'
+            border.color: '#2674cc'
             border.width: 2
         }
 
@@ -347,7 +347,7 @@ Rectangle {
                 Text {
                     text: qsTr("Available Networks")
                     font.pixelSize: scanResultsPopup.height * 0.05
-                    color: '#ffedea'
+                    color: '#ffffff'
                     font.bold: true
                     font.family: "Arial"
                     anchors.verticalCenter: parent.verticalCenter
@@ -359,7 +359,7 @@ Rectangle {
                     width: scanResultsPopup.height * 0.08
                     height: width
                     radius: width / 2
-                    color: closeBtnArea.containsMouse ? '#ff4422' : '#5a2a25'
+                    color: closeBtnArea.containsMouse ? '#ff4422' : '#1a3a5c'
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: 120 } }
 
@@ -367,7 +367,7 @@ Rectangle {
                         anchors.centerIn: parent
                         text: "✕"
                         font.pixelSize: parent.height * 0.5
-                        color: '#ffedea'
+                        color: '#ffffff'
                         font.family: "Arial"
                     }
                     MouseArea {
@@ -383,7 +383,7 @@ Rectangle {
             Rectangle {
                 width: parent.width
                 height: 1
-                color: '#ff5f46'
+                color: '#2674cc'
                 opacity: 0.5
             }
 
@@ -391,7 +391,7 @@ Rectangle {
             Text {
                 text: networkListModel.count + qsTr(" networks found")
                 font.pixelSize: scanResultsPopup.height * 0.032
-                color: '#ff8a7a'
+                color: '#36a9de'
                 font.family: "Arial"
             }
 
@@ -414,7 +414,7 @@ Rectangle {
                     contentItem: Rectangle {
                         implicitWidth: 4
                         radius: 2
-                        color: '#ff6c55'
+                        color: '#2674cc'
                         opacity: 0.8
                     }
                 }
@@ -424,7 +424,7 @@ Rectangle {
                     visible: networkListView.count === 0
                     text: qsTr("No networks found.\nTry scanning again.")
                     font.pixelSize: scanResultsPopup.height * 0.04
-                    color: '#7a4a45'
+                    color: '#8899bb'
                     font.family: "Arial"
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -433,8 +433,8 @@ Rectangle {
                     width: networkListView.width - 8
                     height: scanResultsPopup.height * 0.11
                     radius: height / 4
-                    color: rowHover.containsMouse ? '#3a1008' : '#200805'
-                    border.color: rowHover.containsMouse ? '#ff6c55' : '#3a1a15'
+                    color: rowHover.containsMouse ? '#132a4a' : '#0d1f3c'
+                    border.color: rowHover.containsMouse ? '#2674cc' : '#1a3a5c'
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -452,7 +452,7 @@ Rectangle {
                         Text {
                             text: "▲"
                             font.pixelSize: parent.parent.height * 0.4
-                            color: parent.parent.isConnected ? '#88ff88' : '#ff8a7a'
+                            color: parent.parent.isConnected ? '#36a9de' : '#36a9de'
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
@@ -460,7 +460,7 @@ Rectangle {
                         Text {
                             text: model.name
                             font.pixelSize: parent.parent.height * 0.4
-                            color: parent.parent.isConnected ? '#88ff88' : '#ffedea'
+                            color: parent.parent.isConnected ? '#36a9de' : '#ffffff'
                             font.bold: true
                             font.family: "Arial"
                             anchors.verticalCenter: parent.verticalCenter
@@ -482,8 +482,8 @@ Rectangle {
                             // Green = connected, Red = not connected
                             color: {
                                 if (parent.parent.isConnected)
-                                    return selectArea.containsMouse ? '#115511' : '#227722'
-                                return selectArea.containsMouse ? '#aa2211' : '#ff6c55'
+                                    return selectArea.containsMouse ? '#1a5a99' : '#2674cc'
+                                return selectArea.containsMouse ? '#1a5a99' : '#2674cc'
                             }
                             Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -493,7 +493,7 @@ Rectangle {
                                 text: parent.parent.parent.isConnected
                                       ? qsTr("Connected") : qsTr("Connect")
                                 font.pixelSize: parent.height * 0.36
-                                color: '#fff5f3'
+                                color: '#ffffff'
                                 font.bold: true
                                 font.family: "Arial"
                             }
@@ -542,11 +542,11 @@ Rectangle {
 
         background: Rectangle {
             gradient: Gradient {
-                GradientStop { position: 0.0; color: '#1e0604' }
-                GradientStop { position: 1.0; color: '#120302' }
+                GradientStop { position: 0.0; color: '#0d1f3c' }
+                GradientStop { position: 1.0; color: '#0a1628' }
             }
             radius: 10
-            border.color: '#ff5f46'
+            border.color: '#2674cc'
             border.width: 2
         }
 
@@ -558,7 +558,7 @@ Rectangle {
             Text {
                 id: passwordPopupSsid
                 font.pixelSize: wifiPage.height * 0.028
-                color: '#ff8a7a'
+                color: '#36a9de'
                 font.bold: true
                 font.family: "Arial"
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -567,7 +567,7 @@ Rectangle {
             Text {
                 text: qsTr("Enter password to connect")
                 font.pixelSize: wifiPage.height * 0.022
-                color: '#ffedea'
+                color: '#ffffff'
                 font.family: "Arial"
                 anchors.horizontalCenter: parent.horizontalCenter
             }
@@ -576,8 +576,8 @@ Rectangle {
                 width: parent.width
                 height: wifiPage.height / 13
                 radius: height / 4
-                color: '#0d0302'
-                border.color: popupPassField.activeFocus ? '#ff6c55' : '#5a2a25'
+                color: '#0a1628'
+                border.color: popupPassField.activeFocus ? '#2674cc' : '#1a3a5c'
                 border.width: popupPassField.activeFocus ? 2 : 1
 
                 TextInput {
@@ -587,7 +587,7 @@ Rectangle {
                     anchors.rightMargin: parent.width * 0.05
                     verticalAlignment: TextInput.AlignVCenter
                     font.pixelSize: parent.height * 0.38
-                    color: '#ffedea'
+                    color: '#ffffff'
                     font.family: "Arial"
                     echoMode: TextInput.Password
                     clip: true
@@ -596,7 +596,7 @@ Rectangle {
                         verticalAlignment: Text.AlignVCenter
                         text: qsTr("Password")
                         font.pixelSize: parent.height * 0.38
-                        color: '#7a4a45'
+                        color: '#8899bb'
                         font.family: "Arial"
                         visible: !popupPassField.text && !popupPassField.activeFocus
                     }
@@ -619,14 +619,14 @@ Rectangle {
                 width: parent.width
                 height: wifiPage.height / 12
                 radius: height / 4
-                color: popupConnectArea.containsMouse ? '#cc4433' : '#ff6c55'
+                color: popupConnectArea.containsMouse ? '#155a9e' : '#2674cc'
                 Behavior on color { ColorAnimation { duration: 100 } }
 
                 Text {
                     anchors.centerIn: parent
                     text: qsTr("Connect")
                     font.pixelSize: parent.height * 0.38
-                    color: '#fff5f3'
+                    color: '#ffffff'
                     font.bold: true
                     font.family: "Arial"
                 }
@@ -658,8 +658,8 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: parent.height * 0.05
         radius: height / 2
-        color: statusToast.isError ? '#3d0a00' : '#0a2e0a'
-        border.color: statusToast.isError ? '#ff4422' : '#44bb44'
+        color: statusToast.isError ? '#3d0a00' : '#0a1f3a'
+        border.color: statusToast.isError ? '#ff4422' : '#2674cc'
         border.width: 1
         opacity: 0
         visible: opacity > 0
@@ -671,7 +671,7 @@ Rectangle {
             id: toastText
             anchors.centerIn: parent
             font.pixelSize: parent.height * 0.3
-            color: statusToast.isError ? '#ff8a7a' : '#88ff88'
+            color: statusToast.isError ? '#ff8a7a' : '#36a9de'
             font.family: "Arial"
             font.bold: true
         }
@@ -693,19 +693,19 @@ Rectangle {
     Rectangle {
         width: parent.width / 6.5
         height: parent.height / 15
-        color: '#fffaf8'
+        color: '#ffffff'
         radius: height / 4
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.bottomMargin: parent.height * 0.05
         anchors.leftMargin: parent.width * 0.05
-        border.color: '#f3614e'
+        border.color: '#2674cc'
         border.width: 2
 
         Text {
             text: qsTr("Back")
             font.pixelSize: height * 0.8
-            color: '#8a1000'
+            color: '#0d1f3c'
             font.bold: true
             font.family: "Arial"
             anchors.centerIn: parent
@@ -714,8 +714,8 @@ Rectangle {
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
-            onEntered: parent.color = '#ffd4ce'
-            onExited:  parent.color = '#fffaf8'
+            onEntered: parent.color = '#d6e6f5'
+            onExited:  parent.color = '#ffffff'
             onClicked: wifiPage.stackView.pop()
         }
     }

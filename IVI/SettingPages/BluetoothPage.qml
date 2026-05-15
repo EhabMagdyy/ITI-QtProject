@@ -10,7 +10,7 @@ Rectangle{
     property bool updatingFromBackend: false
 
     property string connectingAddress:    ""
-    property string disconnectingAddress: ""        // ← track disconnect in progress
+    property string disconnectingAddress: ""
     property var    connectedAddresses:   []
 
     Connections{
@@ -86,14 +86,14 @@ Rectangle{
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: btPage.width * 0.06
-        anchors.topMargin: btPage.height * 0.05
+        anchors.topMargin: btPage.height * 0.08
         anchors.bottomMargin: btPage.height * 0.05
         spacing: btPage.height * 0.02
 
         Text{
             text: qsTr("Bluetooth Settings")
-            font.pixelSize: btPage.width / 22
-            color: '#ffedea'
+            font.pixelSize: btPage.width / 28
+            color: '#ffffff'
             font.bold: true
             font.family: "Arial"
             anchors.horizontalCenter: parent.horizontalCenter
@@ -102,7 +102,7 @@ Rectangle{
         Rectangle{
             width: parent.width
             height: 1
-            color: '#ff6c55'
+            color: '#2674cc'
             opacity: 0.5
         }
 
@@ -112,10 +112,10 @@ Rectangle{
             height: btPage.height / 10
             radius: height / 4
             gradient: Gradient{
-                GradientStop{ position: 0.0; color: '#2a0a08' }
-                GradientStop{ position: 1.0; color: '#1a0504' }
+                GradientStop{ position: 0.0; color: '#0d1f3c' }
+                GradientStop{ position: 1.0; color: '#0a1628' }
             }
-            border.color: btSwitch.checked ? '#ff6c55' : '#5a2a25'
+            border.color: btSwitch.checked ? '#2674cc' : '#1a3a5c'
             border.width: 2
 
             Row{
@@ -130,14 +130,14 @@ Rectangle{
                     Text{
                         text: qsTr("Bluetooth")
                         font.pixelSize: btPage.height * 0.025
-                        color: '#ffedea'
+                        color: '#ffffff'
                         font.bold: true
                         font.family: "Arial"
                     }
                     Text{
                         text: btSwitch.checked ? qsTr("ON") : qsTr("OFF")
                         font.pixelSize: btPage.height * 0.022
-                        color: btSwitch.checked ? '#ff8a7a' : '#7a4a45'
+                        color: btSwitch.checked ? '#36a9de' : '#8899bb'
                         font.family: "Arial"
                     }
                 }
@@ -173,10 +173,10 @@ Rectangle{
             radius: height / 4
             opacity: btSwitch.checked ? 1.0 : 0.4
             gradient: Gradient{
-                GradientStop{ id: stop11; position: 0.0; color: '#ff8a7a' }
-                GradientStop{ id: stop12; position: 1.0; color: '#e95441' }
+                GradientStop{ id: stop11; position: 0.0; color: '#36a9de' }
+                GradientStop{ id: stop12; position: 1.0; color: '#1e6ab8' }
             }
-            border.color: '#ffb3a9'
+            border.color: '#4a9de0'
             border.width: 1
 
             Row{
@@ -185,13 +185,13 @@ Rectangle{
                 Text{
                     text: "⟳"
                     font.pixelSize: parent.parent.height * 0.45
-                    color: '#fff5f3'
+                    color: '#ffffff'
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Text{
                     text: qsTr("Scan for Devices")
                     font.pixelSize: parent.parent.height * 0.38
-                    color: '#fff5f3'
+                    color: '#ffffff'
                     font.bold: true
                     font.family: "Arial"
                     anchors.verticalCenter: parent.verticalCenter
@@ -203,8 +203,8 @@ Rectangle{
                 anchors.fill: parent
                 enabled: btSwitch.checked
                 hoverEnabled: true
-                onEntered:{ stop11.color = '#cc4433'; stop12.color = '#aa2211' }
-                onExited: { stop11.color = '#ff8a7a'; stop12.color = '#e95441' }
+                onEntered:{ stop11.color = '#2674cc'; stop12.color = '#155a9e' }
+                onExited: { stop11.color = '#36a9de'; stop12.color = '#1e6ab8' }
                 onClicked:  BluetoothManager.scanDevices()
             }
         }
@@ -212,7 +212,7 @@ Rectangle{
         Rectangle{
             width: parent.width
             height: 1
-            color: '#ff6c55'
+            color: '#2674cc'
             opacity: 0.3
         }
 
@@ -226,10 +226,10 @@ Rectangle{
             opacity: btSwitch.checked ? 1.0 : 0.4
             clip: true
             gradient: Gradient{
-                GradientStop{ position: 0.0; color: '#2a0a08' }
-                GradientStop{ position: 1.0; color: '#1a0504' }
+                GradientStop{ position: 0.0; color: '#0d1f3c' }
+                GradientStop{ position: 1.0; color: '#0a1628' }
             }
-            border.color: '#5a2a25'
+            border.color: '#1a3a5c'
             border.width: 2
 
             Behavior on height{ NumberAnimation{ duration: 200; easing.type: Easing.OutCubic } }
@@ -239,7 +239,7 @@ Rectangle{
                 visible: deviceListModel.count === 0
                 text: qsTr("No devices found.\nTap Scan to search.")
                 font.pixelSize: btPage.height * 0.022
-                color: '#7a4a45'
+                color: '#8899bb'
                 font.family: "Arial"
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -262,7 +262,7 @@ Rectangle{
                     contentItem: Rectangle{
                         implicitWidth: 4
                         radius: 2
-                        color: '#ff6c55'
+                        color: '#2674cc'
                         opacity: 0.8
                     }
                 }
@@ -271,8 +271,8 @@ Rectangle{
                     width: deviceListView.width - 6
                     height: btPage.height * 0.11
                     radius: height / 4
-                    color: rowHover.containsMouse ? '#3a1008' : '#200805'
-                    border.color: rowHover.containsMouse ? '#ff6c55' : '#3a1a15'
+                    color: rowHover.containsMouse ? '#132a4a' : '#0d1f3c'
+                    border.color: rowHover.containsMouse ? '#2674cc' : '#1a3a5c'
                     border.width: 1
                     Behavior on color{ ColorAnimation{ duration: 100 } }
                     Behavior on border.color{ ColorAnimation{ duration: 100 } }
@@ -290,7 +290,7 @@ Rectangle{
                         Text{
                             text: "⬡"
                             font.pixelSize: parent.parent.height * 0.38
-                            color: parent.parent.isConnected ? '#88ff88' : '#ff8a7a'
+                            color: parent.parent.isConnected ? '#36a9de' : '#36a9de'
                             anchors.verticalCenter: parent.verticalCenter
                             Behavior on color { ColorAnimation { duration: 200 } }
                         }
@@ -306,7 +306,7 @@ Rectangle{
                             Text{
                                 text: model.name
                                 font.pixelSize: btPage.height * 0.022
-                                color: '#ffedea'
+                                color: '#ffffff'
                                 font.bold: true
                                 font.family: "Arial"
                                 elide: Text.ElideRight
@@ -315,7 +315,7 @@ Rectangle{
                             Text{
                                 text: model.address
                                 font.pixelSize: btPage.height * 0.016
-                                color: '#7a4a45'
+                                color: '#8899bb'
                                 font.family: "Arial"
                                 elide: Text.ElideRight
                                 width: parent.width
@@ -331,11 +331,11 @@ Rectangle{
                             anchors.verticalCenter: parent.verticalCenter
 
                             color: {
-                                if (parent.parent.isDisconnecting) return '#664400'
+                                if (parent.parent.isDisconnecting) return '#1a3a5c'
                                 if (parent.parent.isConnected)
-                                    return connectBtnArea.containsMouse ? '#115511' : '#227722'
-                                if (parent.parent.isConnecting)     return '#885500'
-                                return connectBtnArea.containsMouse ? '#aa2211' : '#ff6c55'
+                                    return connectBtnArea.containsMouse ? '#1a5a99' : '#2674cc'
+                                if (parent.parent.isConnecting)     return '#1a4a7a'
+                                return connectBtnArea.containsMouse ? '#1a5a99' : '#2674cc'
                             }
                             Behavior on color{ ColorAnimation{ duration: 200 } }
 
@@ -348,7 +348,7 @@ Rectangle{
                                     return qsTr("Connect")
                                 }
                                 font.pixelSize: parent.height * 0.30
-                                color: '#fff5f3'
+                                color: '#ffffff'
                                 font.bold: true
                                 font.family: "Arial"
                             }
@@ -398,8 +398,8 @@ Rectangle{
         anchors.bottom: parent.bottom
         anchors.bottomMargin: parent.height * 0.05
         radius: height / 2
-        color: statusToast.isError ? '#3d0a00' : '#0a2e0a'
-        border.color: statusToast.isError ? '#ff4422' : '#44bb44'
+        color: statusToast.isError ? '#3d0a00' : '#0a1f3a'
+        border.color: statusToast.isError ? '#ff4422' : '#2674cc'
         border.width: 1
         opacity: 0
         visible: opacity > 0
@@ -411,7 +411,7 @@ Rectangle{
             id: toastText
             anchors.centerIn: parent
             font.pixelSize: parent.height * 0.28
-            color: statusToast.isError ? '#ff8a7a' : '#88ff88'
+            color: statusToast.isError ? '#ff8a7a' : '#36a9de'
             font.family: "Arial"
             font.bold: true
         }
@@ -433,19 +433,19 @@ Rectangle{
     Rectangle{
         width: parent.width / 6.5
         height: parent.height / 15
-        color: '#fffaf8'
+        color: '#ffffff'
         radius: height / 4
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.bottomMargin: parent.height * 0.05
         anchors.leftMargin: parent.width * 0.05
-        border.color: '#f3614e'
+        border.color: '#2674cc'
         border.width: 2
 
         Text{
             text: qsTr("Back")
             font.pixelSize: height * 0.8
-            color: '#8a1000'
+            color: '#0d1f3c'
             font.bold: true
             font.family: "Arial"
             anchors.centerIn: parent
@@ -454,8 +454,8 @@ Rectangle{
         MouseArea{
             anchors.fill: parent
             hoverEnabled: true
-            onEntered: parent.color = '#ffd4ce'
-            onExited:  parent.color = '#fffaf8'
+            onEntered: parent.color = '#d6e6f5'
+            onExited:  parent.color = '#ffffff'
             onClicked: btPage.stackView.pop()
         }
     }

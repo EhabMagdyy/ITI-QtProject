@@ -15,18 +15,35 @@ Item {
         titleName: "Settings"
         showBackButton: true
         onBackRequested: root.goBack()
-        color0: '#530800'
-        color1: '#3f1900'
-        color2: '#532400'
+        color0: '#01012e'
+        color1: '#011129'
+        color2: '#011a27'
     }
 
     Rectangle {
         id: background
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: '#530000' }
-            GradientStop { position: 0.5; color: '#ff3c00' }
-            GradientStop { position: 1.0; color: '#ff8615' }
+            GradientStop { position: 0.0; color: "#0a1628" }
+            GradientStop { position: 0.5; color: "#0d1f3c" }
+            GradientStop { position: 1.0; color: "#0a1628" }
+        }
+
+        Canvas {
+            anchors.fill: parent
+            opacity: 0.1
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.fillStyle = "#ffffff"
+                var step = 40
+                for (var x = 0; x < width; x += step) {
+                    for (var y = 0; y < height; y += step) {
+                        ctx.beginPath()
+                        ctx.arc(x, y, 1.5, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+            }
         }
 
         StackView{
@@ -45,7 +62,7 @@ Item {
                         id: subtitle
                         text: qsTr("Manage your Wi-Fi & Bluetooth connections with ease")
                         font.pixelSize: root.fontSize * 0.8
-                        color: '#ffd0be'
+                        color: '#69a7e5'
                         font.italic: true
                         font.family: "Arial"
                         verticalAlignment: Text.AlignBottom
@@ -57,7 +74,7 @@ Item {
                         width: subtitle.width * 1.2
                         height: 1
                         anchors.horizontalCenter: parent.horizontalCenter
-                        color: '#ff6c55'
+                        color: '#75b2ee'
                         opacity: 0.5
                     }
 

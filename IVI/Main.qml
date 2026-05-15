@@ -14,27 +14,27 @@ ApplicationWindow {
     property bool splashDone: false
 
     // Splash screen
-    Item{
-        id: splashScreen
-        anchors.fill: parent
-        visible: !mainWindow.splashDone
-        z: 10
+    // Item{
+    //     id: splashScreen
+    //     anchors.fill: parent
+    //     visible: !mainWindow.splashDone
+    //     z: 10
 
-        Video{
-            id: splashVideo
-            anchors.fill: parent
-            source: "qrc:/assets/videos/splash.mp4"
-            autoPlay: true
-            loops: MediaPlayer.Once
-            fillMode: VideoOutput.PreserveAspectCrop
+    //     Video{
+    //         id: splashVideo
+    //         anchors.fill: parent
+    //         source: "qrc:/assets/videos/splash.mp4"
+    //         autoPlay: true
+    //         loops: MediaPlayer.Once
+    //         fillMode: VideoOutput.PreserveAspectCrop
 
-            onPlaybackStateChanged:{
-                if(playbackState === MediaPlayer.StoppedState){
-                    mainWindow.splashDone = true
-                }
-            }
-        }
-    }
+    //         onPlaybackStateChanged:{
+    //             if(playbackState === MediaPlayer.StoppedState){
+    //                 mainWindow.splashDone = true
+    //             }
+    //         }
+    //     }
+    // }
 
     WindowBar {
         id: titleBar
@@ -60,16 +60,16 @@ ApplicationWindow {
         anchors.fill: parent
         initialItem: launcherPage
 
-        opacity: 0 
-        // Fade in when splash finishes
-        OpacityAnimator {
-            id: fadeIn
-            target: stackView
-            from: 0; to: 1
-            duration: 200
-            easing.type: Easing.InOutQuad
-            running: false
-        }
+        // opacity: 0 
+        // // Fade in when splash finishes
+        // OpacityAnimator {
+        //     id: fadeIn
+        //     target: stackView
+        //     from: 0; to: 1
+        //     duration: 200
+        //     easing.type: Easing.InOutQuad
+        //     running: false
+        // }
     }
 
     YAnimator {

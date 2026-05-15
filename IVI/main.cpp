@@ -5,6 +5,7 @@
 #include "Backend/USBManager.hpp"
 #include "Backend/WifiManager.hpp"
 #include "Backend/BluetoothHWManager.hpp"
+#include "Backend/SystemVolumeController.hpp"
 
 int main(int argc, char *argv[]){
     QGuiApplication app(argc, argv);
@@ -28,6 +29,9 @@ int main(int argc, char *argv[]){
     BluetoothHWManager bluetoothManager;
     engine.rootContext()->setContextProperty("WifiManager", &wifiManager);
     engine.rootContext()->setContextProperty("BluetoothManager", &bluetoothManager);
+
+    // System Volume Controller
+    qmlRegisterType<SystemVolumeController>("IVI.Volume", 1, 0, "SystemVolumeController");
 
     engine.loadFromModule("IVI", "Main");
 

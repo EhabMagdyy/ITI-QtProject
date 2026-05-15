@@ -704,7 +704,7 @@ Rectangle {
 
         Text {
             text: qsTr("Back")
-            font.pixelSize: height * 0.8
+            font.pixelSize: parent.height * 0.6
             color: '#0d1f3c'
             font.bold: true
             font.family: "Arial"

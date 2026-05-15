@@ -14,5 +14,6 @@
         <file>assets/icons/wifi.png</file>
         <file>assets/icons/bt.png</file>
         <file>assets/videos/splash.mp4</file>
+        <file>assets/icons/volume.png</file>
     </qresource>
 </RCC>

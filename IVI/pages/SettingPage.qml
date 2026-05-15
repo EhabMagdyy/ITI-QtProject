@@ -1,12 +1,16 @@
 import QtQuick
 import QtQuick.Controls
+import IVI.Volume 1.0
 pragma ComponentBehavior: Bound
 
 Item {
     id: root
     signal goBack()
-
     property real fontSize: (width + height) / 60
+
+    SystemVolumeController {
+        id: systemVolume
+    }
 
     WindowBar {
         id: titleBar
@@ -60,7 +64,7 @@ Item {
                     padding: parent.height * 0.08
                     Text {
                         id: subtitle
-                        text: qsTr("Manage your Wi-Fi & Bluetooth connections with ease")
+                        text: qsTr("Control your connectivity and sound settings")
                         font.pixelSize: root.fontSize * 0.8
                         color: '#69a7e5'
                         font.italic: true
@@ -86,11 +90,11 @@ Item {
 
                     Row {
                         id: cardRow
-                        spacing: root.width / 15
+                        spacing: root.width / 20
                         anchors.horizontalCenter: parent.horizontalCenter
-                        
+
                         NetworkCard{
-                            cardWidth: root.width / 4
+                            cardWidth: root.width / 5
                             cardHeight: root.height / 2.5
                             cardColSpacing: cardHeight / 10
                             first: '#ffa845'
@@ -120,9 +124,9 @@ Item {
                                 third = '#ff4545'
                             }
                         }
-                        
+
                         NetworkCard{
-                            cardWidth: root.width / 4
+                            cardWidth: root.width / 5
                             cardHeight: root.height / 2.5
                             cardColSpacing: cardHeight / 10
                             first: '#ffa845'
@@ -150,6 +154,146 @@ Item {
                                 first = '#ffa845'
                                 second = '#ff7654'
                                 third = '#ff4545'
+                            }
+                        }
+
+                        // VOLUME CARD
+                        Rectangle {
+                            id: volumeCard
+                            width: root.width / 5
+                            height: root.height / 2.5
+                            radius: cardRow.spacing / 3
+                            opacity: 0.8
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: '#ffa845' }
+                                GradientStop { position: 0.5; color: '#ff7654' }
+                                GradientStop { position: 1.0; color: '#ff4545' }
+                            }
+                            border.color: '#ffac7c'
+                            border.width: 3
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: parent.height / 40
+
+                                Image {
+                                    source: "qrc:/assets/icons/volume.png"
+                                    width: parent.parent.width / 2.5
+                                    height: parent.parent.height / 2.5
+                                    fillMode: Image.PreserveAspectFit
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Rectangle {
+                                    width: 1
+                                    height: 1
+                                    color: "transparent"
+                                }
+
+                                Row {
+                                    width: parent.width
+                                    spacing: parent.width / 3.5
+                                    anchors.left: volumeSlider.left
+                                    anchors.right: volumeSlider.right
+
+                                    Text {
+                                        text: "Volume"
+                                        font.pixelSize: root.fontSize * 0.7
+                                        font.bold: true
+                                        font.family: "Arial"
+                                        color: '#252525'
+                                        anchors.verticalCenter: volumeSlider.verticalCenter
+                                    }
+
+                                    // Volume value display
+                                    Text {
+                                        text: systemVolume.volume + "%"
+                                        font.pixelSize: root.fontSize * 0.7
+                                        font.family: "Arial"
+                                        font.bold: true
+                                        color: '#252525'
+                                        anchors.verticalCenter: volumeSlider.verticalCenter
+                                    }
+                                }
+
+                                // Volume Slider
+                                Slider {
+                                    id: volumeSlider
+                                    width: parent.parent.width * 0.7
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    from: 0
+                                    to: 100
+                                    stepSize: 1
+                                    live: true
+                                    value: systemVolume.volume
+                                    
+                                    onValueChanged: {
+                                        if(pressed && systemVolume.volume !== value) {
+                                            systemVolume.volume = value
+                                        }
+                                    }
+
+                                    background: Rectangle {
+                                        x: volumeSlider.leftPadding
+                                        y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
+                                        implicitWidth: 200
+                                        implicitHeight: 6
+                                        width: volumeSlider.availableWidth
+                                        height: implicitHeight
+                                        radius: height / 2
+                                        color: '#252525'
+                                        opacity: 0.3
+
+                                        Rectangle {
+                                            width: volumeSlider.visualPosition * parent.width
+                                            height: parent.height
+                                            color: '#252525'
+                                            radius: height / 2
+                                        }
+                                    }
+
+                                    handle: Rectangle {
+                                        x: volumeSlider.leftPadding + volumeSlider.visualPosition * (volumeSlider.availableWidth - width)
+                                        y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
+                                        implicitWidth: 20
+                                        implicitHeight: 20
+                                        radius: 10
+                                        color: volumeSlider.pressed ? '#ffffff' : '#252525'
+                                        border.color: '#ffffff'
+                                        border.width: 2
+                                    }
+                                }
+
+                                Rectangle {
+                                    width: 1
+                                    height: 1
+                                    color: "transparent"
+                                }
+
+                                // Mute Button
+                                Rectangle {
+                                    width: parent.parent.width * 0.4
+                                    height: parent.parent.height * 0.12
+                                    radius: height / 3
+                                    color: muteArea.containsMouse ? Qt.lighter('#252525', 1.3) : '#252525'
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: systemVolume.muted ? qsTr("Unmute") : qsTr("Mute")
+                                        font.pixelSize: root.fontSize * 0.6
+                                        font.family: "Arial"
+                                        color: '#ffffff'
+                                        font.bold: true
+                                    }
+
+                                    MouseArea {
+                                        id: muteArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        onClicked: systemVolume.toggleMute()
+                                    }
+                                }
                             }
                         }
                     }

@@ -14,27 +14,27 @@ ApplicationWindow {
     property bool splashDone: false
 
     // Splash screen
-    // Item{
-    //     id: splashScreen
-    //     anchors.fill: parent
-    //     visible: !mainWindow.splashDone
-    //     z: 10
+    Item{
+        id: splashScreen
+        anchors.fill: parent
+        visible: !mainWindow.splashDone
+        z: 10
 
-    //     Video{
-    //         id: splashVideo
-    //         anchors.fill: parent
-    //         source: "qrc:/assets/videos/splash.mp4"
-    //         autoPlay: true
-    //         loops: MediaPlayer.Once
-    //         fillMode: VideoOutput.PreserveAspectCrop
+        Video{
+            id: splashVideo
+            anchors.fill: parent
+            source: "qrc:/assets/videos/splash.mp4"
+            autoPlay: true
+            loops: MediaPlayer.Once
+            fillMode: VideoOutput.PreserveAspectCrop
 
-    //         onPlaybackStateChanged:{
-    //             if(playbackState === MediaPlayer.StoppedState){
-    //                 mainWindow.splashDone = true
-    //             }
-    //         }
-    //     }
-    // }
+            onPlaybackStateChanged:{
+                if(playbackState === MediaPlayer.StoppedState){
+                    mainWindow.splashDone = true
+                }
+            }
+        }
+    }
 
     WindowBar {
         id: titleBar
@@ -59,33 +59,6 @@ ApplicationWindow {
         id: stackView
         anchors.fill: parent
         initialItem: launcherPage
-
-        // opacity: 0 
-        // // Fade in when splash finishes
-        // OpacityAnimator {
-        //     id: fadeIn
-        //     target: stackView
-        //     from: 0; to: 1
-        //     duration: 200
-        //     easing.type: Easing.InOutQuad
-        //     running: false
-        // }
-    }
-
-    YAnimator {
-        id: slideUp
-        target: stackView
-        from: mainWindow.height * 0.05; to: 0
-        duration: 200
-        easing.type: Easing.OutCubic
-        running: false
-    }
-
-    onSplashDoneChanged: {
-        if(splashDone) {
-            fadeIn.start()
-            slideUp.start()
-        }
     }
 
     Component {
@@ -186,9 +159,9 @@ ApplicationWindow {
                     topMargin: launcherItem.height * 0.1
                     horizontalCenter: parent.horizontalCenter
                 }
-                width: launcherItem.width  * 0.2
+                width: launcherItem.width  * 0.18
                 height: launcherItem.height * 0.16
-                radius: height * 0.25
+                radius: height * 0.15
                 color: "#0d1f3c"
                 border.color: '#2674cc'
                 border.width: 1

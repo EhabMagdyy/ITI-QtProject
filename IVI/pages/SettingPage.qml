@@ -57,36 +57,10 @@ Item {
 
             Component {
                 id: mainPageComponent
-                Column{
+                Item{
                     id: app
-                    spacing: parent.height / 48
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    padding: parent.height * 0.08
-                    Text {
-                        id: subtitle
-                        text: qsTr("Control your connectivity and sound settings")
-                        font.pixelSize: root.fontSize * 0.8
-                        color: '#69a7e5'
-                        font.italic: true
-                        font.family: "Arial"
-                        verticalAlignment: Text.AlignBottom
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    // Divider
-                    Rectangle {
-                        width: subtitle.width * 1.2
-                        height: 1
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        color: '#75b2ee'
-                        opacity: 0.5
-                    }
-
-                    Rectangle {
-                        height: root.height / 10
-                        width: 1
-                        color: "transparent"
-                    }
+                    anchors.top: parent.top
+                    anchors.topMargin: parent.height * 0.3
 
                     Row {
                         id: cardRow
@@ -97,11 +71,11 @@ Item {
                             cardWidth: root.width / 5
                             cardHeight: root.height / 2.5
                             cardColSpacing: cardHeight / 10
-                            first: '#ffa845'
-                            second: '#ff7654'
-                            third: '#ff4545'
+                            first: '#45beff'
+                            second: '#38acea'
+                            third: '#2081b5'
                             cardRadius: cardRow.spacing / 3
-                            cardBorderColor: '#ffac7c'
+                            cardBorderColor: '#216698'
                             cardBorderWidth: 3
                             cardOpacity: 0.8
                             cardText: qsTr("Wi-Fi")
@@ -119,9 +93,9 @@ Item {
                                 third = Qt.lighter(third, 1.2)
                             }
                             onCardExited: {
-                                first = '#ffa845'
-                                second = '#ff7654'
-                                third = '#ff4545'
+                                first = '#45beff'
+                                second = '#38acea'
+                                third = '#2081b5'
                             }
                         }
 
@@ -129,11 +103,11 @@ Item {
                             cardWidth: root.width / 5
                             cardHeight: root.height / 2.5
                             cardColSpacing: cardHeight / 10
-                            first: '#ffa845'
-                            second: '#ff7654'
-                            third: '#ff4545'
+                            first: '#45beff'
+                            second: '#38acea'
+                            third: '#2081b5'
                             cardRadius: cardRow.spacing / 3
-                            cardBorderColor: '#ffac7c'
+                            cardBorderColor: '#216698'
                             cardBorderWidth: 3
                             cardOpacity: 0.8
                             cardText: qsTr("Bluetooth")
@@ -151,9 +125,9 @@ Item {
                                 third = Qt.lighter(third, 1.2)
                             }
                             onCardExited: {
-                                first = '#ffa845'
-                                second = '#ff7654'
-                                third = '#ff4545'
+                                first = '#45beff'
+                                second = '#38acea'
+                                third = '#2081b5'
                             }
                         }
 
@@ -165,11 +139,11 @@ Item {
                             radius: cardRow.spacing / 3
                             opacity: 0.8
                             gradient: Gradient {
-                                GradientStop { position: 0.0; color: '#ffa845' }
-                                GradientStop { position: 0.5; color: '#ff7654' }
-                                GradientStop { position: 1.0; color: '#ff4545' }
+                                GradientStop { position: 0.0; color: '#45beff' }
+                                GradientStop { position: 0.5; color: '#38acea' }
+                                GradientStop { position: 1.0; color: '#2081b5' }
                             }
-                            border.color: '#ffac7c'
+                            border.color: '#216698'
                             border.width: 3
 
                             Column {

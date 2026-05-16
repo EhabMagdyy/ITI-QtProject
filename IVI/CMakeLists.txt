@@ -5,7 +5,7 @@ project(IVI VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Quick DBus Concurrent)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Quick DBus Concurrent Multimedia)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PULSE REQUIRED libpulse)
 
@@ -18,9 +18,10 @@ qt_add_executable(appIVI
     Backend/BluetoothHWManager.cpp
     Backend/WifiManager.cpp
     Backend/SystemVolumeController.cpp
+    Backend/SpeechManager.cpp
 )
 
-target_include_directories(appIVI PRIVATE ${PULSE_INCLUDE_DIRS})
+target_include_directories(appIVI PRIVATE ${PULSE_INCLUDE_DIRS} /usr/local/include)
 
 qt_add_qml_module(appIVI
     URI IVI
@@ -58,7 +59,9 @@ target_link_libraries(appIVI PRIVATE
     Qt6::Quick
     Qt6::DBus
     Qt6::Concurrent
+    Qt6::Multimedia
     ${PULSE_LIBRARIES}
+    vosk
 )
 
 include(GNUInstallDirs)

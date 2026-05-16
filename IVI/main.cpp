@@ -6,6 +6,7 @@
 #include "Backend/WifiManager.hpp"
 #include "Backend/BluetoothHWManager.hpp"
 #include "Backend/SystemVolumeController.hpp"
+#include "Backend/SpeechManager.hpp"
 
 int main(int argc, char *argv[]){
     QGuiApplication app(argc, argv);
@@ -32,6 +33,10 @@ int main(int argc, char *argv[]){
 
     // System Volume Controller
     qmlRegisterType<SystemVolumeController>("IVI.Volume", 1, 0, "SystemVolumeController");
+
+    // Speech Recognition Manager
+    SpeechManager speechManager;
+    engine.rootContext()->setContextProperty("speechManager", &speechManager);
 
     engine.loadFromModule("IVI", "Main");
 

@@ -238,6 +238,7 @@ ApplicationWindow {
 
             // Center: App cards
             Row {
+                id: appRow
                 anchors.top : weatherCard.bottom
                 anchors.topMargin: launcherItem.height * 0.1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -281,6 +282,71 @@ ApplicationWindow {
                     cardWidth:  launcherItem.width * 0.2
                     cardHeight: launcherItem.height * 0.35
                     onClicked: launcherItem.openSettings()
+                }
+            }
+
+            Rectangle {
+                id: micBar
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: appRow.bottom
+                anchors.topMargin: launcherItem.height * 0.06
+                width: launcherItem.width * 0.3
+                height: launcherItem.height * 0.1
+                radius: height / 2
+                color: "#0d1f3c"
+                border.color: '#2674cc'
+                border.width: 1
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: micBar.width * 0.03
+
+                    // Mic button
+                    Rectangle {
+                        id: micBtn
+                        width: micBar.height * 0.7
+                        height: micBar.height * 0.7
+                        radius: width / 2
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: speechManager && speechManager.listening ? "#ff4444" : "#2674cc"
+                        Behavior on color { ColorAnimation { duration: 150 } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: speechManager && speechManager.listening ? "🔴" : "🎤"
+                            font.pointSize: micBtn.height * 0.35
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onPressed:  if (speechManager) speechManager.startListening()
+                            onReleased: if (speechManager) speechManager.stopListening()
+                            onEntered:  micBtn.opacity = 0.8
+                            onExited:   micBtn.opacity = 1.0
+                        }
+                    }
+
+                    // Partial result / hint text
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: micBar.width * 0.75
+                        text: speechManager && speechManager.listening
+                            ? (speechManager.partialResult !== "" ? speechManager.partialResult : "Listening...")
+                            : "Hold to speak"
+                        color: speechManager && speechManager.listening ? "#ffffff" : "#8899bb"
+                        font { pointSize: micBar.height * 0.25; italic: !speechManager || !speechManager.listening; family: "Arial" }
+                        elide: Text.ElideRight
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                }
+
+                // Final result handler
+                Connections {
+                    target: speechManager
+                    function onResultReady(text) {
+                        console.log("Recognized:", text)
+                    }
                 }
             }
         }

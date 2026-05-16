@@ -18,10 +18,13 @@
 │   │   ├── humidity.png
 │   │   ├── radio.png
 │   │   ├── video.png
+│   │   ├── volume.png
 │   │   └── wifi.png
 │   ├── images
 │   │   ├── mercedes.png
 │   │   └── weatherbackground.jpg
+│   ├── models
+│   │   └── vosk
 │   └── videos
 │       └── splash.mp4
 ├── Backend
@@ -29,6 +32,10 @@
 │   ├── BluetoothHWManager.hpp
 │   ├── BluetoothManager.cpp
 │   ├── BluetoothManager.hpp
+│   ├── SpeechManager.cpp
+│   ├── SpeechManager.hpp
+│   ├── SystemVolumeController.cpp
+│   ├── SystemVolumeController.hpp
 │   ├── USBManager.cpp
 │   ├── USBManager.hpp
 │   ├── WifiManager.cpp
@@ -48,7 +55,7 @@
 │   ├── MediaPlayerPage.qml
 │   ├── SettingPage.qml
 │   └── WeatherPage.qml
-├── SettingPages
+└── SettingPages
 │   ├── BluetoothPage.qml
 │   └── WiFiPage.qml
 ├── main.cpp

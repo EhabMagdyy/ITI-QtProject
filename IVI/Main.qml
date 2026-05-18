@@ -6,8 +6,8 @@ import QtCore
 
 ApplicationWindow {
     id: mainWindow
-    width: Screen.width  // 1024
-    height: Screen.height // 600
+    width: 1024  // Screen.width
+    height: 600  // Screen.height
     visible: true
     title: qsTr("IVI Dashboard")
     flags: Qt.FramelessWindowHint | Qt.Window
@@ -30,27 +30,27 @@ ApplicationWindow {
 
 
     // Splash screen
-    // Item{
-    //     id: splashScreen
-    //     anchors.fill: parent
-    //     visible: !mainWindow.splashDone
-    //     z: 10
+    Item{
+        id: splashScreen
+        anchors.fill: parent
+        visible: !mainWindow.splashDone
+        z: 10
 
-    //     Video{
-    //         id: splashVideo
-    //         anchors.fill: parent
-    //         source: "qrc:/assets/videos/splash.mp4"
-    //         autoPlay: true
-    //         loops: MediaPlayer.Once
-    //         fillMode: VideoOutput.PreserveAspectCrop
+        Video{
+            id: splashVideo
+            anchors.fill: parent
+            source: "qrc:/assets/videos/splash.mp4"
+            autoPlay: true
+            loops: MediaPlayer.Once
+            fillMode: VideoOutput.PreserveAspectCrop
 
-    //         onPlaybackStateChanged:{
-    //             if(playbackState === MediaPlayer.StoppedState){
-    //                 mainWindow.splashDone = true
-    //             }
-    //         }
-    //     }
-    // }
+            onPlaybackStateChanged:{
+                if(playbackState === MediaPlayer.StoppedState){
+                    mainWindow.splashDone = true
+                }
+            }
+        }
+    }
 
     WindowBar {
         id: titleBar
@@ -283,10 +283,10 @@ ApplicationWindow {
                 }
 
                 AppCard {
-                    title: "Climate Control"
-                    subtitle: "HVAC, fan speed & humidity"
+                    title: "HVAC"
+                    subtitle: "air conditioner, fan speed & humidity"
                     emoji: "❄️"
-                    accentColor: "#21cfa4"
+                    accentColor: "#a855f7"
                     cardWidth:  launcherItem.width * 0.2
                     cardHeight: launcherItem.height * 0.35
                     onClicked: launcherItem.openClimateControl()
@@ -296,7 +296,7 @@ ApplicationWindow {
                     title: "Media Player"
                     subtitle: "Audio, video & radio"
                     emoji: "🎵"
-                    accentColor: "#a855f7"
+                    accentColor: "#21cfa4"
                     cardWidth:  launcherItem.width * 0.2
                     cardHeight: launcherItem.height * 0.35
                     onClicked: launcherItem.openMedia()

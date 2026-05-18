@@ -16,5 +16,9 @@
         <file>assets/videos/splash.mp4</file>
         <file>assets/icons/volume.png</file>
         <file>assets/icons/weather.png</file>
+        <file>assets/images/mercedes_interior.png</file>
+        <file>assets/icons/parallel-feet.png</file>
+        <file>assets/icons/parallel.png</file>
+        <file>assets/icons/feet.png</file>
     </qresource>
 </RCC>

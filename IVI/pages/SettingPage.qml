@@ -8,6 +8,7 @@ Item {
     signal goBack()
     property real fontSize: (width + height) / 60
     property string preferredCity
+    property color accentColor: "#45beff" // Unified app accent color
 
     SystemVolumeController {
         id: systemVolume
@@ -51,14 +52,14 @@ Item {
             }
         }
 
-        StackView{
+        StackView {
             id: stackView
             anchors.fill: parent
             initialItem: mainPageComponent
 
             Component {
                 id: mainPageComponent
-                Item{
+                Item {
                     id: app
                     anchors.top: parent.top
                     anchors.topMargin: parent.height * 0.3
@@ -68,67 +69,161 @@ Item {
                         spacing: root.width / 20
                         anchors.horizontalCenter: parent.horizontalCenter
 
-                        NetworkCard{
-                            cardWidth: root.width / 5.5
-                            cardHeight: root.height / 2.5
-                            cardColSpacing: cardHeight / 10
-                            first: '#45beff'
-                            second: '#38acea'
-                            third: '#2081b5'
-                            cardRadius: cardRow.spacing / 3
-                            cardBorderColor: '#216698'
-                            cardBorderWidth: 3
-                            cardOpacity: 0.8
-                            cardText: qsTr("Wi-Fi")
-                            cardIcon: "qrc:/assets/icons/wifi.png"
-                            cardTextFontSize: root.fontSize
-                            cardTextFontFamily: "Arial"
-                            cardTextColor: '#252525'
-                            cardIconWidth: cardWidth / 2
-                            cardIconHeight: cardHeight / 2
+                        // WI-FI CARD
+                        Rectangle {
+                            id: wifiCard
+                            width: root.width / 5.5
+                            height: root.height / 2.5
+                            radius: height * 0.06
+                            color: "#101e36"
+                            scale: wifiHover.hovered ? 1.03 : 1.0
+                            
+                            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.35)
+                            border.width: 1.5
 
-                            onCardClicked: stackView.push(wifiPageComponent)
-                            onCardEntred: {
-                                first = Qt.lighter(first, 1.2)
-                                second = Qt.lighter(second, 1.2)
-                                third = Qt.lighter(third, 1.2)
+                            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+
+                            // Glow Layer
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: parent.radius
+                                color: "transparent"
+                                border.color: root.accentColor
+                                border.width: 2
+                                opacity: wifiHover.hovered ? 0.55 : 0.0
+                                Behavior on opacity { NumberAnimation { duration: 200 } }
                             }
-                            onCardExited: {
-                                first = '#45beff'
-                                second = '#38acea'
-                                third = '#2081b5'
+
+                            // Top Accent Bar
+                            Rectangle {
+                                width: parent.width * 0.4
+                                height: 3
+                                radius: 2
+                                color: root.accentColor
+                                anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+                                opacity: 0.85
+                            }
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: parent.height * 0.06
+
+                                Rectangle {
+                                    width: parent.parent.height * 0.32
+                                    height: width
+                                    radius: width / 2
+                                    color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.12)
+                                    border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.4)
+                                    border.width: 1
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Image {
+                                        source: "qrc:/assets/icons/wifi.png"
+                                        anchors.centerIn: parent
+                                        width: parent.width * 0.55
+                                        height: parent.height * 0.55
+                                        fillMode: Image.PreserveAspectFit
+                                    }
+                                }
+
+                                Text {
+                                    text: qsTr("Wi-Fi")
+                                    color: "#ffffff"
+                                    font { bold: true; family: "Arial"; pixelSize: root.fontSize }
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Text {
+                                    text: qsTr("Manage connections")
+                                    color: "#8899bb"
+                                    font { family: "Arial"; pixelSize: root.fontSize * 0.6 }
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                            }
+
+                            HoverHandler { id: wifiHover }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: stackView.push(wifiPageComponent)
                             }
                         }
 
-                        NetworkCard{
-                            cardWidth: root.width / 5.5
-                            cardHeight: root.height / 2.5
-                            cardColSpacing: cardHeight / 10
-                            first: '#45beff'
-                            second: '#38acea'
-                            third: '#2081b5'
-                            cardRadius: cardRow.spacing / 3
-                            cardBorderColor: '#216698'
-                            cardBorderWidth: 3
-                            cardOpacity: 0.8
-                            cardText: qsTr("Bluetooth")
-                            cardIcon: "qrc:/assets/icons/bt.png"
-                            cardTextFontSize: root.fontSize
-                            cardTextFontFamily: "Arial"
-                            cardTextColor: '#252525'
-                            cardIconWidth: cardWidth / 2
-                            cardIconHeight: cardHeight / 2
+                        // BLUETOOTH CARD
+                        Rectangle {
+                            id: bluetoothCard
+                            width: root.width / 5.5
+                            height: root.height / 2.5
+                            radius: height * 0.06
+                            color: "#101e36"
+                            scale: btHover.hovered ? 1.03 : 1.0
+                            
+                            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.35)
+                            border.width: 1.5
 
-                            onCardClicked: stackView.push(bluetoothPageComponent)
-                            onCardEntred: {
-                                first = Qt.lighter(first, 1.2)
-                                second = Qt.lighter(second, 1.2)
-                                third = Qt.lighter(third, 1.2)
+                            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+
+                            // Glow Layer
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: parent.radius
+                                color: "transparent"
+                                border.color: root.accentColor
+                                border.width: 2
+                                opacity: btHover.hovered ? 0.55 : 0.0
+                                Behavior on opacity { NumberAnimation { duration: 200 } }
                             }
-                            onCardExited: {
-                                first = '#45beff'
-                                second = '#38acea'
-                                third = '#2081b5'
+
+                            // Top Accent Bar
+                            Rectangle {
+                                width: parent.width * 0.4
+                                height: 3
+                                radius: 2
+                                color: root.accentColor
+                                anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+                                opacity: 0.85
+                            }
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: parent.height * 0.06
+
+                                Rectangle {
+                                    width: parent.parent.height * 0.32
+                                    height: width
+                                    radius: width / 2
+                                    color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.12)
+                                    border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.4)
+                                    border.width: 1
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Image {
+                                        source: "qrc:/assets/icons/bt.png"
+                                        anchors.centerIn: parent
+                                        width: parent.width * 0.55
+                                        height: parent.height * 0.55
+                                        fillMode: Image.PreserveAspectFit
+                                    }
+                                }
+
+                                Text {
+                                    text: qsTr("Bluetooth")
+                                    color: "#ffffff"
+                                    font { bold: true; family: "Arial"; pixelSize: root.fontSize }
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Text {
+                                    text: qsTr("Pair your devices")
+                                    color: "#8899bb"
+                                    font { family: "Arial"; pixelSize: root.fontSize * 0.6 }
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                            }
+
+                            HoverHandler { id: btHover }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: stackView.push(bluetoothPageComponent)
                             }
                         }
 
@@ -137,64 +232,93 @@ Item {
                             id: volumeCard
                             width: root.width / 5.5
                             height: root.height / 2.5
-                            radius: cardRow.spacing / 3
-                            opacity: 0.8
-                            gradient: Gradient {
-                                GradientStop { position: 0.0; color: '#45beff' }
-                                GradientStop { position: 0.5; color: '#38acea' }
-                                GradientStop { position: 1.0; color: '#2081b5' }
+                            radius: height * 0.06
+                            color: "#101e36"
+                            scale: volumeHover.hovered ? 1.03 : 1.0
+                            
+                            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.35)
+                            border.width: 1.5
+
+                            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+
+                            // Glow Layer
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: parent.radius
+                                color: "transparent"
+                                border.color: root.accentColor
+                                border.width: 2
+                                opacity: volumeHover.hovered ? 0.55 : 0.0
+                                Behavior on opacity { NumberAnimation { duration: 200 } }
                             }
-                            border.color: '#216698'
-                            border.width: 3
+
+                            // Top Accent Bar
+                            Rectangle {
+                                width: parent.width * 0.4
+                                height: 3
+                                radius: 2
+                                color: root.accentColor
+                                anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+                                opacity: 0.85
+                            }
 
                             Column {
                                 anchors.centerIn: parent
-                                spacing: parent.height / 40
+                                spacing: parent.height * 0.03
+                                width: parent.width
 
-                                Image {
-                                    source: "qrc:/assets/icons/volume.png"
-                                    width: parent.parent.width / 2.5
-                                    height: parent.parent.height / 2.5
-                                    fillMode: Image.PreserveAspectFit
+                                // Icon Container
+                                Rectangle {
+                                    width: parent.parent.height * 0.3
+                                    height: width
+                                    radius: width / 2
+                                    color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.12)
+                                    border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.4)
+                                    border.width: 1
                                     anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Image {
+                                        source: "qrc:/assets/icons/volume.png"
+                                        anchors.centerIn: parent
+                                        width: parent.width * 0.55
+                                        height: parent.height * 0.55
+                                        fillMode: Image.PreserveAspectFit
+                                    }
                                 }
 
+                                // spacer
                                 Rectangle {
-                                    width: 1
+                                    width: parent.width
                                     height: 1
                                     color: "transparent"
                                 }
 
-                                Row {
-                                    width: parent.width
-                                    spacing: parent.width / 3.5
-                                    anchors.left: volumeSlider.left
-                                    anchors.right: volumeSlider.right
+                                // Volume Text Metadata Container (Fixed from Row to Item)
+                                Item {
+                                    width: parent.parent.width * 0.75
+                                    height: root.fontSize * 0.8
+                                    anchors.horizontalCenter: parent.horizontalCenter
 
                                     Text {
-                                        text: "Volume"
-                                        font.pixelSize: root.fontSize * 0.7
-                                        font.bold: true
-                                        font.family: "Arial"
-                                        color: '#252525'
-                                        anchors.verticalCenter: volumeSlider.verticalCenter
+                                        text: qsTr("Volume")
+                                        font { pixelSize: root.fontSize * 0.6; bold: true; family: "Arial" }
+                                        color: '#ffffff'
+                                        anchors.left: parent.left
+                                        anchors.verticalCenter: parent.verticalCenter
                                     }
-
-                                    // Volume value display
                                     Text {
                                         text: systemVolume.volume + "%"
-                                        font.pixelSize: root.fontSize * 0.7
-                                        font.family: "Arial"
-                                        font.bold: true
-                                        color: '#252525'
-                                        anchors.verticalCenter: volumeSlider.verticalCenter
+                                        font { pixelSize: root.fontSize * 0.6; bold: true; family: "Arial" }
+                                        color: root.accentColor
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
                                     }
                                 }
 
-                                // Volume Slider
+                                // Upgraded Neon Slider
                                 Slider {
                                     id: volumeSlider
-                                    width: parent.parent.width * 0.7
+                                    width: parent.parent.width * 0.75
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     from: 0
                                     to: 100
@@ -203,7 +327,7 @@ Item {
                                     value: systemVolume.volume
                                     
                                     onValueChanged: {
-                                        if(pressed && systemVolume.volume !== value) {
+                                        if (pressed && systemVolume.volume !== value) {
                                             systemVolume.volume = value
                                         }
                                     }
@@ -211,55 +335,53 @@ Item {
                                     background: Rectangle {
                                         x: volumeSlider.leftPadding
                                         y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                                        implicitWidth: 200
-                                        implicitHeight: 6
                                         width: volumeSlider.availableWidth
-                                        height: implicitHeight
-                                        radius: height / 2
-                                        color: '#252525'
-                                        opacity: 0.3
+                                        height: 6
+                                        radius: 3
+                                        color: '#1a2f4c'
 
                                         Rectangle {
                                             width: volumeSlider.visualPosition * parent.width
                                             height: parent.height
-                                            color: '#252525'
-                                            radius: height / 2
+                                            color: root.accentColor
+                                            radius: 3
                                         }
                                     }
 
                                     handle: Rectangle {
                                         x: volumeSlider.leftPadding + volumeSlider.visualPosition * (volumeSlider.availableWidth - width)
                                         y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                                        implicitWidth: 20
-                                        implicitHeight: 20
-                                        radius: 10
-                                        color: volumeSlider.pressed ? '#ffffff' : '#252525'
+                                        implicitWidth: 16
+                                        implicitHeight: 16
+                                        radius: 8
+                                        color: volumeSlider.pressed ? '#ffffff' : root.accentColor
                                         border.color: '#ffffff'
-                                        border.width: 2
+                                        border.width: 1.5
                                     }
                                 }
 
+                                // spacer
                                 Rectangle {
-                                    width: 1
+                                    width: parent.width
                                     height: 1
                                     color: "transparent"
                                 }
-
-                                // Mute Button
+                                
+                                // Custom Cyberpunk Mute Button
                                 Rectangle {
-                                    width: parent.parent.width * 0.4
+                                    width: parent.parent.width * 0.5
                                     height: parent.parent.height * 0.12
-                                    radius: height / 3
-                                    color: muteArea.containsMouse ? Qt.lighter('#252525', 1.3) : '#252525'
+                                    radius: height * 0.3
+                                    color: muteArea.containsMouse ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.15) : "transparent"
+                                    border.color: root.accentColor
+                                    border.width: 1
                                     anchors.horizontalCenter: parent.horizontalCenter
 
                                     Text {
                                         anchors.centerIn: parent
                                         text: systemVolume.muted ? qsTr("Unmute") : qsTr("Mute")
-                                        font.pixelSize: root.fontSize * 0.6
-                                        font.family: "Arial"
+                                        font { pixelSize: root.fontSize * 0.55; family: "Arial"; bold: true }
                                         color: '#ffffff'
-                                        font.bold: true
                                     }
 
                                     MouseArea {
@@ -270,6 +392,7 @@ Item {
                                     }
                                 }
                             }
+                            HoverHandler { id: volumeHover }
                         }
 
                         // WEATHER CITY CARD
@@ -277,77 +400,121 @@ Item {
                             id: weatherCard
                             width: root.width / 5.5
                             height: root.height / 2.5
-                            radius: cardRow.spacing / 3
-                            opacity: 0.8
-                            gradient: Gradient {
-                                GradientStop { position: 0.0; color: '#45beff' }
-                                GradientStop { position: 0.5; color: '#38acea' }
-                                GradientStop { position: 1.0; color: '#2081b5' }
+                            radius: height * 0.06
+                            color: "#101e36"
+                            scale: weatherHover.hovered ? 1.03 : 1.0
+                            
+                            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.35)
+                            border.width: 1.5
+
+                            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+
+                            // Glow Layer
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: parent.radius
+                                color: "transparent"
+                                border.color: root.accentColor
+                                border.width: 2
+                                opacity: weatherHover.hovered ? 0.55 : 0.0
+                                Behavior on opacity { NumberAnimation { duration: 200 } }
                             }
-                            border.color: '#216698'
-                            border.width: 3
+
+                            // Top Accent Bar
+                            Rectangle {
+                                width: parent.width * 0.4
+                                height: 3
+                                radius: 2
+                                color: root.accentColor
+                                anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+                                opacity: 0.85
+                            }
 
                             Column {
                                 anchors.centerIn: parent
-                                spacing: parent.height / 30
+                                spacing: parent.height * 0.03
+                                width: parent.width
 
-                                Image {
-                                    source: "qrc:/assets/icons/weather.png"
-                                    width: parent.parent.width / 2.5
-                                    height: parent.parent.height / 2.5
-                                    fillMode: Image.PreserveAspectFit
+                                // Icon Container
+                                Rectangle {
+                                    width: parent.parent.height * 0.3
+                                    height: width
+                                    radius: width / 2
+                                    color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.12)
+                                    border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.4)
+                                    border.width: 1
                                     anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Image {
+                                        source: "qrc:/assets/icons/weather.png"
+                                        anchors.centerIn: parent
+                                        width: parent.width * 0.55
+                                        height: parent.height * 0.55
+                                        fillMode: Image.PreserveAspectFit
+                                    }
                                 }
 
-                                // City Label
+                                // spacer
+                                Rectangle {
+                                    width: parent.width
+                                    height: 1
+                                    color: "transparent"
+                                }
+
                                 Text {
-                                    text: "Weather City"
-                                    font.pixelSize: root.fontSize * 0.6
-                                    font.bold: true
-                                    font.family: "Arial"
-                                    color: '#252525'
+                                    text: qsTr("Weather City")
+                                    font { pixelSize: root.fontSize * 0.6; bold: true; family: "Arial" }
+                                    color: '#ffffff'
                                     anchors.horizontalCenter: parent.horizontalCenter
                                 }
 
-                                // City Input Field
+                                // Dark Theme Matching Input Field
                                 TextField {
                                     id: cityInput
                                     width: parent.parent.width * 0.75
-                                    height: parent.parent.height * 0.12
+                                    height: parent.parent.height * 0.13
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     placeholderText: "Enter city..."
-                                    font.pixelSize: root.fontSize * 0.55
+                                    placeholderTextColor: "#556a8a"
+                                    font.pixelSize: root.fontSize * 0.4
                                     horizontalAlignment: Text.AlignHCenter
-                                    color: '#252525'
+                                    color: '#ffffff'
+                                    selectedTextColor: "#ffffff"
+                                    selectionColor: root.accentColor
                                                                         
                                     background: Rectangle {
-                                        radius: height / 4
-                                        color: '#ffffff'
-                                        opacity: 0.9
-                                        border.color: cityInput.focus ? '#216698' : 'transparent'
-                                        border.width: 2
+                                        radius: height * 0.25
+                                        color: '#1a2f4c'
+                                        border.color: cityInput.focus ? root.accentColor : Qt.rgba(1,1,1,0.1)
+                                        border.width: 1.5
                                     }
                                     
-                                    // Save on Enter key
                                     Keys.onReturnPressed: weatherCard.saveCity()
                                     Keys.onEnterPressed: weatherCard.saveCity()
                                 }
 
-                                // Save Button
+                                // spacer
                                 Rectangle {
-                                    width: parent.parent.width * 0.4
+                                    width: parent.width
+                                    height: 1
+                                    color: "transparent"
+                                }
+
+                                // Custom Cyberpunk Save Button
+                                Rectangle {
+                                    width: parent.parent.width * 0.5
                                     height: parent.parent.height * 0.12
-                                    radius: height / 3
-                                    color: saveArea.containsMouse ? Qt.lighter('#252525', 1.3) : '#252525'
+                                    radius: height * 0.3
+                                    color: saveArea.containsMouse ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.15) : "transparent"
+                                    border.color: root.accentColor
+                                    border.width: 1
                                     anchors.horizontalCenter: parent.horizontalCenter
 
                                     Text {
                                         anchors.centerIn: parent
                                         text: qsTr("Save")
-                                        font.pixelSize: root.fontSize * 0.6
-                                        font.family: "Arial"
+                                        font { pixelSize: root.fontSize * 0.55; family: "Arial"; bold: true }
                                         color: '#ffffff'
-                                        font.bold: true
                                     }
 
                                     MouseArea {
@@ -366,11 +533,13 @@ Item {
                                     cityInput.focus = false
                                 }
                             }
+                            HoverHandler { id: weatherHover }
                         }
                     }
                 }
             }
         }
+
         Component {
             id: wifiPageComponent
             WiFiPage {

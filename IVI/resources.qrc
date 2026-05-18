@@ -15,5 +15,6 @@
         <file>assets/icons/bt.png</file>
         <file>assets/videos/splash.mp4</file>
         <file>assets/icons/volume.png</file>
+        <file>assets/icons/weather.png</file>
     </qresource>
 </RCC>

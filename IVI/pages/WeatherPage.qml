@@ -8,8 +8,8 @@ Item {
     id: root
 
     signal goBack()
-
     property int currentHour: 2
+    property string city: "Giza"
 
     // App background
     Image {
@@ -342,7 +342,7 @@ Item {
         }
     }
 
-    // ── API ────────────────────────────────────────────────────────────────────
+    // API
     WeatherAPI {
         id: weatherAPI
         onWeatherReceived: function(current, daily, hourly, location) {
@@ -389,5 +389,20 @@ Item {
         }
         onCityNotFound:  function(city)    { cityInput.text = "⚠️ City Not found!" }
         onNetworkError:  function(message) { cityInput.text = "⚠️ Network error"  }
+    }
+
+    // Auto-fetch when page loads or city changes
+    onCityChanged: {
+        if(city !== "" && weatherAPI) {
+            weatherAPI.fetch(city)
+            cityInput.text = city
+        }
+    }
+    
+    Component.onCompleted: {
+        if(root.city !== "") {
+            cityInput.text = root.city
+            weatherAPI.fetch(root.city)
+        }
     }
 }

@@ -7,6 +7,7 @@ Item {
     id: root
     signal goBack()
     property real fontSize: (width + height) / 60
+    property string preferredCity
 
     SystemVolumeController {
         id: systemVolume
@@ -68,7 +69,7 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         NetworkCard{
-                            cardWidth: root.width / 5
+                            cardWidth: root.width / 5.5
                             cardHeight: root.height / 2.5
                             cardColSpacing: cardHeight / 10
                             first: '#45beff'
@@ -100,7 +101,7 @@ Item {
                         }
 
                         NetworkCard{
-                            cardWidth: root.width / 5
+                            cardWidth: root.width / 5.5
                             cardHeight: root.height / 2.5
                             cardColSpacing: cardHeight / 10
                             first: '#45beff'
@@ -134,7 +135,7 @@ Item {
                         // VOLUME CARD
                         Rectangle {
                             id: volumeCard
-                            width: root.width / 5
+                            width: root.width / 5.5
                             height: root.height / 2.5
                             radius: cardRow.spacing / 3
                             opacity: 0.8
@@ -267,6 +268,102 @@ Item {
                                         hoverEnabled: true
                                         onClicked: systemVolume.toggleMute()
                                     }
+                                }
+                            }
+                        }
+
+                        // WEATHER CITY CARD
+                        Rectangle {
+                            id: weatherCard
+                            width: root.width / 5.5
+                            height: root.height / 2.5
+                            radius: cardRow.spacing / 3
+                            opacity: 0.8
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: '#45beff' }
+                                GradientStop { position: 0.5; color: '#38acea' }
+                                GradientStop { position: 1.0; color: '#2081b5' }
+                            }
+                            border.color: '#216698'
+                            border.width: 3
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: parent.height / 30
+
+                                Image {
+                                    source: "qrc:/assets/icons/weather.png"
+                                    width: parent.parent.width / 2.5
+                                    height: parent.parent.height / 2.5
+                                    fillMode: Image.PreserveAspectFit
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                // City Label
+                                Text {
+                                    text: "Weather City"
+                                    font.pixelSize: root.fontSize * 0.6
+                                    font.bold: true
+                                    font.family: "Arial"
+                                    color: '#252525'
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                // City Input Field
+                                TextField {
+                                    id: cityInput
+                                    width: parent.parent.width * 0.75
+                                    height: parent.parent.height * 0.12
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    placeholderText: "Enter city..."
+                                    font.pixelSize: root.fontSize * 0.55
+                                    horizontalAlignment: Text.AlignHCenter
+                                    color: '#252525'
+                                                                        
+                                    background: Rectangle {
+                                        radius: height / 4
+                                        color: '#ffffff'
+                                        opacity: 0.9
+                                        border.color: cityInput.focus ? '#216698' : 'transparent'
+                                        border.width: 2
+                                    }
+                                    
+                                    // Save on Enter key
+                                    Keys.onReturnPressed: weatherCard.saveCity()
+                                    Keys.onEnterPressed: weatherCard.saveCity()
+                                }
+
+                                // Save Button
+                                Rectangle {
+                                    width: parent.parent.width * 0.4
+                                    height: parent.parent.height * 0.12
+                                    radius: height / 3
+                                    color: saveArea.containsMouse ? Qt.lighter('#252525', 1.3) : '#252525'
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: qsTr("Save")
+                                        font.pixelSize: root.fontSize * 0.6
+                                        font.family: "Arial"
+                                        color: '#ffffff'
+                                        font.bold: true
+                                    }
+
+                                    MouseArea {
+                                        id: saveArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        onClicked: weatherCard.saveCity()
+                                    }
+                                }
+                            }
+
+                            function saveCity() {
+                                var newCity = cityInput.text.trim()
+                                if (newCity.length > 0) {
+                                    root.preferredCity = newCity
+                                    cityInput.focus = false
                                 }
                             }
                         }

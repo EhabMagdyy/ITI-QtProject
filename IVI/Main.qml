@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 import QtMultimedia
+import QtCore
 
 ApplicationWindow {
     id: mainWindow
@@ -13,28 +14,43 @@ ApplicationWindow {
 
     property bool splashDone: false
 
-    // Splash screen
-    Item{
-        id: splashScreen
-        anchors.fill: parent
-        visible: !mainWindow.splashDone
-        z: 10
-
-        Video{
-            id: splashVideo
-            anchors.fill: parent
-            source: "qrc:/assets/videos/splash.mp4"
-            autoPlay: true
-            loops: MediaPlayer.Once
-            fillMode: VideoOutput.PreserveAspectCrop
-
-            onPlaybackStateChanged:{
-                if(playbackState === MediaPlayer.StoppedState){
-                    mainWindow.splashDone = true
-                }
-            }
-        }
+    // PERSISTENT STORAGE
+    Settings {
+        id: appSettings
+        property string savedCity: "Giza"  // Default value
     }
+
+    // Bind preferredCity to persisted value
+    property string preferredCity: appSettings.savedCity
+
+    // Save to persistent storage whenever preferredCity changes
+    onPreferredCityChanged: {
+        appSettings.savedCity = mainWindow.preferredCity
+    }
+
+
+    // Splash screen
+    // Item{
+    //     id: splashScreen
+    //     anchors.fill: parent
+    //     visible: !mainWindow.splashDone
+    //     z: 10
+
+    //     Video{
+    //         id: splashVideo
+    //         anchors.fill: parent
+    //         source: "qrc:/assets/videos/splash.mp4"
+    //         autoPlay: true
+    //         loops: MediaPlayer.Once
+    //         fillMode: VideoOutput.PreserveAspectCrop
+
+    //         onPlaybackStateChanged:{
+    //             if(playbackState === MediaPlayer.StoppedState){
+    //                 mainWindow.splashDone = true
+    //             }
+    //         }
+    //     }
+    // }
 
     WindowBar {
         id: titleBar
@@ -71,16 +87,26 @@ ApplicationWindow {
             signal openMedia()
             signal openSettings()
 
-            property string currentTemp:  "--"
-            property string currentEmoji: "🌡️"
-            property string currentDesc:  "Loading..."
-
             onOpenWeather:        stackView.push(weatherPage)
             onOpenClimateControl: stackView.push(climatePage)
             onOpenMedia:          stackView.push(mediaPage)
             onOpenSettings:       stackView.push(settingPage)
 
-            Component.onCompleted: weatherAPI.fetch("Giza")
+            property string currentTemp:  "--"
+            property string currentEmoji: "🌡️"
+            property string currentDesc:  "Loading..."
+            property string locationText: "📍 " + mainWindow.preferredCity
+
+            // Fetch on startup
+            Component.onCompleted: weatherAPI.fetch(mainWindow.preferredCity)
+
+            // Fetch whenever preferredCity changes in MainWindow
+            Connections {
+                target: mainWindow
+                function onPreferredCityChanged() {
+                    weatherAPI.fetch(mainWindow.preferredCity)
+                }
+            }
 
             WeatherAPI {
                 id: weatherAPI
@@ -106,6 +132,8 @@ ApplicationWindow {
                         : code <= 75 ? "❄️"
                         : code <= 82 ? "🌦️"
                         : "⛈️"
+                    
+                    launcherItem.locationText = "📍 " + location.name + ", " + location.country
                 }
             }
 
@@ -159,7 +187,7 @@ ApplicationWindow {
                     topMargin: launcherItem.height * 0.1
                     horizontalCenter: parent.horizontalCenter
                 }
-                width: launcherItem.width  * 0.18
+                width: launcherItem.width  * 0.2
                 height: launcherItem.height * 0.16
                 radius: height * 0.15
                 color: "#0d1f3c"
@@ -191,7 +219,7 @@ ApplicationWindow {
                             font { pointSize: weatherCard.height * 0.12; family: "Arial" }
                         }
                         Text {
-                            text: "📍 Giza, Egypt"
+                            text: launcherItem.locationText
                             color: "#6677aa"
                             font { pointSize: weatherCard.height * 0.1; family: "Arial" }
                         }
@@ -346,6 +374,20 @@ ApplicationWindow {
                     target: speechManager
                     function onResultReady(text) {
                         console.log("Recognized:", text)
+                        var lowerText = text.toLowerCase().trim()
+        
+                        if(lowerText.includes("weather")){
+                            stackView.push(weatherPage)
+                        }
+                        else if (lowerText.includes("hvac") || lowerText.includes("climate") || lowerText.includes("ac")){
+                            stackView.push(climatePage)
+                        }
+                        else if (lowerText.includes("media") || lowerText.includes("music") || lowerText.includes("radio")){
+                            stackView.push(mediaPage)
+                        }
+                        else if (lowerText.includes("settings") || lowerText.includes("setting")){
+                            stackView.push(settingPage)
+                        }
                     }
                 }
             }
@@ -358,6 +400,8 @@ ApplicationWindow {
         id: weatherPage
         WeatherPage {
             onGoBack: stackView.pop()
+            // Pass the current preferred city so WeatherPage shows correct city
+            city: mainWindow.preferredCity
         }
     }
 
@@ -379,7 +423,18 @@ ApplicationWindow {
     Component {
         id: settingPage
         SettingPage {
+            id: settingsInstance
             onGoBack: stackView.pop()
+            preferredCity: mainWindow.preferredCity
+            
+            onPreferredCityChanged: {
+                mainWindow.preferredCity = settingsInstance.preferredCity
+                // Refresh home weather
+                var launcher = stackView.get(0)
+                if (launcher && launcher.weatherAPI) {
+                    launcher.weatherAPI.fetch(settingsInstance.preferredCity)
+                }
+            }
         }
     }
 }

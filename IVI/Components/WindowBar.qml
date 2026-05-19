@@ -44,9 +44,9 @@ Rectangle {
     // BACK BUTTON
     Rectangle {
         id: backBtn
-        width: 25; height: 25; radius: 8
-        color: backMouse.pressed ? "#CCCB9DF2" : "transparent"
-        border.color: "#50FFFFFF"
+        width: 22; height: 22; radius: 8
+        color: backMouse.pressed ? "#D08831" : "transparent"
+        border.color: "#D08831"
         border.width: 1
         anchors.left: parent.left
         anchors.leftMargin: 12
@@ -75,7 +75,7 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: titleName
-        color: "#E9D5FF"           // Light violet instead of plain white
+        color: "#D08831"           // Warm orange title
         font.bold: true
         font.family: "Arial"
         font.pointSize: 14
@@ -90,9 +90,9 @@ Rectangle {
 
         // Minimize
         Rectangle {
-            width: 25; height: 25; radius: 8
-            color: minMouse.pressed ? "#CCCB9DF2" : "transparent"
-            border.color: "#50FFFFFF"
+            width: 22; height: 22; radius: 8
+            color: minMouse.pressed ? "#D08831" : "transparent"
+            border.color: "#D08831"
             border.width: 1
 
             Text {
@@ -116,9 +116,9 @@ Rectangle {
 
         // Maximize / Restore
         Rectangle {
-            width: 25; height: 25; radius: 8
-            color: maxMouse.pressed ? "#CCCB9DF2" : "transparent"
-            border.color: "#50FFFFFF"
+            width: 22; height: 22; radius: 8
+            color: maxMouse.pressed ? "#D08831" : "transparent"
+            border.color: "#D08831"
             border.width: 1
 
             Text {
@@ -127,7 +127,7 @@ Rectangle {
                 color: "#FFFFFF"
                 font.bold: true
                 font.family: "Arial"
-                font.pointSize: 14
+                font.pixelSize: 12
             }
 
             MouseArea {
@@ -147,9 +147,9 @@ Rectangle {
 
         // Close
         Rectangle {
-            width: 25; height: 25; radius: 8
-            color: closeMouse.pressed ? "#FF4444" : "transparent"
-            border.color: "#50FFFFFF"
+            width: 22; height: 22; radius: 8
+            color: closeMouse.pressed ? "#964405" : "transparent"
+            border.color: "#964405"
             border.width: 1
 
             Text {
@@ -158,7 +158,7 @@ Rectangle {
                 color: "#FFFFFF"
                 font.bold: true
                 font.family: "Arial"
-                font.pointSize: 16
+                font.pixelSize: 16
             }
 
             MouseArea {

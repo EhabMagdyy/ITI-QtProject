@@ -17,14 +17,16 @@ Item {
     property bool frontPowerOn: false
     property bool backPowerOn: false
 
-    // BACKGROUND
+    /* ============================================
+       BACKGROUND — dark navy with subtle dot grid
+       ============================================ */
     Rectangle {
         z: -1
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#0a1628" }
-            GradientStop { position: 0.5; color: "#0d1f3c" }
-            GradientStop { position: 1.0; color: "#0a1628" }
+            GradientStop { position: 0.0; color: "#082839" }
+            GradientStop { position: 0.5; color: "#10475E" }
+            GradientStop { position: 1.0; color: "#082839" }
         }
 
         Canvas {
@@ -32,7 +34,7 @@ Item {
             opacity: 0.04
             onPaint: {
                 var ctx = getContext("2d")
-                ctx.fillStyle = "#ffffff"
+                ctx.fillStyle = "#D08831"
                 var step = 40
                 for (var x = 0; x < width; x += step) {
                     for (var y = 0; y < height; y += step) {
@@ -45,7 +47,9 @@ Item {
         }
     }
 
-    // EXTERNAL COMPONENTS
+    /* ============================================
+       EXTERNAL COMPONENTS
+       ============================================ */
     WindowBar {
         id: titleBar
         z: 100
@@ -53,9 +57,9 @@ Item {
         titleName: "HVAC"
         showBackButton: true
         onBackRequested: root.goBack()
-        color0: '#01012e'
-        color1: '#011129'
-        color2: '#011a27'
+        color0: '#0a2f43'
+        color1: '#10475E'
+        color2: '#3e7785'
     }
 
     WindowResize {
@@ -64,7 +68,9 @@ Item {
         window: root.Window.window
     }
 
-    // MAIN CONTENT
+    /* ============================================
+       MAIN CONTENT
+       ============================================ */
     Item {
         id: mainContent
         anchors {
@@ -75,7 +81,6 @@ Item {
             margins: 12
         }
 
-        // RowLayout stops above the bottom bar so they never overlap
         RowLayout {
             anchors {
                 top: parent.top
@@ -88,7 +93,9 @@ Item {
 
             Item { Layout.fillWidth: true }
 
-            // FRONT PANEL
+            /* ============================================
+               FRONT PANEL
+               ============================================ */
             Item {
                 Layout.preferredWidth: 250
                 Layout.preferredHeight: 420
@@ -99,7 +106,7 @@ Item {
                     id: frontPanel
                     anchors.fill: parent
                     radius: 32
-                    color: '#ccbc89e8'
+                    color: '#3D717E'
                     border.width: 1
                     border.color: "#50FFFFFF"
                     visible: false
@@ -134,7 +141,7 @@ Item {
 
                     Text {
                         text: "FRONT"
-                        color: '#2f204c'
+                        color: '#082839'
                         font.pixelSize: 14
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
@@ -158,7 +165,7 @@ Item {
                             Rectangle {
                                 width: 38; height: 38
                                 radius: 10
-                                color: frontModes.currentIndex === index ? '#ca9ef9' : '#ad98e4'
+                                color: frontModes.currentIndex === index ? '#dc933b' : '#835027'
                                 border.width: frontModes.currentIndex === index ? 2 : 0
                                 border.color: "#FFFFFF"
 
@@ -219,7 +226,7 @@ Item {
                         Layout.alignment: Qt.AlignHCenter
                         width: 40; height: 40
                         radius: 20
-                        color: root.frontPowerOn ? '#ff6600' : "#2f204c"
+                        color: root.frontPowerOn ? '#964405' : "#082839"
 
                         Text {
                             anchors.centerIn: parent
@@ -239,21 +246,23 @@ Item {
                 }
             }
 
-            Item { Layout.preferredWidth: 4 }
+            Item { Layout.preferredWidth: 1 }
 
             Image {
-                Layout.preferredWidth: 400
+                Layout.preferredWidth: 420
                 Layout.preferredHeight: 340
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                 source: "qrc:/assets/images/mercedes_interior.png"
                 fillMode: Image.PreserveAspectFit
                 rotation: 90
-                opacity: 0.35
+                opacity: 0.4
             }
 
-            Item { Layout.preferredWidth: 4 }
+            Item { Layout.preferredWidth: 1 }
 
-            // BACK PANEL
+            /* ============================================
+               BACK PANEL
+               ============================================ */
             Item {
                 Layout.preferredWidth: 250
                 Layout.preferredHeight: 420
@@ -264,7 +273,7 @@ Item {
                     id: backPanel
                     anchors.fill: parent
                     radius: 32
-                    color: '#ccbc89e8'
+                    color: '#3D717E'
                     border.width: 1
                     border.color: '#50FFFFFF'
                     visible: false
@@ -299,7 +308,7 @@ Item {
 
                     Text {
                         text: "BACK"
-                        color: '#372559'
+                        color: '#082839'
                         font.pixelSize: 14
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
@@ -323,7 +332,7 @@ Item {
                             Rectangle {
                                 width: 38; height: 38
                                 radius: 10
-                                color: backModes.currentIndex === index ? '#d3abfd' : '#b09be5'
+                                color: backModes.currentIndex === index ? '#dc933b' : '#835027'
                                 border.width: backModes.currentIndex === index ? 2 : 0
                                 border.color: "#FFFFFF"
 
@@ -384,7 +393,7 @@ Item {
                         Layout.alignment: Qt.AlignHCenter
                         width: 40; height: 40
                         radius: 20
-                        color: root.backPowerOn ? "#FF8C00" : "#2f204c"
+                        color: root.backPowerOn ? '#964405' : "#082839"
 
                         Text {
                             anchors.centerIn: parent
@@ -407,7 +416,9 @@ Item {
             Item { Layout.fillWidth: true }
         }
 
-        // BOTTOM GLOBAL CONTROLS
+        /* ============================================
+           BOTTOM GLOBAL CONTROLS
+           ============================================ */
         Rectangle {
             id: bottomBar
             anchors.bottom: parent.bottom
@@ -416,7 +427,7 @@ Item {
             width: 320
             height: 64
             radius: 20
-            color: '#ccc593f1'
+            color: '#3D717E'
             border.width: 1
             border.color: "#50FFFFFF"
             visible: false
@@ -455,7 +466,7 @@ Item {
             Rectangle {
                 width: 44; height: 44
                 radius: 12
-                color: recircMouse.pressed ? "#D8B4FE" : (root.recircActive ? '#d1a9fc' : '#b09be6')
+                color: recircMouse.pressed ? "#D08831" : (root.recircActive ? '#D08831' : '#5A3211')
                 border.color: "#FFFFFF"
                 border.width: root.recircActive ? 2 : 0
 
@@ -463,7 +474,7 @@ Item {
                     anchors.centerIn: parent
                     text: root.recircActive ? "Recycle" : "Fresh"
                     font.pixelSize: 10
-                    color: '#372559'
+                    color: '#FFFFFF'
                 }
 
                 MouseArea {
@@ -479,14 +490,14 @@ Item {
             Rectangle {
                 width: 44; height: 44
                 radius: 12
-                color: aqMouse.pressed ? "#D8B4FE" : (root.airQualityActive ? '#d1a9fc' : '#b09be6')
+                color: aqMouse.pressed ? "#D08831" : (root.airQualityActive ? '#D08831' : '#5A3211')
                 border.color: "#FFFFFF"
                 border.width: root.airQualityActive ? 2 : 0
 
                 Text {
                     anchors.centerIn: parent
                     text: root.airQualityActive ? "🍃" : "AQ"
-                    color: '#372559'
+                    color: '#FFFFFF'
                     font.pixelSize: root.airQualityActive ? 18 : 14
                     font.bold: true
                 }
@@ -504,14 +515,14 @@ Item {
             Rectangle {
                 width: 44; height: 44
                 radius: 12
-                color: autoMouse.pressed ? "#D8B4FE" : (root.autoActive ? '#d1a9fc' : '#b09be6')
+                color: autoMouse.pressed ? "#D08831" : (root.autoActive ? '#D08831' : '#5A3211')
                 border.color: "#FFFFFF"
                 border.width: root.autoActive ? 2 : 0
 
                 Text {
                     anchors.centerIn: parent
                     text: root.autoActive ? "AUTO" : "Manual"
-                    color: '#372559'
+                    color: '#FFFFFF'
                     font.pixelSize: 10
                     font.bold: true
                 }
@@ -529,14 +540,14 @@ Item {
             Rectangle {
                 width: 44; height: 44
                 radius: 12
-                color: syncMouse.pressed ? "#D8B4FE" : (root.syncActive ? '#d1a9fc' : '#b09be6')
+                color: syncMouse.pressed ? "#D08831" : (root.syncActive ? '#D08831' : '#5A3211')
                 border.color: "#FFFFFF"
                 border.width: root.syncActive ? 2 : 0
 
                 Text {
                     anchors.centerIn: parent
                     text: "SYNC"
-                    color: '#372559'
+                    color: '#FFFFFF'
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -552,7 +563,9 @@ Item {
         }
     }
 
-    // SYNC LOGIC
+    /* ============================================
+       SYNC LOGIC
+       ============================================ */
     onSyncActiveChanged: {
         if (syncActive) {
             if (backTempLoader.item && frontTempLoader.item)
@@ -578,7 +591,9 @@ Item {
         }
     }
 
-    // DIAL COMPONENT
+    /* ============================================
+       DIAL COMPONENT — autumn palette
+       ============================================ */
     Component {
         id: dialComponent
 
@@ -640,44 +655,50 @@ Item {
 
                     ctx.clearRect(0, 0, width, height)
 
+                    // Track — dark navy
                     ctx.beginPath()
                     ctx.arc(cx, cy, r, dialItem.startDeg * Math.PI / 180, dialItem.endDeg * Math.PI / 180)
                     ctx.lineWidth = 8
-                    ctx.strokeStyle = '#38265b'
+                    ctx.strokeStyle = '#082839'
                     ctx.lineCap = "round"
                     ctx.stroke()
 
+                    // Progress — warm orange
                     ctx.beginPath()
                     ctx.arc(cx, cy, r, dialItem.startDeg * Math.PI / 180, currentRad)
                     ctx.lineWidth = 8
-                    ctx.strokeStyle = '#cca1fa'
+                    ctx.strokeStyle = '#D08831'
                     ctx.lineCap = "round"
                     ctx.stroke()
 
                     var kx = cx + r * Math.cos(currentRad)
                     var ky = cy + r * Math.sin(currentRad)
 
+                    // Knob glow — soft orange
                     ctx.beginPath()
                     ctx.arc(kx, ky, 8, 0, 2 * Math.PI)
-                    ctx.fillStyle = '#d3abfd'
+                    ctx.fillStyle = '#D08831'
                     ctx.globalAlpha = 0.35
                     ctx.fill()
                     ctx.globalAlpha = 1.0
 
+                    // Knob core — white
                     ctx.beginPath()
                     ctx.arc(kx, ky, 5, 0, 2 * Math.PI)
                     ctx.fillStyle = "#FFFFFF"
                     ctx.fill()
 
-                    ctx.fillStyle = '#372558'
+                    // Value text — dark navy
+                    ctx.fillStyle = '#082839'
                     ctx.font = "bold 24px sans-serif"
                     ctx.textAlign = "center"
                     ctx.textBaseline = "middle"
                     ctx.fillText(Math.round(dialItem.value) + dialItem.suffix, cx, cy - 4)
 
+                    // Label — muted teal
                     ctx.font = "10px sans-serif"
-                    ctx.fillStyle = '#38265c'
-                    ctx.globalAlpha = 0.7
+                    ctx.fillStyle = '#3D717E'
+                    ctx.globalAlpha = 0.9
                     ctx.fillText(dialItem.label, cx, cy + 18)
                     ctx.globalAlpha = 1.0
                 }

@@ -43,12 +43,40 @@ Rectangle {
         }
     }
 
+    // ========================================== BACKGROUND =========================================
+    Rectangle {
+        z: -1
+        anchors.fill: parent
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#082839" }
+            GradientStop { position: 0.5; color: "#10475E" }
+            GradientStop { position: 1.0; color: "#082839" }
+        }
+
+        Canvas {
+            anchors.fill: parent
+            opacity: 0.04
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.fillStyle = "#D08831"
+                var step = 40
+                for (var x = 0; x < width; x += step) {
+                    for (var y = 0; y < height; y += step) {
+                        ctx.beginPath()
+                        ctx.arc(x, y, 1.5, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+            }
+        }
+    }
+
     // ========================================== Left Panel (Source Selection) =========================================
     Rectangle {
         id: leftPanel
         width: audioPage.width / 5
         height: parent.height
-        color: '#041c20'
+        color: '#082839'
 
         Column {
             anchors.top: parent.top
@@ -70,15 +98,15 @@ Rectangle {
                     width: leftPanel.width * 0.8
                     height: audioPage.height / 14
                     radius: height / 5
-                    color: rightPanel.currentIndex === modelData.idx ? '#0d4a52'
-                            : (srcArea.containsMouse ? '#072830' : 'transparent')
-                    border.color: rightPanel.currentIndex === modelData.idx ? '#00ffaa' : 'transparent'
+                    color: rightPanel.currentIndex === modelData.idx ? '#5A3211'
+                            : (srcArea.containsMouse ? '#10475E' : 'transparent')
+                    border.color: rightPanel.currentIndex === modelData.idx ? '#D08831' : 'transparent'
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 150 } }
 
                     Text {
                         text: optionRect.modelData.label
-                        color: rightPanel.currentIndex === optionRect.modelData.idx ? '#00ffaa' : '#557a70'
+                        color: rightPanel.currentIndex === optionRect.modelData.idx ? '#D08831' : '#3D717E'
                         font.pixelSize: audioPage.width / 60
                         font.family: "Arial"
                         font.bold: rightPanel.currentIndex === optionRect.modelData.idx
@@ -109,8 +137,8 @@ Rectangle {
                 width: backText.width * 2.5
                 height: backText.height + backText.height * 0.6
                 radius: height / 1.5
-                color: backArea.containsMouse ? "#1a3a40" : '#204d55'
-                border.color: "#00ffaa44"
+                color: backArea.containsMouse ? "#964405" : '#5A3211'
+                border.color: "#D08831"
                 border.width: 1
                 Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -146,7 +174,7 @@ Rectangle {
         anchors.left: leftPanel.right
         anchors.leftMargin: audioPage.width / 20
         color: 'transparent'
-        border.color: '#0c6e56'
+        border.color: '#D08831'   // ← orange frame
         border.width: 2
         radius: height / 20
 
@@ -191,7 +219,7 @@ Rectangle {
 
                 Text {
                     text: audioPlayer.audioSelected ? audioPlayer.source.toString().split("/").pop().replace(/\.[^.]+$/, "") : "Select an audio file"
-                    color: audioPlayer.audioSelected ? '#ffffff' : '#557a70'
+                    color: audioPlayer.audioSelected ? '#e7f1ef' : '#3D717E'
                     font.bold: audioPlayer.audioSelected
                     font.pixelSize: audioPlayer.audioSelected? audioPage.width / 60 : audioPage.width / 35
                     font.family: "Arial"
@@ -224,9 +252,9 @@ Rectangle {
                 standardButtons: Dialog.Ok | Dialog.Cancel
 
                 background: Rectangle {
-                    color: '#041c20'
+                    color: '#082839'
                     radius: 5
-                    border.color: '#00ffaa44'
+                    border.color: '#D08831'
                     border.width: 1
                 }
 
@@ -236,7 +264,7 @@ Rectangle {
                     Text {
                         anchors.centerIn: parent
                         text: "Enter Audio URL"
-                        color: '#00ffaa'
+                        color: '#D08831'
                         font.pixelSize: audioPage.width / 70
                         font.bold: true
                         font.family: "Arial"
@@ -245,14 +273,14 @@ Rectangle {
 
                 // Styles the Ok/Cancel buttons
                 palette {
-                    buttonText: "#00ffaa"
-                    button: "#041c20"
-                    dark: "#00ffaa"
-                    highlight: "#0d4a52"
-                    window: "#041c20"
-                    windowText: "#ffffff"
-                    base: "#05262c"
-                    text: "#ffffff"
+                    buttonText: "#D08831"
+                    button: "#082839"
+                    dark: "#D08831"
+                    highlight: "#5A3211"
+                    window: "#082839"
+                    windowText: "#e7f1ef"
+                    base: "#082839"
+                    text: "#e7f1ef"
                 }
 
                 onAccepted: {
@@ -270,8 +298,8 @@ Rectangle {
                     width: urlDialog.width - urlDialog.width * 0.1
                     height: urlDialog.height / 3.3
                     placeholderText: "https://..."
-                    placeholderTextColor: '#335a55'
-                    color: '#daf3f1'
+                    placeholderTextColor: '#3D717E'
+                    color: '#e7f1ef'
                     font.pixelSize: audioPage.width / 90
                     font.family: "Arial"
                     leftPadding: 12
@@ -279,9 +307,9 @@ Rectangle {
                     Keys.onReturnPressed: urlDialog.accept()    // allow Enter key to submit
 
                     background: Rectangle {
-                        color: '#05262c'
+                        color: '#082839'
                         radius: 8
-                        border.color: urlField.activeFocus ? '#00ffaa' : '#00ffaa44'
+                        border.color: urlField.activeFocus ? '#D08831' : '#3D717E'
                         border.width: 1
                         Behavior on border.color { ColorAnimation { duration: 150 } }
                     }
@@ -323,14 +351,14 @@ Rectangle {
                             height: width
                             radius: width / 2
                             color: 'transparent'
-                            border.color: '#00ffaa'
+                            border.color: '#D08831'
                             border.width: 3
                             anchors.horizontalCenter: parent.horizontalCenter
 
                             Rectangle {
                                 width: parent.border.width + 2
                                 height: parent.border.width + 2
-                                color: '#041c20'
+                                color: '#082839'
                                 anchors.top: parent.top
                                 anchors.horizontalCenter: parent.horizontalCenter
                             }
@@ -346,7 +374,7 @@ Rectangle {
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: audioPlayer.mediaStatus === MediaPlayer.StalledMedia ? "⚠  Stalled" : "Loading..."
-                            color: '#00ffaa'
+                            color: '#D08831'
                             font.pixelSize: audioPage.width / 85
                             font.family: "Arial"
                         }
@@ -357,7 +385,7 @@ Rectangle {
                 Text {
                     text: audioPlayer.errorMessage !== "" ? audioPlayer.errorMessage : audioPlayer.audioSelected ? 
                             audioPlayer.source.toString().split("/").pop().replace(/\.[^.]+$/, "") : "Enter audio URL to stream"
-                    color: audioPlayer.errorMessage !== "" ? '#ff4444' : audioPlayer.audioSelected  ? '#ffffff' : '#557a70'
+                    color: audioPlayer.errorMessage !== "" ? '#ff4444' : audioPlayer.audioSelected  ? '#e7f1ef' : '#3D717E'
                     font.family: "Arial"
                     font.bold: audioPlayer.audioSelected
                     font.pixelSize: audioPlayer.errorMessage !== "" ? audioPage.width / 75
@@ -422,7 +450,7 @@ Rectangle {
                     Text {
                         visible: !btManager || !btManager.connected
                         text: "No device connected"
-                        color: '#557a70'
+                        color: '#3D717E'
                         font.family: "Arial"
                         font.pixelSize: audioPage.width / 35
                     }
@@ -433,15 +461,15 @@ Rectangle {
                         width: deviceNameText.width + 24
                         height: deviceNameText.height + 10
                         radius: height / 2
-                        color: '#0d4a52'
-                        border.color: '#00ffaa44'
+                        color: '#5A3211'
+                        border.color: '#D08831'
                         border.width: 1
 
                         Text {
                             id: deviceNameText
                             anchors.centerIn: parent
                             text: btManager ? "🔵  " + btManager.deviceName : ""
-                            color: '#00ffaa'
+                            color: '#D08831'
                             font.pixelSize: audioPage.width / 90
                             font.family: "Arial"
                         }
@@ -453,7 +481,7 @@ Rectangle {
                         text: btManager && btManager.trackTitle !== ""
                             ? btManager.trackTitle
                             : "Play music on your phone"
-                        color: btManager && btManager.trackTitle !== "" ? '#ffffff' : '#557a70'
+                        color: btManager && btManager.trackTitle !== "" ? '#e7f1ef' : '#3D717E'
                         font.family: "Arial"
                         font.bold: btManager && btManager.trackTitle !== ""
                         font.pixelSize: audioPage.width / 55
@@ -470,7 +498,7 @@ Rectangle {
                                 return btManager.trackArtist + "  ·  " + btManager.trackAlbum
                             return btManager.trackArtist
                         }
-                        color: '#557a70'
+                        color: '#3D717E'
                         font.family: "Arial"
                         font.pixelSize: audioPage.width / 80
                         wrapMode: Text.WordWrap
@@ -483,8 +511,8 @@ Rectangle {
                         width: statusText.width + 24
                         height: statusText.height + 10
                         radius: height / 2
-                        color: btManager && btManager.playerStatus === "playing" ? '#0d4a52' : '#1a1a1a'
-                        border.color: btManager && btManager.playerStatus === "playing" ? '#00ffaa44' : '#ffffff22'
+                        color: btManager && btManager.playerStatus === "playing" ? '#5A3211' : '#1a1a1a'
+                        border.color: btManager && btManager.playerStatus === "playing" ? '#D08831' : '#50FFFFFF'
                         border.width: 1
 
                         // Pulsing dot
@@ -493,7 +521,7 @@ Rectangle {
                             anchors.left: parent.left
                             anchors.leftMargin: 10
                             anchors.verticalCenter: parent.verticalCenter
-                            color: btManager && btManager.playerStatus === "playing" ? '#00ffaa' : '#557a70'
+                            color: btManager && btManager.playerStatus === "playing" ? '#D08831' : '#3D717E'
 
                             SequentialAnimation on opacity {
                                 running: btManager && btManager.playerStatus === "playing"
@@ -509,7 +537,7 @@ Rectangle {
                             leftPadding: 8
                             text: btManager ? btManager.playerStatus.charAt(0).toUpperCase()
                                             + btManager.playerStatus.slice(1) : ""
-                            color: btManager && btManager.playerStatus === "playing" ? '#00ffaa' : '#557a70'
+                            color: btManager && btManager.playerStatus === "playing" ? '#D08831' : '#3D717E'
                             font.pixelSize: audioPage.width / 95
                             font.family: "Arial"
                         }
@@ -538,7 +566,7 @@ Rectangle {
                 anchors.centerIn: parent
                 visible: !usbManager.connected
                 text: "Plug in a USB device"
-                color: '#557a70'
+                color: '#3D717E'
                 font.pixelSize: audioPage.width / 35
                 font.family: "Arial"
             }
@@ -550,7 +578,7 @@ Rectangle {
                 anchors.rightMargin: audioPage.width / 65
                 anchors.leftMargin: audioPage.width / 65
                 anchors.bottomMargin: audioPage.width / 18
-                color: '#041c20'
+                color: '#082839'
                 visible: usbManager.scanning
                 z: 5
                 radius: audioPage.width / 60
@@ -563,13 +591,13 @@ Rectangle {
                     Rectangle {
                         width: 40; height: 40; radius: 20
                         color: 'transparent'
-                        border.color: '#00ffaa'
+                        border.color: '#D08831'
                         border.width: 3
                         anchors.horizontalCenter: parent.horizontalCenter
                         
                         Rectangle {
                             width: 6; height: 6
-                            color: '#041c20'
+                            color: '#082839'
                             anchors.top: parent.top
                             anchors.horizontalCenter: parent.horizontalCenter
                             anchors.topMargin: -2
@@ -586,7 +614,7 @@ Rectangle {
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: "Scanning " + usbManager.driveName + "..."
-                        color: '#00ffaa'
+                        color: '#D08831'
                         font.pixelSize: audioPage.width / 60
                         font.family: "Arial"
                     }
@@ -594,7 +622,7 @@ Rectangle {
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: "This may take a moment for phones (MTP)"
-                        color: '#557a70'
+                        color: '#3D717E'
                         font.pixelSize: audioPage.width / 80
                         font.family: "Arial"
                     }
@@ -628,7 +656,7 @@ Rectangle {
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: "Found: " + usbManager.audioFiles.length + " audio files"
-                        color: '#557a70'
+                        color: '#3D717E'
                         font.pixelSize: audioPage.width / 80
                         visible: usbManager.audioFiles.length > 0
                     }
@@ -649,14 +677,14 @@ Rectangle {
                     spacing: 10
                     Text {
                         text: "💾  " + usbManager.driveName
-                        color: '#00ffaa'
+                        color: '#D08831'
                         font.pixelSize: audioPage.width / 55
                         font.bold: true
                         font.family: "Arial"
                     }
                     Text {
                         text: usbManager.audioFiles.length + " files"
-                        color: '#557a70'
+                        color: '#3D717E'
                         font.pixelSize: audioPage.width / 75
                         font.family: "Arial"
                         anchors.verticalCenter: parent.verticalCenter
@@ -680,7 +708,7 @@ Rectangle {
                         contentItem: Rectangle {
                             implicitWidth: parent.width
                             radius: width / 2
-                            color: listScrollBar.pressed ? '#00ffaa' : listScrollBar.hovered ? '#00cc88' : '#0d4a52'
+                            color: listScrollBar.pressed ? '#964405' : listScrollBar.hovered ? '#D08831' : '#5A3211'
                             opacity: listScrollBar.hovered || listScrollBar.pressed ? 1.0 : 0.6
                             Behavior on color { ColorAnimation { duration: 150 } }
                             Behavior on opacity { NumberAnimation { duration: 150 } }
@@ -688,7 +716,7 @@ Rectangle {
                         
                         background: Rectangle {
                             implicitWidth: parent.width
-                            color: '#05262c'
+                            color: '#082839'
                             radius: width / 2
                             opacity: 0.3
                         }
@@ -705,10 +733,10 @@ Rectangle {
                         height: audioPage.height / 14
                         radius: height / 5
                         color: audioPlayer.source.toString() === ("file://" + modelData)
-                            ? '#0d4a52'
-                            : rowArea.containsMouse ? '#072830' : 'transparent'
+                            ? '#5A3211'
+                            : rowArea.containsMouse ? '#10475E' : 'transparent'
                         border.color: audioPlayer.source.toString() === ("file://" + modelData)
-                                    ? '#00ffaa' : 'transparent'
+                                    ? '#D08831' : 'transparent'
                         border.width: 1
                         Behavior on color { ColorAnimation { duration: 120 } }
 
@@ -727,7 +755,7 @@ Rectangle {
                             Text {
                                 text: usbManager.fileName(fileRow.modelData)
                                 color: audioPlayer.source.toString() === ("file://" + fileRow.modelData)
-                                    ? '#00ffaa' : '#d0e8e4'
+                                    ? '#D08831' : '#e7f1ef'
                                 font.pixelSize: audioPage.width / 70
                                 font.family: "Arial"
                                 elide: Text.ElideRight
@@ -786,7 +814,7 @@ Rectangle {
                     width: progressSlider.availableWidth
                     height: 3
                     radius: 2
-                    color: '#05262c'
+                    color: '#082839'
 
                     Rectangle {
                         width: progressSlider.visualPosition * parent.width
@@ -794,8 +822,8 @@ Rectangle {
                         radius: parent.radius
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0.0; color: '#00ffaa' }
-                            GradientStop { position: 1.0; color: '#00cc88' }
+                            GradientStop { position: 0.0; color: '#D08831' }
+                            GradientStop { position: 1.0; color: '#964405' }
                         }
                     }
                 }
@@ -804,8 +832,8 @@ Rectangle {
                     x: progressSlider.leftPadding + progressSlider.visualPosition * (progressSlider.availableWidth - width)
                     y: progressSlider.topPadding + progressSlider.availableHeight / 2 - height / 2
                     width: 10; height: 10; radius: 5
-                    color: progressSlider.pressed ? '#00ffaa' : '#ffffff'
-                    border.color: '#00ffaa'
+                    color: progressSlider.pressed ? '#D08831' : '#e7f1ef'
+                    border.color: '#D08831'
                     border.width: 2
                     visible: audioPlayer.duration > 0
                 }
@@ -823,17 +851,17 @@ Rectangle {
                 Text {
                     id: currentTimeText 
                     text: audioPage.formatTime(audioPlayer.position)
-                    color: '#557a70'
+                    color: '#3D717E'
                     font.pixelSize: audioController.height / 5
                     font.family: "Arial"
                 }
 
-                Item { width: parent.width - currentTimeText.width - totalTimeText.width - 20; height: 1 }
+                Item { width: parent.width - currentTimeText.width - totalTimeText.width; height: 1 }
 
                 Text {
                     id: totalTimeText
                     text: audioPage.formatTime(audioPlayer.duration)
-                    color: '#557a70'
+                    color: '#3D717E'
                     font.pixelSize: audioController.height / 5
                     font.family: "Arial"
                 }
@@ -848,8 +876,8 @@ Rectangle {
             anchors.margins: audioPage.height / 30
             height: audioPage.height / 11
             radius: height / 2
-            color: '#041c20'
-            border.color: '#00ffaa33'
+            color: '#5A3211'
+            border.color: '#D08831'
             border.width: 1
 
             // Mute
@@ -886,7 +914,7 @@ Rectangle {
                     width: volumeSlider.availableWidth
                     height: 6
                     radius: 3
-                    color: '#05262c'
+                    color: '#082839'
 
                     Rectangle {
                         width: volumeSlider.visualPosition * parent.width
@@ -894,8 +922,8 @@ Rectangle {
                         radius: parent.radius
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0.0; color: '#37c596' }
-                            GradientStop { position: 1.0; color: '#15966b' }
+                            GradientStop { position: 0.0; color: '#D08831' }
+                            GradientStop { position: 1.0; color: '#964405' }
                         }
                     }
                 }
@@ -903,10 +931,11 @@ Rectangle {
 
             Row {
                 anchors.centerIn: parent
-                spacing: audioController.width / 45
+                spacing: audioController.width / 55
                 // Prev
                 ControlBtn {
                     icon: "◀◀"
+                    fontPixel: audioController.width / 55
                     onClicked: {
                         // navigate files in Bluetooth or USB mode
                         if (rightPanel.currentIndex === 2 && btManager && btManager.connected)
@@ -929,7 +958,9 @@ Rectangle {
                     width: audioController.height * 0.72
                     height: width
                     radius: width / 2
-                    color: playMainArea.containsMouse ? '#00ffaa' : '#00cc88'
+                    color: playMainArea.containsMouse ? '#964405' : '#5A3211'
+                    border.color: '#D08831'
+                    border.width: 2
                     Behavior on color { ColorAnimation { duration: 150 } }
 
                     Text {
@@ -947,7 +978,7 @@ Rectangle {
                                         else {
                                             audioPlayer.playbackState === MediaPlayer.PlayingState ? parent.width / 2.4 : parent.width / 2
                                         }
-                        color: '#002a31'
+                        color: '#ffffff'
                         font.bold: true
                     }
 
@@ -974,6 +1005,7 @@ Rectangle {
                 // Next
                 ControlBtn {
                     icon: "▶▶"
+                    fontPixel: audioController.width / 55
                     onClicked: {
                         if (rightPanel.currentIndex === 2 && btManager && btManager.connected)
                             btManager.next()
@@ -1024,7 +1056,7 @@ Rectangle {
                     width: speedSlider.availableWidth
                     height: 6
                     radius: 3
-                    color: '#05262c'
+                    color: '#082839'
 
                     Rectangle {
                         width: speedSlider.visualPosition * parent.width
@@ -1032,8 +1064,8 @@ Rectangle {
                         radius: parent.radius
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0.0; color: '#37c596' }
-                            GradientStop { position: 1.0; color: '#15966b' }
+                            GradientStop { position: 0.0; color: '#D08831' }
+                            GradientStop { position: 1.0; color: '#964405' }
                         }
                     }
                 }
@@ -1059,11 +1091,18 @@ Rectangle {
         signal clicked()
 
         anchors.verticalCenter: parent.verticalCenter
-        width: iconText.width + iconText.width * 0.5
-        height: iconText.height + iconText.height * 0.3
-        radius: height / 2
-        color: 'transparent'
+
+        // Force perfect circle: width and height must be equal
+        property real btnSize: Math.max(iconText.width + iconText.width * 0.6, iconText.height + iconText.height * 0.4)
+        width: btnSize
+        height: btnSize
+        radius: width / 2
+
+        color: btnArea.containsMouse ? "#964405" : "#5A3211"
+        border.color: "#D08831"
+        border.width: 1
         scale: btnArea.containsMouse ? 1.15 : 1
+        Behavior on color { ColorAnimation { duration: 150 } }
         Behavior on scale { NumberAnimation { duration: 150 } }
 
         Text {

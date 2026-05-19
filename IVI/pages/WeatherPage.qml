@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
+import Qt5Compat.GraphicalEffects
 
 pragma ComponentBehavior: Bound
 
@@ -11,19 +12,38 @@ Item {
     property int currentHour: 2
     property string city: "Giza"
 
-    // App background
-    Image {
-        id: backgroundImage
+    // BACKGROUND — autumn dark navy
+    Rectangle {
         anchors.fill: parent
-        source: "qrc:/assets/images/weatherbackground.jpg"
-        fillMode: Image.PreserveAspectCrop
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#082839" }
+            GradientStop { position: 0.5; color: "#10475E" }
+            GradientStop { position: 1.0; color: "#082839" }
+        }
+
+        Canvas {
+            anchors.fill: parent
+            opacity: 0.04
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.fillStyle = "#D08831"
+                var step = 40
+                for (var x = 0; x < width; x += step) {
+                    for (var y = 0; y < height; y += step) {
+                        ctx.beginPath()
+                        ctx.arc(x, y, 1.5, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+            }
+        }
     }
 
-    // Dark overlay so text stays readable
+    // Dark overlay for readability
     Rectangle {
         anchors.fill: parent
         color: "#000000"
-        opacity: 0.15
+        opacity: 0.1
     }
 
     WindowBar {
@@ -33,9 +53,9 @@ Item {
         titleName: "Weather"
         showBackButton: true
         onBackRequested: root.goBack()
-        color0: '#01012e'
-        color1: '#011129'
-        color2: '#011a27'
+        color0: '#082839'
+        color1: '#10475E'
+        color2: '#3D717E'
     }
 
     // Weather helper
@@ -90,24 +110,24 @@ Item {
         ListElement { day: "Saturday";  uvIndex: 8.5; maxTemp: "33°C"; minTemp: "21°C" }
     }
 
-    // Refresh button
+    // Refresh button — autumn styled
     Rectangle {
         id: refreshBtn
         width: root.height * 0.065
         height: root.height * 0.065
-        color: "#1a1a2e"
+        color: "#3D717E"
         anchors { left: parent.left; leftMargin: root.width * 0.045; top: titleBar.bottom; topMargin: root.height * 0.028 }
         radius: width / 2
-        border.color: "#ffffff"; border.width: 1
-        opacity: 0.8
+        border.color: "#D08831"; border.width: 1
+        opacity: 0.9
         z: 5
         Behavior on scale   { NumberAnimation { duration: 120 } }
         Behavior on opacity { NumberAnimation { duration: 120 } }
-        Text { anchors.centerIn: parent; text: "↻"; color: "#ffffff"; font.pointSize: root.height * 0.036 }
+        Text { anchors.centerIn: parent; text: "↻"; color: "#D08831"; font.pointSize: root.height * 0.036 }
         MouseArea {
             anchors.fill: parent; hoverEnabled: true
             onEntered:  refreshBtn.opacity = 1.0
-            onExited:   refreshBtn.opacity = 0.8
+            onExited:   refreshBtn.opacity = 0.9
             onPressed:  refreshBtn.scale   = 0.88
             onReleased: { refreshBtn.scale = 1.0; weatherAPI.fetch(cityInput.text) }
         }
@@ -119,7 +139,7 @@ Item {
         anchors { top: titleBar.bottom; topMargin: root.height * 0.028; horizontalCenter: parent.horizontalCenter }
         spacing: root.height * 0.028
 
-        // Search field
+        // Search field — glass style
         TextField {
             id: cityInput
             width: root.width * 0.3
@@ -127,14 +147,15 @@ Item {
             placeholderText: "🔍 Enter city name..."
             anchors.horizontalCenter: parent.horizontalCenter
             font { pointSize: root.height * 0.016; family: "Arial" }
-            color: "white"; placeholderTextColor: "#aaaaaa"
+            color: "white"; placeholderTextColor: "#D08831"
             leftPadding: root.width * 0.012
             verticalAlignment: TextInput.AlignVCenter
             selectByMouse: true
             background: Rectangle {
-                color: "#1a1a2e"; radius: root.height * 0.027
-                border.color: cityInput.activeFocus ? "#4fc3f7" : "#444466"
+                color: "#082839"; radius: root.height * 0.027
+                border.color: cityInput.activeFocus ? "#D08831" : "#3D717E"
                 border.width: cityInput.activeFocus ? 2 : 1
+                opacity: 0.85
             }
             Behavior on scale { NumberAnimation { duration: 120 } }
             onHoveredChanged: scale = hovered ? 1.05 : 1.0
@@ -145,52 +166,117 @@ Item {
             Keys.onReturnPressed: weatherAPI.fetch(cityInput.text)
         }
 
-        // Main info banner
-        Rectangle {
+        // Main info banner — GLASS MORPHISM
+        Item {
             id: mainInfoContainer
             width: root.width * 0.8; height: root.height * 0.13
-            color: "#12495f"; opacity: 0.8; radius: root.height * 0.025
             anchors.horizontalCenter: parent.horizontalCenter
-            border.color: "#ffffff"; border.width: 3
-            Behavior on scale   { NumberAnimation { duration: 120 } }
-            Behavior on opacity { NumberAnimation { duration: 120 } }
-            MouseArea {
-                anchors.fill: parent; hoverEnabled: true
-                onEntered: { mainInfoContainer.scale = 1.01; mainInfoContainer.opacity = 1.0 }
-                onExited:  { mainInfoContainer.scale = 1.0;  mainInfoContainer.opacity = 0.8 }
+
+            Rectangle {
+                id: mainInfoGlass
+                anchors.fill: parent
+                radius: root.height * 0.025
+                color: "#3D717E"
+                border.width: 1
+                border.color: "#50FFFFFF"
+                visible: false
             }
+
+            InnerShadow {
+                id: mainInfoInner
+                anchors.fill: mainInfoGlass
+                source: mainInfoGlass
+                horizontalOffset: -3
+                verticalOffset: -3
+                radius: 10
+                samples: 20
+                color: "#80FFFFFF"
+                visible: false
+            }
+
+            DropShadow {
+                anchors.fill: mainInfoGlass
+                source: mainInfoInner
+                horizontalOffset: 6
+                verticalOffset: 6
+                radius: 14
+                samples: 28
+                color: "#50000000"
+            }
+
+            // Content on top
             Row {
                 anchors.centerIn: parent
                 spacing: root.width * 0.015
                 Text { id: weatherEmojiText; text: "🌤️"; font.pointSize: root.height * 0.065; anchors.verticalCenter: parent.verticalCenter }
-                Rectangle { width: 1; height: root.height * 0.09; color: "#ffffff"; opacity: 0.3; anchors.verticalCenter: parent.verticalCenter }
+                Rectangle { width: 1; height: root.height * 0.09; color: "#D08831"; opacity: 0.5; anchors.verticalCenter: parent.verticalCenter }
                 Column {
                     spacing: root.height * 0.005; anchors.verticalCenter: parent.verticalCenter
                     Text { id: weatherDescription; text: "Partly Cloudy"; color: "white"; font { pointSize: root.height * 0.020; family: "Arial" } }
-                    Text { id: temperature;        text: "21°C";          color: "white"; font { pointSize: root.height * 0.040; family: "Arial"; bold: true } }
+                    Text { id: temperature;        text: "21°C";          color: "#D08831"; font { pointSize: root.height * 0.040; family: "Arial"; bold: true } }
                 }
                 Item { width: root.width * 0.2; height: 1 }
                 Column {
                     spacing: root.height * 0.014; anchors.verticalCenter: parent.verticalCenter
                     Text { id: cityName;   text: "Cairo, Egypt"; color: "white"; font { pointSize: root.height * 0.026; family: "Arial"; bold: true } }
-                    Text { id: feelsLike;  text: "Feels like: 19°C"; color: "#ffffff"; font { pointSize: root.height * 0.02; family: "Arial" } }
+                    Text { id: feelsLike;  text: "Feels like: 19°C"; color: "#D08831"; font { pointSize: root.height * 0.02; family: "Arial" } }
                 }
-                Rectangle { width: 1; height: root.height * 0.09; color: "#ffffff"; opacity: 0.3; anchors.verticalCenter: parent.verticalCenter }
+                Rectangle { width: 1; height: root.height * 0.09; color: "#D08831"; opacity: 0.5; anchors.verticalCenter: parent.verticalCenter }
                 Column {
                     spacing: root.height * 0.014; anchors.verticalCenter: parent.verticalCenter
                     Text { text: "Population"; color: "white"; font { pointSize: root.height * 0.02; family: "Arial"; bold: true } }
-                    Text { id: populationValue; text: "137,844"; color: "#ffffff"; font { pointSize: root.height * 0.018; family: "Arial" } }
+                    Text { id: populationValue; text: "137,844"; color: "#D08831"; font { pointSize: root.height * 0.018; family: "Arial" } }
                 }
+            }
+
+            Behavior on scale   { NumberAnimation { duration: 120 } }
+            Behavior on opacity { NumberAnimation { duration: 120 } }
+            MouseArea {
+                anchors.fill: parent; hoverEnabled: true
+                onEntered: { mainInfoContainer.scale = 1.01; mainInfoContainer.opacity = 1.0 }
+                onExited:  { mainInfoContainer.scale = 1.0;  mainInfoContainer.opacity = 0.9 }
             }
         }
 
-        // Hourly forecast
-        Rectangle {
+        // Hourly forecast — GLASS MORPHISM
+        Item {
             id: hourlyContainer
             width: root.width * 0.8; height: root.height * 0.18
-            color: "#12495f"; opacity: 0.8; radius: root.height * 0.025
             anchors.horizontalCenter: parent.horizontalCenter
-            clip: true; border.color: "#ffffff"; border.width: 1
+            clip: true
+
+            Rectangle {
+                id: hourlyGlass
+                anchors.fill: parent
+                radius: root.height * 0.025
+                color: "#3D717E"
+                border.width: 1
+                border.color: "#50FFFFFF"
+                visible: false
+            }
+
+            InnerShadow {
+                id: hourlyInner
+                anchors.fill: hourlyGlass
+                source: hourlyGlass
+                horizontalOffset: -3
+                verticalOffset: -3
+                radius: 10
+                samples: 20
+                color: "#80FFFFFF"
+                visible: false
+            }
+
+            DropShadow {
+                anchors.fill: hourlyGlass
+                source: hourlyInner
+                horizontalOffset: 6
+                verticalOffset: 6
+                radius: 14
+                samples: 28
+                color: "#50000000"
+            }
+
             Flickable {
                 anchors { fill: parent; margins: root.height * 0.02 }
                 contentWidth: hourlyRow.width
@@ -209,10 +295,11 @@ Item {
                             required property int    index
                             property bool isCurrent: index === root.currentHour
                             width: root.width * 0.08; height: hourlyRow.height
-                            color: hourlyDelegate.isCurrent ? "#12495f" : "#ffffff"
+                            color: hourlyDelegate.isCurrent ? "#D08831" : "#5A3211"
                             radius: root.height * 0.01
-                            opacity: hourlyDelegate.isCurrent ? 1.0 : 0.7
-                            border.color: hourlyDelegate.isCurrent ? "#4fc3f7" : "#000000"; border.width: 1
+                            opacity: hourlyDelegate.isCurrent ? 1.0 : 0.8
+                            border.color: hourlyDelegate.isCurrent ? "#FFFFFF" : "#D08831"
+                            border.width: hourlyDelegate.isCurrent ? 2 : 1
                             Behavior on scale   { NumberAnimation { duration: 120 } }
                             Behavior on opacity { NumberAnimation { duration: 120 } }
                             Column {
@@ -220,14 +307,14 @@ Item {
                                 topPadding: parent.height * 0.1
                                 spacing: root.height * 0.005
                                 Text { 
-                                    text: hourlyDelegate.time; color: hourlyDelegate.isCurrent ? "#ffffff" : "#001224"
+                                    text: hourlyDelegate.time; color: hourlyDelegate.isCurrent ? "#082839" : "#FFFFFF"
                                     font { pointSize: root.height * 0.02; family: "Arial" }
                                     anchors.horizontalCenter: parent.horizontalCenter
                                 }
-                                Rectangle { width: parent.width * 0.8; height: 1; color: hourlyDelegate.isCurrent ? "#4fc3f7" : "#12495f"; radius: width / 2; anchors.horizontalCenter: parent.horizontalCenter }
+                                Rectangle { width: parent.width * 0.8; height: 1; color: hourlyDelegate.isCurrent ? "#082839" : "#D08831"; radius: width / 2; anchors.horizontalCenter: parent.horizontalCenter }
                                 Text { 
                                     text: hourlyDelegate.temp; 
-                                    color: hourlyDelegate.isCurrent ? "#ffffff" : "#001224"; 
+                                    color: hourlyDelegate.isCurrent ? "#082839" : "#D08831"; 
                                     font { 
                                         pointSize: root.height * 0.035; 
                                         bold: true; 
@@ -239,7 +326,7 @@ Item {
                             MouseArea {
                                 anchors.fill: parent; hoverEnabled: true
                                 onEntered: { hourlyDelegate.scale = 1.01; hourlyDelegate.opacity = 1.0; hourlyDelegate.border.width = 2 }
-                                onExited:  { hourlyDelegate.scale = 1.0;  hourlyDelegate.opacity = 0.8; hourlyDelegate.border.width = hourlyDelegate.isCurrent ? 1 : 0 }
+                                onExited:  { hourlyDelegate.scale = 1.0;  hourlyDelegate.opacity = 0.8; hourlyDelegate.border.width = hourlyDelegate.isCurrent ? 2 : 1 }
                             }
                         }
                     }
@@ -252,32 +339,57 @@ Item {
             spacing: root.width * 0.024
             anchors.horizontalCenter: parent.horizontalCenter
 
-            // Weekly
-            Rectangle {
+            // Weekly — GLASS MORPHISM
+            Item {
                 id: weeklyContainer
                 width: root.width * 0.4; height: root.height * 0.43
-                color: "#12495f"; opacity: 0.8; radius: root.height * 0.025
-                Behavior on scale   { NumberAnimation { duration: 120 } }
-                Behavior on opacity { NumberAnimation { duration: 120 } }
-                MouseArea {
-                    anchors.fill: parent; hoverEnabled: true
-                    onEntered: { weeklyContainer.scale = 1.05; weeklyContainer.opacity = 1.0 }
-                    onExited:  { weeklyContainer.scale = 1.0;  weeklyContainer.opacity = 0.8 }
+
+                Rectangle {
+                    id: weeklyGlass
+                    anchors.fill: parent
+                    radius: root.height * 0.025
+                    color: "#3D717E"
+                    border.width: 1
+                    border.color: "#50FFFFFF"
+                    visible: false
                 }
+
+                InnerShadow {
+                    id: weeklyInner
+                    anchors.fill: weeklyGlass
+                    source: weeklyGlass
+                    horizontalOffset: -3
+                    verticalOffset: -3
+                    radius: 10
+                    samples: 20
+                    color: "#80FFFFFF"
+                    visible: false
+                }
+
+                DropShadow {
+                    anchors.fill: weeklyGlass
+                    source: weeklyInner
+                    horizontalOffset: 6
+                    verticalOffset: 6
+                    radius: 14
+                    samples: 28
+                    color: "#50000000"
+                }
+
                 Column {
                     anchors.centerIn: parent
                     spacing: root.height * 0.015
                     width: weeklyContainer.width - root.height * 0.04
                     Row {
                         width: parent.width
-                        Text { text: "Day";      color: "#b9b9b9"; font { pointSize: root.height * 0.018; family: "Arial"; bold: true }
+                        Text { text: "Day";      color: "#D08831"; font { pointSize: root.height * 0.018; family: "Arial"; bold: true }
                             width: parent.width * 0.42 }
-                        Text { text: "UV";       color: "#b9b9b9"; font { pointSize: root.height * 0.018; family: "Arial"; bold: true }
+                        Text { text: "UV";       color: "#D08831"; font { pointSize: root.height * 0.018; family: "Arial"; bold: true }
                             width: parent.width * 0.08; horizontalAlignment: Text.AlignHCenter }
-                        Text { text: "Max / Min"; color: "#b9b9b9"; font { pointSize: root.height * 0.018; family: "Arial"; bold: true }
+                        Text { text: "Max / Min"; color: "#D08831"; font { pointSize: root.height * 0.018; family: "Arial"; bold: true }
                             width: parent.width * 0.45; horizontalAlignment: Text.AlignRight }
                     }
-                    Rectangle { width: parent.width; height: 1; color: "#ffffff"; opacity: 0.25 }
+                    Rectangle { width: parent.width; height: 1; color: "#D08831"; opacity: 0.4 }
                     Repeater {
                         model: dailyWeatherModel
                         delegate: Row {
@@ -298,43 +410,84 @@ Item {
                                 font { pointSize: root.height * 0.020; family: "Arial"; bold: true }
                                 width: parent.width * 0.1
                             }
-                            Text { text: dailyRow.maxTemp + " / " + dailyRow.minTemp; color: "white"; font { pointSize: root.height * 0.020; family: "Arial" }
+                            Text { text: dailyRow.maxTemp + " / " + dailyRow.minTemp; color: "#D08831"; font { pointSize: root.height * 0.020; family: "Arial" }
                                 horizontalAlignment: Text.AlignRight; width: parent.width * 0.45 
                             }
                         }
                     }
                 }
+
+                Behavior on scale   { NumberAnimation { duration: 120 } }
+                Behavior on opacity { NumberAnimation { duration: 120 } }
+                MouseArea {
+                    anchors.fill: parent; hoverEnabled: true
+                    onEntered: { weeklyContainer.scale = 1.05; weeklyContainer.opacity = 1.0 }
+                    onExited:  { weeklyContainer.scale = 1.0;  weeklyContainer.opacity = 0.9 }
+                }
             }
 
-            Rectangle { width: 1; height: weeklyContainer.height; color: "#ffffff"; opacity: 0.4 }
+            Rectangle { width: 1; height: weeklyContainer.height; color: "#D08831"; opacity: 0.4 }
 
-            // Info grid
+            // Info grid — GLASS MORPHISM
             Grid {
                 columns: 2
                 width: root.width * 0.35; height: root.height * 0.43
                 rowSpacing: root.height * 0.02; columnSpacing: root.width * 0.02
                 Repeater {
                     model: weatherInfoModel
-                    delegate: Rectangle {
+                    delegate: Item {
                         id: infoDelegate
                         required property var modelData
                         width: (root.width * 0.35 - root.width * 0.02) / 2
                         height: (root.height * 0.43 - root.height * 0.02) / 2
-                        color: "#12495f"; opacity: 0.8; radius: root.height * 0.015
+
+                        Rectangle {
+                            id: infoGlass
+                            anchors.fill: parent
+                            radius: root.height * 0.015
+                            color: "#3D717E"
+                            border.width: 1
+                            border.color: "#50FFFFFF"
+                            visible: false
+                        }
+
+                        InnerShadow {
+                            id: infoInner
+                            anchors.fill: infoGlass
+                            source: infoGlass
+                            horizontalOffset: -2
+                            verticalOffset: -2
+                            radius: 8
+                            samples: 16
+                            color: "#80FFFFFF"
+                            visible: false
+                        }
+
+                        DropShadow {
+                            anchors.fill: infoGlass
+                            source: infoInner
+                            horizontalOffset: 4
+                            verticalOffset: 4
+                            radius: 10
+                            samples: 20
+                            color: "#50000000"
+                        }
+
+                        Column {
+                            anchors.centerIn: parent; spacing: root.height * 0.009
+                            Text { text: infoDelegate.modelData.emoji; font.pointSize: root.height * 0.035; anchors.horizontalCenter: parent.horizontalCenter }
+                            Text { text: infoDelegate.modelData.label; color: "#FFFFFF"; font { pointSize: root.height * 0.02; family: "Arial" }
+                                anchors.horizontalCenter: parent.horizontalCenter }
+                            Text { text: infoDelegate.modelData.value; color: "#D08831"; font { pointSize: root.height * 0.028; family: "Arial"; bold: true }
+                                anchors.horizontalCenter: parent.horizontalCenter }
+                        }
+
                         Behavior on scale   { NumberAnimation { duration: 120 } }
                         Behavior on opacity { NumberAnimation { duration: 120 } }
                         MouseArea {
                             anchors.fill: parent; hoverEnabled: true
                             onEntered: { infoDelegate.scale = 1.05; infoDelegate.opacity = 1.0 }
-                            onExited:  { infoDelegate.scale = 1.0;  infoDelegate.opacity = 0.8 }
-                        }
-                        Column {
-                            anchors.centerIn: parent; spacing: root.height * 0.009
-                            Text { text: infoDelegate.modelData.emoji; font.pointSize: root.height * 0.035; anchors.horizontalCenter: parent.horizontalCenter }
-                            Text { text: infoDelegate.modelData.label; color: "#ffffff"; font { pointSize: root.height * 0.02; family: "Arial" }
-                                anchors.horizontalCenter: parent.horizontalCenter }
-                            Text { text: infoDelegate.modelData.value; color: "#e0e0e0"; font { pointSize: root.height * 0.028; family: "Arial"; bold: true }
-                                anchors.horizontalCenter: parent.horizontalCenter }
+                            onExited:  { infoDelegate.scale = 1.0;  infoDelegate.opacity = 0.9 }
                         }
                     }
                 }

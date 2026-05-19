@@ -16,20 +16,37 @@ Item {
         titleName: "Media Player"
         showBackButton: true
         onBackRequested: root.goBack()
-        color0: '#011f2e'
-        color1: '#011c29'
-        color2: '#011f27'
+        color0: '#082839'
+        color1: '#10475E'
+        color2: '#3D717E'
     }
 
     // ============================================ Main Content ================================================
     Rectangle {
         anchors.fill: parent
-        border.color: '#005045'
+        border.color: '#D08831'
         border.width: 2
         gradient: Gradient {
-            GradientStop {position: 0.0; color: '#00424b' }
-            GradientStop {position: 0.5; color: '#002d35' }
+            GradientStop {position: 0.0; color: '#082839' }
+            GradientStop {position: 0.5; color: '#10475E' }
             GradientStop {position: 1.0; color: '#000000' }
+        }
+
+        Canvas {
+            anchors.fill: parent
+            opacity: 0.04
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.fillStyle = "#D08831"
+                var step = 40
+                for (var x = 0; x < width; x += step) {
+                    for (var y = 0; y < height; y += step) {
+                        ctx.beginPath()
+                        ctx.arc(x, y, 1.5, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+            }
         }
 
         StackView{
@@ -49,13 +66,13 @@ Item {
                             cardWidth: root.width / 5.5
                             cardHeight: root.height / 2.2
                             cardColSpacing: cardHeight / 40
-                            first: '#55ffda'
-                            second: '#00bb92'
-                            third: '#00886a'
+                            first: '#D08831'
+                            second: '#964405'
+                            third: '#5A3211'
                             cardRadius: mainRow.spacing / 3
-                            cardBorderColor: '#d0fff1'
+                            cardBorderColor: '#D08831'
                             cardBorderWidth: 3
-                            cardOpacity: 0.8
+                            cardOpacity: 0.85
                             cardText: qsTr("Radio")
                             cardIcon: "qrc:/assets//icons/radio.png"
                             cardTextFontSize: root.fontSize * 1.1
@@ -71,9 +88,9 @@ Item {
                                 third = Qt.lighter(third, 1.2)
                             }
                             onCardExited: {
-                                first = '#55ffda'
-                                second = '#00bb92'
-                                third = '#00886a'
+                                first = '#D08831'
+                                second = '#964405'
+                                third = '#5A3211'
                             }
                         }
 
@@ -81,13 +98,13 @@ Item {
                             cardWidth: root.width / 5.5
                             cardHeight: root.height / 2.2
                             cardColSpacing: cardHeight / 12
-                            first: '#55ffda'
-                            second: '#00bb92'
-                            third: '#00886a'
+                            first: '#D08831'
+                            second: '#964405'
+                            third: '#5A3211'
                             cardRadius: mainRow.spacing / 3
-                            cardBorderColor: '#d0fff1'
+                            cardBorderColor: '#D08831'
                             cardBorderWidth: 3
-                            cardOpacity: 0.8
+                            cardOpacity: 0.85
                             cardText: qsTr("Audio")
                             cardIcon: "qrc:/assets//icons/audio.png"
                             cardTextFontSize: root.fontSize * 1.1
@@ -103,9 +120,9 @@ Item {
                                 third = Qt.lighter(third, 1.2)
                             }
                             onCardExited: {
-                                first = '#55ffda'
-                                second = '#00bb92'
-                                third = '#00886a'
+                                first = '#D08831'
+                                second = '#964405'
+                                third = '#5A3211'
                             }
                         }
 
@@ -113,13 +130,13 @@ Item {
                             cardWidth: root.width / 5.5
                             cardHeight: root.height / 2.2
                             cardColSpacing: cardHeight / 20
-                            first: '#55ffda'
-                            second: '#00bb92'
-                            third: '#00886a'
+                            first: '#D08831'
+                            second: '#964405'
+                            third: '#5A3211'
                             cardRadius: mainRow.spacing / 3
-                            cardBorderColor: '#d0fff1'
+                            cardBorderColor: '#D08831'
                             cardBorderWidth: 3
-                            cardOpacity: 0.8
+                            cardOpacity: 0.85
                             cardText: qsTr("Video")
                             cardIcon: "qrc:/assets//icons/video.png"
                             cardTextFontSize: root.fontSize * 1.1
@@ -135,9 +152,9 @@ Item {
                                 third = Qt.lighter(third, 1.2)
                             }
                             onCardExited: {
-                                first = '#55ffda'
-                                second = '#00bb92'
-                                third = '#00886a'
+                                first = '#D08831'
+                                second = '#964405'
+                                third = '#5A3211'
                             }
                         }
                     }

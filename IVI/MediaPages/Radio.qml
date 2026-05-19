@@ -622,7 +622,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: volumeBtn.muted ? "🔇" : volumeSlider.value < 0.5 ? "🔉" : "🔊"
+                        text: volumeBtn.muted ? "🔈" : volumeSlider.value < 0.5 ? "🔉" : "🔊"
                         font.pixelSize: (parent.width + parent.height) / 4
                         font.family: "Arial"
                     }

@@ -63,7 +63,21 @@ Rectangle{
         anchors.fill: parent
         hoverEnabled: true
         onClicked: card.cardClicked()
-        onEntered: card.cardEntred()
-        onExited: card.cardExited()
+        onEntered: { 
+            parent.scale = 1.05
+            card.cardEntred() 
+        }
+        onExited: { 
+            parent.scale = 1
+            card.cardExited() 
+        }
+    }
+
+    // Animation for the scale change on hover
+    Behavior on scale {
+        NumberAnimation {
+            duration: 200
+            easing.type: Easing.InOutQuad
+        }
     }
 }

@@ -182,9 +182,7 @@ ApplicationWindow {
                 }
             }
 
-            // ============================================================
             // TOP GLASS BAR
-            // ============================================================
             Rectangle {
                 id: topBar
                 anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right
@@ -251,16 +249,14 @@ ApplicationWindow {
                 }
             }
 
-            // ============================================================
             // BENTO GRID
-            // ============================================================
             Row {
                 id: bentoRow
                 anchors.top: topBar.bottom; anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
                 anchors.margins: 24; anchors.topMargin: 20
                 spacing: 20
 
-                // ---- LEFT COLUMN (30%) ----
+                // LEFT COLUMN (30%)
                 Column {
                     width: parent.width * 0.30; height: parent.height; spacing: 20
 
@@ -363,21 +359,35 @@ ApplicationWindow {
                             }
 
                             Row {
-                                anchors.centerIn: parent; spacing: 12
+                                anchors.fill: parent
+                                anchors.margins: 20
+                                spacing: 12
+
                                 Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
                                     width: 48; height: 48; radius: 24
                                     color: speechManager && speechManager.listening ? "#ff4444" : "#2674cc"
                                     Behavior on color { ColorAnimation { duration: 150 } }
-                                    Text { anchors.centerIn: parent; text: speechManager && speechManager.listening ? "🔴" : "🎤"; font.pixelSize: 22 }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: speechManager && speechManager.listening ? "🔴" : "🎤"
+                                        font.pixelSize: 22
+                                    }
                                     MouseArea {
                                         anchors.fill: parent
                                         onPressed:  if (speechManager) speechManager.startListening()
                                         onReleased: if (speechManager) speechManager.stopListening()
                                     }
                                 }
+
                                 Text {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: speechManager && speechManager.listening ? (speechManager.partialResult !== "" ? speechManager.partialResult : "Listening...") : "Hold to speak"
+                                    width: parent.width - 70
+                                    clip: true                  // clips overflow
+                                    elide: Text.ElideRight 
+                                    text: speechManager && speechManager.listening
+                                          ? (speechManager.partialResult !== "" ? speechManager.partialResult : "Listening...")
+                                          : "Hold to speak"
                                     color: speechManager && speechManager.listening ? "#ffffff" : "#8899bb"
                                     font { pixelSize: 14; italic: !speechManager || !speechManager.listening; family: "Arial" }
                                 }
@@ -392,10 +402,59 @@ ApplicationWindow {
                                 function onResultReady(text) {
                                     console.log("Recognized:", text)
                                     var lowerText = text.toLowerCase().trim()
-                                    if(lowerText.includes("weather")) launcherItem.openWeather()
-                                    else if (lowerText.includes("hvac") || lowerText.includes("climate") || lowerText.includes("ac")) launcherItem.openClimateControl()
-                                    else if (lowerText.includes("media") || lowerText.includes("music") || lowerText.includes("radio")) launcherItem.openMedia()
-                                    else if (lowerText.includes("settings") || lowerText.includes("setting")) launcherItem.openSettings()
+                                    if(lowerText.includes("weather"))
+                                        launcherItem.openWeather()
+                                    else if (lowerText.includes("hvac") || lowerText.includes("climate") || lowerText.includes("ac"))
+                                        launcherItem.openClimateControl()
+                                    else if (lowerText.includes("media") || lowerText.includes("music") || lowerText.includes("radio"))
+                                        launcherItem.openMedia()
+                                    else if (lowerText.includes("settings") || lowerText.includes("setting"))
+                                        launcherItem.openSettings()
+                                    else if (lowerText.includes("about"))
+                                        launcherItem.openCarInfo()
+                                    // VOLUME COMMANDS
+                                    else if(lowerText.includes("volume up") || lowerText.includes("increase volume")) {
+                                        var newVol = Math.min(100, systemVolume.volume + 11)
+                                        systemVolume.volume = newVol
+                                        console.log("Volume up →", newVol + "%")
+                                    }
+                                    else if (lowerText.includes("volume down") || lowerText.includes("decrease volume")) {
+                                        var newVol = Math.max(0, systemVolume.volume - 9)
+                                        systemVolume.volume = newVol
+                                        console.log("Volume down →", newVol + "%")
+                                    }
+                                    else if (lowerText.includes("volume mute") || lowerText.includes("mute")) {
+                                        if (!systemVolume.muted)
+                                            systemVolume.toggleMute()
+                                        console.log("Volume muted")
+                                    }
+                                    else if (lowerText.includes("volume") || lowerText.includes("unmute")) {
+                                        if (systemVolume.muted)
+                                            systemVolume.toggleMute()
+                                        console.log("Volume unmuted")
+                                    }
+                                    // FAN COMMANDS
+                                    else if (lowerText.includes("fan up")) {
+                                        var newFan = Math.min(7, launcherItem.hvacFan + 1)
+                                        launcherItem.hvacFan = newFan
+                                        console.log("Fan up →", newFan)
+                                    }
+                                    else if (lowerText.includes("fan down")) {
+                                        var newFan = Math.max(0, launcherItem.hvacFan - 1)
+                                        launcherItem.hvacFan = newFan
+                                        console.log("Fan down →", newFan)
+                                    }
+                                    // TEMPERATURE COMMANDS
+                                    else if (lowerText.includes("temp up")) {
+                                        var newTemp = Math.min(30, launcherItem.hvacTemp + 1)
+                                        launcherItem.hvacTemp = newTemp
+                                        console.log("Temp up →", newTemp + "°")
+                                    }
+                                    else if (lowerText.includes("temp down")) {
+                                        var newTemp = Math.max(16, launcherItem.hvacTemp - 1)
+                                        launcherItem.hvacTemp = newTemp
+                                        console.log("Temp down →", newTemp + "°")
+                                    }
                                 }
                             }
                         }
@@ -598,7 +657,6 @@ ApplicationWindow {
                                 }
                             }
 
-                            // NEW: Click handler
                             MouseArea {
                                 anchors.fill: parent
                                 hoverEnabled: true

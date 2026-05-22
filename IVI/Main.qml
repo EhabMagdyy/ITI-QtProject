@@ -56,10 +56,25 @@ ApplicationWindow {
             onOpenSettings:       stackView.push(settingPage)
             onOpenCarInfo:        carInfoPopup.visible = true
 
+            // Weather Data (updated via WeatherAPI component below)
             property string currentTemp:  "--"
             property string currentEmoji: "🌡️"
             property string currentDesc:  "Loading..."
             property string locationText: "📍 " + mainWindow.preferredCity
+
+            // shared HVAC quick-state (tile + page)
+            property int  hvacMode:          0
+            property int  hvacTemp:          23
+            property int  hvacFan:           3
+            property bool recircActive:      false
+            property bool airQualityActive:  false
+            property bool autoActive:        false
+            property bool climatePower:      false
+            property bool hvacSyncActive:    true
+            property int  hvacRearTemp:     23
+            property int  hvacRearFan:      3
+            property int  hvacRearMode:     0
+            property bool hvacRearPower:    false
 
             Component.onCompleted: weatherAPI.fetch(mainWindow.preferredCity)
 
@@ -598,6 +613,7 @@ ApplicationWindow {
                     Item {
                         width: parent.width; height: parent.height * 0.65
                         Rectangle {
+                            id: hvacRect
                             anchors.fill: parent; radius: 28
                             color: Qt.rgba(1,1,1,0.05)
                             border.color: hovered ? Qt.rgba(0.6,0.3,1,0.4) : Qt.rgba(1,1,1,0.12)
@@ -627,38 +643,308 @@ ApplicationWindow {
                                 NumberAnimation { target: hFloat; property: "y"; to: -3; duration: 6000; easing.type: Easing.InOutSine }
                             }
 
-                            Column {
-                                anchors.centerIn: parent; spacing: 14
-                                Text { 
-                                    text: "❄️"
-                                    font { pixelSize: 48 }
-                                    anchors.horizontalCenter: parent.horizontalCenter
+                            // Hover glow only — does NOT block clicks
+                            HoverHandler {
+                                onHoveredChanged: parent.hovered = hovered
+                            }
+
+                            // Small expand button (top-right) to open full page
+                            Rectangle {
+                                anchors.top: parent.top; anchors.right: parent.right
+                                anchors.margins: 18
+                                width: 35; height: 35; radius: 8
+                                color: expandMa.containsMouse ? Qt.rgba(1,1,1,0.15) : Qt.rgba(1,1,1,0.05)
+                                border.color: Qt.rgba(1,1,1,0.2)
+                                border.width: 1
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "↗"
+                                    color: "#aaccff"
+                                    font.pixelSize: 20
+                                    font.bold: true
                                 }
-                                Text { 
-                                    text: "HVAC"
-                                    color: "#ffffff"
-                                    font { pixelSize: 24; bold: true; family: "Arial" }
-                                    anchors.horizontalCenter: parent.horizontalCenter 
-                                }
-                                Text { 
-                                    text: "Climate Control"
-                                    color: "#d4b3ff"
-                                    font { pixelSize: 14; family: "Arial" }
-                                    anchors.horizontalCenter: parent.horizontalCenter 
-                                }
-                                Text { 
-                                    text: "22°C"
-                                    color: "#ffffff"
-                                    font { pixelSize: 36; bold: true; family: "Arial" }
-                                    anchors.horizontalCenter: parent.horizontalCenter 
+                                MouseArea {
+                                    id: expandMa
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onClicked: launcherItem.openClimateControl()
                                 }
                             }
 
-                            MouseArea {
-                                anchors.fill: parent; hoverEnabled: true
-                                onEntered: parent.hovered = true
-                                onExited:  parent.hovered = false
-                                onClicked: launcherItem.openClimateControl()
+                            Column {
+                                anchors.fill: parent
+                                anchors.margins: 10
+                                anchors.topMargin: 20
+                                spacing: 5
+
+                                Text {
+                                    text: "HVAC"
+                                    color: "#ffffff"
+                                    font { pixelSize: 22; bold: true; family: "Arial" }
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                // Spacer
+                                Item { height: 8; width: 1 }
+
+                                // ---- 3 air direction modes ----
+                                Row {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    spacing: 12
+                                    Repeater {
+                                        model: [
+                                            "qrc:/assets/icons/parallel.png",
+                                            "qrc:/assets/icons/feet.png",
+                                            "qrc:/assets/icons/parallel-feet.png"
+                                        ]
+                                        Rectangle {
+                                            width: 38; height: 38; radius: 8
+                                            color: launcherItem.hvacMode === index ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                            border.width: launcherItem.hvacMode === index ? 2 : 0
+                                            border.color: "#FFFFFF"
+                                            Image {
+                                                anchors.centerIn: parent
+                                                width: 22; height: 22
+                                                source: modelData
+                                                fillMode: Image.PreserveAspectFit
+                                            }
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                onClicked: launcherItem.hvacMode = index
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Spacer
+                                Item { height: 6; width: 1 }
+
+                                // ---- Temp + Fan mini gauges ----
+                                Row {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    spacing: 16
+
+                                    // Mini Temp
+                                    Item {
+                                        width: 135; height: 142
+
+                                        Canvas {
+                                            id: miniTempCanvas
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            anchors.top: parent.top
+                                            width: 120; height: 120
+                                            property real val: launcherItem.hvacTemp
+                                            onPaint: {
+                                                var ctx = getContext("2d")
+                                                var cx = width/2, cy = height/2, r = 50
+                                                var t = (val - 16) / (30 - 16)
+                                                var s = 0.8 * Math.PI, e = 2.2 * Math.PI, c = s + t*(e-s)
+                                                ctx.clearRect(0,0,width,height)
+                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,e); ctx.lineWidth=9; ctx.strokeStyle="#082839"; ctx.lineCap="round"; ctx.stroke()
+                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,c); ctx.lineWidth=9; ctx.strokeStyle="#D08831"; ctx.lineCap="round"; ctx.stroke()
+                                            }
+                                            onValChanged: requestPaint()
+                                            Component.onCompleted: requestPaint()
+                                        }
+
+                                        Text {
+                                            anchors.centerIn: miniTempCanvas
+                                            text: Math.round(launcherItem.hvacTemp) + "°"
+                                            color: "#FFFFFF"
+                                            font { pixelSize: 32; bold: true; family: "Arial" }
+                                        }
+
+                                        Text {
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            anchors.top: miniTempCanvas.bottom
+                                            anchors.topMargin: -18
+                                            text: "Temperature"
+                                            color: '#f5eee6'
+                                            font { pixelSize: 14; bold: true; family: "Arial" }
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            preventStealing: true
+
+                                            function setTempFromMouse(mx, my) {
+                                                var cx = parent.width / 2
+                                                var cy = miniTempCanvas.height / 2
+                                                var dx = mx - cx
+                                                var dy = my - cy
+                                                var rad = Math.atan2(dy, dx)
+                                                var deg = rad * 180 / Math.PI
+                                                if (deg < 0) deg += 360
+
+                                                var startDeg = 144
+                                                var sweepDeg = 252
+                                                var t = 0
+                                                if (deg >= 144 && deg <= 360) {
+                                                    t = (deg - startDeg) / sweepDeg
+                                                } else if (deg >= 0 && deg <= 36) {
+                                                    t = (deg + 360 - startDeg) / sweepDeg
+                                                } else {
+                                                    // dead zone — snap to nearest end based on current value
+                                                    t = (launcherItem.hvacTemp > 23) ? 1 : 0
+                                                }
+
+                                                var newVal = 16 + t * 14
+                                                newVal = Math.round(newVal)
+                                                newVal = Math.max(16, Math.min(30, newVal))
+                                                if (newVal !== launcherItem.hvacTemp)
+                                                    launcherItem.hvacTemp = newVal
+                                            }
+
+                                            onPressed: (mouse) => setTempFromMouse(mouse.x, mouse.y)
+                                            onPositionChanged: (mouse) => {
+                                                if (pressed) setTempFromMouse(mouse.x, mouse.y)
+                                            }
+                                        }
+                                    }
+
+                                    // Mini Fan
+                                    Item {
+                                        width: 135; height: 142
+
+                                        Canvas {
+                                            id: miniFanCanvas
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            anchors.top: parent.top
+                                            width: 120; height: 120
+                                            property real val: launcherItem.hvacFan
+                                            onPaint: {
+                                                var ctx = getContext("2d")
+                                                var cx = width/2, cy = height/2, r = 50
+                                                var t = val / 7
+                                                var s = 0.8 * Math.PI, e = 2.2 * Math.PI, c = s + t*(e-s)
+                                                ctx.clearRect(0,0,width,height)
+                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,e); ctx.lineWidth=9; ctx.strokeStyle="#082839"; ctx.lineCap="round"; ctx.stroke()
+                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,c); ctx.lineWidth=9; ctx.strokeStyle="#D08831"; ctx.lineCap="round"; ctx.stroke()
+                                            }
+                                            onValChanged: requestPaint()
+                                            Component.onCompleted: requestPaint()
+                                        }
+
+                                        Text {
+                                            anchors.centerIn: miniFanCanvas
+                                            text: Math.round(launcherItem.hvacFan)
+                                            color: "#FFFFFF"
+                                            font { pixelSize: 32; bold: true; family: "Arial" }
+                                        }
+
+                                        Text {
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            anchors.top: miniFanCanvas.bottom
+                                            anchors.topMargin: -18
+                                            text: "Fan Speed"
+                                            color: "#f5eee6"
+                                            font { pixelSize: 14; bold: true; family: "Arial" }
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            preventStealing: true
+
+                                            function setFanFromMouse(mx, my) {
+                                                var cx = parent.width / 2
+                                                var cy = miniFanCanvas.height / 2
+                                                var dx = mx - cx
+                                                var dy = my - cy
+                                                var rad = Math.atan2(dy, dx)
+                                                var deg = rad * 180 / Math.PI
+                                                if (deg < 0) deg += 360
+
+                                                var startDeg = 144
+                                                var sweepDeg = 252
+                                                var t = 0
+                                                if (deg >= 144 && deg <= 360) {
+                                                    t = (deg - startDeg) / sweepDeg
+                                                } else if (deg >= 0 && deg <= 36) {
+                                                    t = (deg + 360 - startDeg) / sweepDeg
+                                                } else {
+                                                    t = (launcherItem.hvacFan > 3) ? 1 : 0
+                                                }
+
+                                                var newVal = t * 7
+                                                newVal = Math.round(newVal)
+                                                newVal = Math.max(0, Math.min(7, newVal))
+                                                if (newVal !== launcherItem.hvacFan)
+                                                    launcherItem.hvacFan = newVal
+                                            }
+
+                                            onPressed: (mouse) => setFanFromMouse(mouse.x, mouse.y)
+                                            onPositionChanged: (mouse) => {
+                                                if (pressed) setFanFromMouse(mouse.x, mouse.y)
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // ---- 5 master toggles (Recirc, AQ, Auto, Sync, Power) ----
+                                Row {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    spacing: 8
+                                    Rectangle {
+                                        width: 36; height: 36; radius: 8
+                                        color: launcherItem.recircActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        border.color: "#FFFFFF"
+                                        border.width: launcherItem.recircActive ? 2 : 0
+                                        Text { anchors.centerIn: parent; text: "↻"; color: "#FFFFFF"; font.pixelSize: 14 }
+                                        MouseArea { anchors.fill: parent; onClicked: launcherItem.recircActive = !launcherItem.recircActive }
+                                    }
+                                    Rectangle {
+                                        width: 36; height: 36; radius: 8
+                                        color: launcherItem.airQualityActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        border.color: "#FFFFFF"
+                                        border.width: launcherItem.airQualityActive ? 2 : 0
+                                        Text { anchors.centerIn: parent; text: "AQ"; color: "#FFFFFF"; font.pixelSize: 10; font.bold: true }
+                                        MouseArea { anchors.fill: parent; onClicked: launcherItem.airQualityActive = !launcherItem.airQualityActive }
+                                    }
+                                    // Spacer
+                                    Rectangle{
+                                        width: 8; height: 8
+                                        color: "transparent"
+                                    }
+                                    // Power
+                                    Rectangle {
+                                        width: 36; height: 36; radius: 18
+                                        color: launcherItem.climatePower ? '#964405' : Qt.rgba(1,1,1,0.08)
+                                        border.color: launcherItem.climatePower ? "#ff8844" : "transparent"
+                                        border.width: 1
+                                        Text { anchors.centerIn: parent; text: "⏻"; color: "#FFFFFF"; font.pixelSize: 14 }
+                                        MouseArea { anchors.fill: parent; onClicked: launcherItem.climatePower = !launcherItem.climatePower }
+                                    }
+                                    // Spacer
+                                    Rectangle{
+                                        width: 8; height: 8
+                                        color: "transparent"
+                                    }
+                                    Rectangle {
+                                        width: 36; height: 36; radius: 8
+                                        color: launcherItem.autoActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        border.color: "#FFFFFF"
+                                        border.width: launcherItem.autoActive ? 2 : 0
+                                        Text { anchors.centerIn: parent; text: "AUTO"; color: "#FFFFFF"; font.pixelSize: 9; font.bold: true }
+                                        MouseArea { anchors.fill: parent; onClicked: launcherItem.autoActive = !launcherItem.autoActive }
+                                    }
+                                    // SYNC
+                                    Rectangle {
+                                        width: 36; height: 36; radius: 8
+                                        color: launcherItem.hvacSyncActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        border.color: "#FFFFFF"
+                                        border.width: launcherItem.hvacSyncActive ? 2 : 0
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "SYNC"
+                                            color: "#FFFFFF"
+                                            font { pixelSize: 9; bold: true; family: "Arial" }
+                                        }
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onClicked: launcherItem.hvacSyncActive = !launcherItem.hvacSyncActive
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -668,7 +954,7 @@ ApplicationWindow {
                 Column {
                     width: parent.width * 0.30; height: parent.height; spacing: 20
 
-                    // Media Player (TOP right)
+                    // Media Player
                     Item {
                         width: parent.width; height: parent.height * 0.65
                         Rectangle {
@@ -754,7 +1040,7 @@ ApplicationWindow {
                         }
                     }
 
-                    // Settings (BOTTOM right)
+                    // Settings
                     Item {
                         width: parent.width; height: parent.height * 0.30
                         Rectangle {
@@ -802,14 +1088,107 @@ ApplicationWindow {
                 }
             }
             
-            // ============================================================
             // CAR INFO POPUP
-            // ============================================================
             CarInfoPopup {
                 id: carInfoPopup
                 visible: false
                 z: 100
                 onClosePopup: visible = false
+            }
+
+            // Climate Control page
+            Component {
+                id: climatePage
+                ClimateControlPage {
+                    id: climatePageInstance
+                    onGoBack: stackView.pop()
+
+                    // ── init from shared state ──
+                    Component.onCompleted: {
+                        syncActive       = launcherItem.hvacSyncActive
+                        frontTempValue   = launcherItem.hvacTemp
+                        frontFanValue    = launcherItem.hvacFan
+                        frontModeIndex   = launcherItem.hvacMode
+                        frontPowerOn     = launcherItem.climatePower
+                        recircActive     = launcherItem.recircActive
+                        airQualityActive = launcherItem.airQualityActive
+                        autoActive       = launcherItem.autoActive
+
+                        if (syncActive) {
+                            backTempValue  = launcherItem.hvacTemp
+                            backFanValue   = launcherItem.hvacFan
+                            backModeIndex  = launcherItem.hvacMode
+                            backPowerOn    = launcherItem.climatePower
+                        } else {
+                            backTempValue  = launcherItem.hvacRearTemp
+                            backFanValue   = launcherItem.hvacRearFan
+                            backModeIndex  = launcherItem.hvacRearMode
+                            backPowerOn    = launcherItem.hvacRearPower
+                        }
+                    }
+
+                    // ── page → home tile (write-back) ──
+                    onSyncActiveChanged: {
+                        launcherItem.hvacSyncActive = syncActive
+                        if (syncActive) {
+                            // when sync turned on, persist rear = front
+                            launcherItem.hvacRearTemp  = frontTempValue
+                            launcherItem.hvacRearFan   = frontFanValue
+                            launcherItem.hvacRearMode  = frontModeIndex
+                            launcherItem.hvacRearPower = frontPowerOn
+                        }
+                    }
+                    onFrontTempValueChanged:   launcherItem.hvacTemp        = frontTempValue
+                    onFrontFanValueChanged:    launcherItem.hvacFan         = frontFanValue
+                    onFrontModeIndexChanged:   launcherItem.hvacMode        = frontModeIndex
+                    onRecircActiveChanged:     launcherItem.recircActive    = recircActive
+                    onAirQualityActiveChanged: launcherItem.airQualityActive= airQualityActive
+                    onAutoActiveChanged:       launcherItem.autoActive      = autoActive
+                    onFrontPowerOnChanged:     launcherItem.climatePower    = frontPowerOn
+
+                    // rear only persists when sync is OFF
+                    onBackTempValueChanged:  { if (!syncActive) launcherItem.hvacRearTemp  = backTempValue }
+                    onBackFanValueChanged:   { if (!syncActive) launcherItem.hvacRearFan   = backFanValue }
+                    onBackModeIndexChanged:  { if (!syncActive) launcherItem.hvacRearMode  = backModeIndex }
+                    onBackPowerOnChanged:    { if (!syncActive) launcherItem.hvacRearPower = backPowerOn }
+
+                    // ── home tile → page (read) ──
+                    Connections {
+                        target: launcherItem
+                        function onHvacSyncActiveChanged() {
+                            climatePageInstance.syncActive = launcherItem.hvacSyncActive
+                        }
+                        function onHvacTempChanged() {
+                            climatePageInstance.frontTempValue = launcherItem.hvacTemp
+                            if (climatePageInstance.syncActive)
+                                climatePageInstance.backTempValue = launcherItem.hvacTemp
+                        }
+                        function onHvacFanChanged() {
+                            climatePageInstance.frontFanValue = launcherItem.hvacFan
+                            if (climatePageInstance.syncActive)
+                                climatePageInstance.backFanValue = launcherItem.hvacFan
+                        }
+                        function onHvacModeChanged() {
+                            climatePageInstance.frontModeIndex = launcherItem.hvacMode
+                            if (climatePageInstance.syncActive)
+                                climatePageInstance.backModeIndex = launcherItem.hvacMode
+                        }
+                        function onRecircActiveChanged() {
+                            climatePageInstance.recircActive = launcherItem.recircActive
+                        }
+                        function onAirQualityActiveChanged() {
+                            climatePageInstance.airQualityActive = launcherItem.airQualityActive
+                        }
+                        function onAutoActiveChanged() {
+                            climatePageInstance.autoActive = launcherItem.autoActive
+                        }
+                        function onClimatePowerChanged() {
+                            climatePageInstance.frontPowerOn = launcherItem.climatePower
+                            if (climatePageInstance.syncActive)
+                                climatePageInstance.backPowerOn = launcherItem.climatePower
+                        }
+                    }
+                }
             }
         }
     }
@@ -820,14 +1199,6 @@ ApplicationWindow {
         WeatherPage {
             onGoBack: stackView.pop()
             city: mainWindow.preferredCity
-        }
-    }
-
-    // Climate Control page
-    Component {
-        id: climatePage
-        ClimateControlPage {
-            onGoBack: stackView.pop()
         }
     }
 

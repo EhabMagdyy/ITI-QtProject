@@ -6,9 +6,18 @@ import Qt5Compat.GraphicalEffects
 
 Item {
     id: root
-    anchors.fill: parent
 
     signal goBack()
+
+    /* ============================================
+       NEW — exposed for home-page two-way sync
+       ============================================ */
+    property int frontTempValue: 23
+    property int backTempValue: 23
+    property int frontFanValue: 3
+    property int backFanValue: 3
+    property int frontModeIndex: 0
+    property int backModeIndex: 0
 
     property bool syncActive: true
     property bool recircActive: false
@@ -16,6 +25,23 @@ Item {
     property bool autoActive: false
     property bool frontPowerOn: false
     property bool backPowerOn: false
+
+    onFrontTempValueChanged: {
+        if (frontTempLoader.item && Math.round(frontTempLoader.item.value) !== frontTempValue)
+            frontTempLoader.item.value = frontTempValue
+    }
+    onFrontFanValueChanged: {
+        if (frontFanLoader.item && Math.round(frontFanLoader.item.value) !== frontFanValue)
+            frontFanLoader.item.value = frontFanValue
+    }
+    onBackTempValueChanged: {
+        if (backTempLoader.item && Math.round(backTempLoader.item.value) !== backTempValue)
+            backTempLoader.item.value = backTempValue
+    }
+    onBackFanValueChanged: {
+        if (backFanLoader.item && Math.round(backFanLoader.item.value) !== backFanValue)
+            backFanLoader.item.value = backFanValue
+    }
 
     /* ============================================
        BACKGROUND — dark navy with subtle dot grid
@@ -154,7 +180,6 @@ Item {
                         id: frontModes
                         Layout.alignment: Qt.AlignHCenter
                         spacing: 8
-                        property int currentIndex: 0
 
                         Repeater {
                             model: [
@@ -165,8 +190,8 @@ Item {
                             Rectangle {
                                 width: 38; height: 38
                                 radius: 10
-                                color: frontModes.currentIndex === index ? '#dc933b' : '#835027'
-                                border.width: frontModes.currentIndex === index ? 2 : 0
+                                color: root.frontModeIndex === index ? '#dc933b' : '#835027'
+                                border.width: root.frontModeIndex === index ? 2 : 0
                                 border.color: "#FFFFFF"
 
                                 Image {
@@ -179,7 +204,7 @@ Item {
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    onClicked: frontModes.currentIndex = index
+                                    onClicked: root.frontModeIndex = index
                                 }
                             }
                         }
@@ -196,9 +221,16 @@ Item {
                         onLoaded: {
                             item.minValue = 16
                             item.maxValue = 30
-                            item.value = 23
+                            item.value = root.frontTempValue
                             item.suffix = "°"
                             item.label = "Temperature"
+                        }
+                    }
+                    Connections {
+                        target: frontTempLoader.item
+                        function onValueChanged() {
+                            if (frontTempLoader.item)
+                                root.frontTempValue = Math.round(frontTempLoader.item.value)
                         }
                     }
 
@@ -213,10 +245,17 @@ Item {
                         onLoaded: {
                             item.minValue = 0
                             item.maxValue = 7
-                            item.value = 3
+                            item.value = root.frontFanValue
                             item.suffix = ""
                             item.label = "Fan Speed"
                             item.step = 1
+                        }
+                    }
+                    Connections {
+                        target: frontFanLoader.item
+                        function onValueChanged() {
+                            if (frontFanLoader.item)
+                                root.frontFanValue = Math.round(frontFanLoader.item.value)
                         }
                     }
 
@@ -321,7 +360,6 @@ Item {
                         id: backModes
                         Layout.alignment: Qt.AlignHCenter
                         spacing: 8
-                        property int currentIndex: 0
 
                         Repeater {
                             model: [
@@ -332,8 +370,8 @@ Item {
                             Rectangle {
                                 width: 38; height: 38
                                 radius: 10
-                                color: backModes.currentIndex === index ? '#dc933b' : '#835027'
-                                border.width: backModes.currentIndex === index ? 2 : 0
+                                color: root.backModeIndex === index ? '#dc933b' : '#835027'
+                                border.width: root.backModeIndex === index ? 2 : 0
                                 border.color: "#FFFFFF"
 
                                 Image {
@@ -346,7 +384,7 @@ Item {
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    onClicked: backModes.currentIndex = index
+                                    onClicked: root.backModeIndex = index
                                 }
                             }
                         }
@@ -363,9 +401,16 @@ Item {
                         onLoaded: {
                             item.minValue = 16
                             item.maxValue = 30
-                            item.value = 23
+                            item.value = root.backTempValue
                             item.suffix = "°"
                             item.label = "Temperature"
+                        }
+                    }
+                    Connections {
+                        target: backTempLoader.item
+                        function onValueChanged() {
+                            if (backTempLoader.item)
+                                root.backTempValue = Math.round(backTempLoader.item.value)
                         }
                     }
 
@@ -380,10 +425,17 @@ Item {
                         onLoaded: {
                             item.minValue = 0
                             item.maxValue = 7
-                            item.value = 3
+                            item.value = root.backFanValue
                             item.suffix = ""
                             item.label = "Fan Speed"
                             item.step = 1
+                        }
+                    }
+                    Connections {
+                        target: backFanLoader.item
+                        function onValueChanged() {
+                            if (backFanLoader.item)
+                                root.backFanValue = Math.round(backFanLoader.item.value)
                         }
                     }
 
@@ -564,7 +616,7 @@ Item {
     }
 
     /* ============================================
-       SYNC LOGIC
+       SYNC LOGIC  (unchanged — still works)
        ============================================ */
     onSyncActiveChanged: {
         if (syncActive) {
@@ -697,7 +749,7 @@ Item {
 
                     // Label — muted teal
                     ctx.font = "10px sans-serif"
-                    ctx.fillStyle = '#3D717E'
+                    ctx.fillStyle = '#082839'
                     ctx.globalAlpha = 0.9
                     ctx.fillText(dialItem.label, cx, cy + 18)
                     ctx.globalAlpha = 1.0

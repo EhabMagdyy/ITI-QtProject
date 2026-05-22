@@ -32,7 +32,8 @@ int main(int argc, char *argv[]){
     engine.rootContext()->setContextProperty("BluetoothManager", &bluetoothManager);
 
     // System Volume Controller
-    qmlRegisterType<SystemVolumeController>("IVI.Volume", 1, 0, "SystemVolumeController");
+    SystemVolumeController systemVolumeController;
+    engine.rootContext()->setContextProperty("systemVolume", &systemVolumeController);
 
     // Speech Recognition Manager
     SpeechManager speechManager;

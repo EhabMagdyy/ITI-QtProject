@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
-import IVI.Volume 1.0
 pragma ComponentBehavior: Bound
 
 Item {
@@ -9,11 +8,7 @@ Item {
     signal goBack()
     property real fontSize: (width + height) / 60
     property string preferredCity
-    property color accentColor: "#D08831" // Autumn orange accent
-
-    SystemVolumeController {
-        id: systemVolume
-    }
+    property color accentColor: "#D08831"
 
     WindowBar {
         id: titleBar

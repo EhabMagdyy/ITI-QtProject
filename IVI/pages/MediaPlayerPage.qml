@@ -8,6 +8,7 @@ Item {
     signal goBack()
 
     property real fontSize: (width + height) / 60
+    property color accentColor: "#D08831"
 
     WindowBar {
         id: titleBar
@@ -21,13 +22,13 @@ Item {
         color2: '#3D717E'
     }
 
-    // ============================================ Main Content ================================================
+    // ============================================ Background ================================================
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop {position: 0.0; color: '#082839' }
-            GradientStop {position: 0.5; color: '#10475E' }
-            GradientStop {position: 1.0; color: '#000000' }
+            GradientStop { position: 0.0; color: '#082839' }
+            GradientStop { position: 0.5; color: '#10475E' }
+            GradientStop { position: 1.0; color: '#082839' }
         }
 
         Canvas {
@@ -47,96 +48,73 @@ Item {
             }
         }
 
-        StackView{
+        StackView {
             id: stackView
             initialItem: mainPageComponent
             anchors.fill: parent
+
             // =========================================== Main Page ============================================
-            Component{
+            Component {
                 id: mainPageComponent
-                Item {  // wrapper fills the StackView
+                Item {
                     anchors.fill: parent
+
                     Row {
                         id: mainRow
                         anchors.centerIn: parent
-                        spacing: root.width / 15
-                        MediaCard {
-                            cardWidth: root.width / 5.5
-                            cardHeight: root.height / 2.2
-                            cardColSpacing: cardHeight / 40
-                            first: '#D08831'
-                            second: '#964405'
-                            third: '#5A3211'
-                            cardRadius: mainRow.spacing / 3
-                            cardBorderColor: '#D08831'
-                            cardBorderWidth: 3
-                            cardOpacity: 0.85
-                            cardText: qsTr("Radio")
-                            cardIcon: "qrc:/assets//icons/radio.png"
-                            cardTextFontSize: root.fontSize * 1.1
-                            cardTextFontFamily: "Arial"
-                            cardTextColor: '#f8ffff'
-                            cardIconWidth: cardWidth / 1.4
-                            cardIconHeight: cardHeight / 1.4
-
-                            onCardClicked: stackView.push(radioPageComponent)
-                            onCardEntred: {
-                                first = Qt.lighter(first, 1.2)
-                                second = Qt.lighter(second, 1.2)
-                                third = Qt.lighter(third, 1.2)
-                            }
-                            onCardExited: {
-                                first = '#D08831'
-                                second = '#964405'
-                                third = '#5A3211'
-                            }
-                        }
+                        spacing: root.width / 20
 
                         MediaCard {
-                            cardWidth: root.width / 5.5
+                            cardWidth: root.width / 5
                             cardHeight: root.height / 2.2
                             cardColSpacing: cardHeight / 12
-                            first: '#D08831'
-                            second: '#964405'
-                            third: '#5A3211'
+                            accentColor: root.accentColor
                             cardRadius: mainRow.spacing / 3
-                            cardBorderColor: '#D08831'
-                            cardBorderWidth: 3
+                            cardBorderColor: '#50FFFFFF'
+                            cardBorderWidth: 1
                             cardOpacity: 0.85
-                            cardText: qsTr("Audio")
-                            cardIcon: "qrc:/assets//icons/audio.png"
+                            cardText: qsTr("Radio")
+                            cardIcon: "qrc:/assets/icons/radio.png"
                             cardTextFontSize: root.fontSize * 1.1
                             cardTextFontFamily: "Arial"
                             cardTextColor: '#f8ffff'
-                            cardIconWidth: cardWidth / 1.6
-                            cardIconHeight: cardHeight / 1.6
+                            cardIconWidth: cardWidth / 1.5
+                            cardIconHeight: cardHeight / 1.5
 
-                            onCardClicked: stackView.push(audioPageComponent)
-                            onCardEntred: {
-                                first = Qt.lighter(first, 1.2)
-                                second = Qt.lighter(second, 1.2)
-                                third = Qt.lighter(third, 1.2)
-                            }
-                            onCardExited: {
-                                first = '#D08831'
-                                second = '#964405'
-                                third = '#5A3211'
-                            }
+                            onCardClicked: stackView.push(radioPageComponent)
                         }
 
                         MediaCard {
-                            cardWidth: root.width / 5.5
+                            cardWidth: root.width / 5
                             cardHeight: root.height / 2.2
-                            cardColSpacing: cardHeight / 20
-                            first: '#D08831'
-                            second: '#964405'
-                            third: '#5A3211'
+                            cardColSpacing: cardHeight / 12
+                            accentColor: root.accentColor
                             cardRadius: mainRow.spacing / 3
-                            cardBorderColor: '#D08831'
-                            cardBorderWidth: 3
+                            cardBorderColor: '#50FFFFFF'
+                            cardBorderWidth: 1
+                            cardOpacity: 0.85
+                            cardText: qsTr("Audio")
+                            cardIcon: "qrc:/assets/icons/audio.png"
+                            cardTextFontSize: root.fontSize * 1.1
+                            cardTextFontFamily: "Arial"
+                            cardTextColor: '#f8ffff'
+                            cardIconWidth: cardWidth / 1.5
+                            cardIconHeight: cardHeight / 1.5
+
+                            onCardClicked: stackView.push(audioPageComponent)
+                        }
+
+                        MediaCard {
+                            cardWidth: root.width / 5
+                            cardHeight: root.height / 2.2
+                            cardColSpacing: cardHeight / 12
+                            accentColor: root.accentColor
+                            cardRadius: mainRow.spacing / 3
+                            cardBorderColor: '#50FFFFFF'
+                            cardBorderWidth: 1
                             cardOpacity: 0.85
                             cardText: qsTr("Video")
-                            cardIcon: "qrc:/assets//icons/video.png"
+                            cardIcon: "qrc:/assets/icons/video.png"
                             cardTextFontSize: root.fontSize * 1.1
                             cardTextFontFamily: "Arial"
                             cardTextColor: '#f8ffff'
@@ -144,16 +122,6 @@ Item {
                             cardIconHeight: cardHeight / 1.5
 
                             onCardClicked: stackView.push(videoPageComponent)
-                            onCardEntred: {
-                                first = Qt.lighter(first, 1.2)
-                                second = Qt.lighter(second, 1.2)
-                                third = Qt.lighter(third, 1.2)
-                            }
-                            onCardExited: {
-                                first = '#D08831'
-                                second = '#964405'
-                                third = '#5A3211'
-                            }
                         }
                     }
                 }
@@ -162,23 +130,23 @@ Item {
     }
 
     // ============================================ Pages ===============================================
-    Component{
+    Component {
         id: radioPageComponent
-        Radio{
+        Radio {
             stackView: stackView
         }
     }
 
-    Component{
+    Component {
         id: audioPageComponent
-        Audio{
+        Audio {
             stackView: stackView
         }
     }
 
-    Component{
+    Component {
         id: videoPageComponent
-        Video{
+        Video {
             stackView: stackView
         }
     }

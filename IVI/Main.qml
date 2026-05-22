@@ -193,7 +193,7 @@ ApplicationWindow {
                 border.width: 1
 
                 Row {
-                    anchors.fill: parent; anchors.margins: 16
+                    anchors.fill: parent; anchors.margins: 25
                     spacing: 0
 
                     Column {
@@ -234,7 +234,7 @@ ApplicationWindow {
 
                     Image {
                         source: "qrc:/assets/images/mercedes.png"
-                        width: 32; height: 32; fillMode: Image.PreserveAspectFit
+                        width: 35; height: 35; fillMode: Image.PreserveAspectFit
                         anchors.verticalCenter: parent.verticalCenter
                     }
                 }

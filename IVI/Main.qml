@@ -182,7 +182,7 @@ ApplicationWindow {
                 }
             }
 
-            // TOP GLASS BAR
+                        // TOP GLASS BAR
             Rectangle {
                 id: topBar
                 anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right
@@ -192,51 +192,48 @@ ApplicationWindow {
                 border.color: Qt.rgba(1,1,1,0.08)
                 border.width: 1
 
-                Row {
-                    anchors.fill: parent; anchors.margins: 25
-                    spacing: 0
-
-                    Column {
-                        id: timeColumn
-                        anchors.verticalCenter: parent.verticalCenter; spacing: 1
-                        Text {
-                            id: timeText
-                            color: "#ffffff"
-                            font { pixelSize: 26; bold: true; family: "Arial" }
-                        }
-                        Text {
-                            id: dateText
-                            color: "#8899bb"
-                            font { pixelSize: 13; family: "Arial" }
-                        }
+                Column {
+                    id: timeColumn
+                    anchors.left: parent.left
+                    anchors.leftMargin: 25
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 1
+                    Text {
+                        id: timeText
+                        color: "#ffffff"
+                        font { pixelSize: 26; bold: true; family: "Arial" }
                     }
-
-                    Item { width: parent.width * 0.36; height: 1 }
-
-                    Column {
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 2
-                        Text {
-                            text: "Welcome"
-                            color: "#ffffff"
-                            font { pixelSize: 20; bold: true; family: "Arial" }
-                            anchors.horizontalCenter: parent.horizontalCenter
-                        }
-                        Text {
-                            text: "Drive Safe"
-                            color: "#8899bb"
-                            font { pixelSize: 16; family: "Arial" }
-                            anchors.horizontalCenter: parent.horizontalCenter
-                        }
+                    Text {
+                        id: dateText
+                        color: "#8899bb"
+                        font { pixelSize: 13; family: "Arial" }
                     }
+                }
 
-                    Item { width: parent.width * 0.38; height: 1 }
-
-                    Image {
-                        source: "qrc:/assets/images/mercedes.png"
-                        width: 35; height: 35; fillMode: Image.PreserveAspectFit
-                        anchors.verticalCenter: parent.verticalCenter
+                Column {
+                    id: welcomeColumn
+                    anchors.centerIn: parent;
+                    spacing: 2
+                    Text {
+                        text: "Welcome"
+                        color: "#ffffff"
+                        font { pixelSize: 20; bold: true; family: "Arial" }
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
+                    Text {
+                        text: "Drive Safe"
+                        color: "#8899bb"
+                        font { pixelSize: 16; family: "Arial" }
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                Image {
+                    id: mercedesLogo
+                    source: "qrc:/assets/images/mercedes.png"
+                    width: 35; height: 35; fillMode: Image.PreserveAspectFit
+                    anchors.right: parent.right; anchors.rightMargin: 25
+                    anchors.verticalCenter: parent.verticalCenter
                 }
             }
 
@@ -256,9 +253,9 @@ ApplicationWindow {
                 anchors.margins: 24; anchors.topMargin: 20
                 spacing: 20
 
-                // LEFT COLUMN (30%)
+                // LEFT COLUMN (30.5%)
                 Column {
-                    width: parent.width * 0.30; height: parent.height; spacing: 20
+                    width: parent.width * 0.305; height: parent.height; spacing: 20
 
                     // Weather
                     Item {
@@ -757,7 +754,7 @@ ApplicationWindow {
                                         ]
                                         Rectangle {
                                             width: 38; height: 38; radius: 8
-                                            color: launcherItem.hvacMode === index ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                            color: launcherItem.hvacMode === index ? '#18b78f' : Qt.rgba(1, 1, 1, 0.23)
                                             border.width: launcherItem.hvacMode === index ? 2 : 0
                                             border.color: "#FFFFFF"
                                             Image {
@@ -799,7 +796,7 @@ ApplicationWindow {
                                                 var s = 0.8 * Math.PI, e = 2.2 * Math.PI, c = s + t*(e-s)
                                                 ctx.clearRect(0,0,width,height)
                                                 ctx.beginPath(); ctx.arc(cx,cy,r,s,e); ctx.lineWidth=9; ctx.strokeStyle="#082839"; ctx.lineCap="round"; ctx.stroke()
-                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,c); ctx.lineWidth=9; ctx.strokeStyle="#D08831"; ctx.lineCap="round"; ctx.stroke()
+                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,c); ctx.lineWidth=9; ctx.strokeStyle="#18b78f"; ctx.lineCap="round"; ctx.stroke()
                                             }
                                             onValChanged: requestPaint()
                                             Component.onCompleted: requestPaint()
@@ -877,7 +874,7 @@ ApplicationWindow {
                                                 var s = 0.8 * Math.PI, e = 2.2 * Math.PI, c = s + t*(e-s)
                                                 ctx.clearRect(0,0,width,height)
                                                 ctx.beginPath(); ctx.arc(cx,cy,r,s,e); ctx.lineWidth=9; ctx.strokeStyle="#082839"; ctx.lineCap="round"; ctx.stroke()
-                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,c); ctx.lineWidth=9; ctx.strokeStyle="#D08831"; ctx.lineCap="round"; ctx.stroke()
+                                                ctx.beginPath(); ctx.arc(cx,cy,r,s,c); ctx.lineWidth=9; ctx.strokeStyle="#18b78f"; ctx.lineCap="round"; ctx.stroke()
                                             }
                                             onValChanged: requestPaint()
                                             Component.onCompleted: requestPaint()
@@ -944,7 +941,7 @@ ApplicationWindow {
                                     spacing: 8
                                     Rectangle {
                                         width: 36; height: 36; radius: 8
-                                        color: launcherItem.recircActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        color: launcherItem.recircActive ? '#18b78f' : Qt.rgba(1,1,1,0.08)
                                         border.color: "#FFFFFF"
                                         border.width: launcherItem.recircActive ? 2 : 0
                                         Text { anchors.centerIn: parent; text: "↻"; color: "#FFFFFF"; font.pixelSize: 14 }
@@ -952,7 +949,7 @@ ApplicationWindow {
                                     }
                                     Rectangle {
                                         width: 36; height: 36; radius: 8
-                                        color: launcherItem.airQualityActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        color: launcherItem.airQualityActive ? '#18b78f' : Qt.rgba(1,1,1,0.08)
                                         border.color: "#FFFFFF"
                                         border.width: launcherItem.airQualityActive ? 2 : 0
                                         Text { anchors.centerIn: parent; text: "AQ"; color: "#FFFFFF"; font.pixelSize: 10; font.bold: true }
@@ -967,7 +964,7 @@ ApplicationWindow {
                                     Rectangle {
                                         width: 36; height: 36; radius: 18
                                         color: launcherItem.climatePower ? '#964405' : Qt.rgba(1,1,1,0.08)
-                                        border.color: launcherItem.climatePower ? "#ff8844" : "transparent"
+                                        border.color: launcherItem.climatePower ? '#97ffffff' : "transparent"
                                         border.width: 1
                                         Text { anchors.centerIn: parent; text: "⏻"; color: "#FFFFFF"; font.pixelSize: 14 }
                                         MouseArea { anchors.fill: parent; onClicked: launcherItem.climatePower = !launcherItem.climatePower }
@@ -979,7 +976,7 @@ ApplicationWindow {
                                     }
                                     Rectangle {
                                         width: 36; height: 36; radius: 8
-                                        color: launcherItem.autoActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        color: launcherItem.autoActive ? '#18b78f' : Qt.rgba(1,1,1,0.08)
                                         border.color: "#FFFFFF"
                                         border.width: launcherItem.autoActive ? 2 : 0
                                         Text { anchors.centerIn: parent; text: "AUTO"; color: "#FFFFFF"; font.pixelSize: 9; font.bold: true }
@@ -988,7 +985,7 @@ ApplicationWindow {
                                     // SYNC
                                     Rectangle {
                                         width: 36; height: 36; radius: 8
-                                        color: launcherItem.hvacSyncActive ? '#D08831' : Qt.rgba(1,1,1,0.08)
+                                        color: launcherItem.hvacSyncActive ? '#18b78f' : Qt.rgba(1,1,1,0.08)
                                         border.color: "#FFFFFF"
                                         border.width: launcherItem.hvacSyncActive ? 2 : 0
                                         Text {
@@ -1008,9 +1005,9 @@ ApplicationWindow {
                     }
                 }
 
-                // ---- RIGHT COLUMN (30%) ----
+                // ---- RIGHT COLUMN (30.5%) ----
                 Column {
-                    width: parent.width * 0.30; height: parent.height; spacing: 20
+                    width: parent.width * 0.305; height: parent.height; spacing: 20
 
                     // Media Player
                     Item {

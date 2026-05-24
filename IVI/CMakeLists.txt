@@ -40,9 +40,9 @@ qt_add_qml_module(appIVI
         Components/NetworkCard.qml
         Components/MediaCard.qml
         Components/CarInfoPopup.qml
-        MediaPages/Audio.qml
-        MediaPages/Video.qml
-        MediaPages/Radio.qml
+        MediaPages/AudioPage.qml
+        MediaPages/VideoPage.qml
+        MediaPages/RadioPage.qml
         SettingPages/BluetoothPage.qml
         SettingPages/WiFiPage.qml
     RESOURCES

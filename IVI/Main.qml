@@ -14,6 +14,17 @@ ApplicationWindow {
 
     property bool splashDone: false
 
+    // ── Shared Media Player (persistent across all pages) ──
+    MediaPlayer {
+        id: sharedMediaPlayer
+        audioOutput: AudioOutput { id: sharedAudioOutput; volume: 0.7 }
+    }
+
+    property string currentMediaTitle: ""
+    property string currentMediaSubtitle: ""
+    property int    currentMediaType: 0      // 0=none, 1=radio, 2=audio, 3=video
+    property bool   mediaPlaying: sharedMediaPlayer.playbackState === MediaPlayer.PlayingState
+
     Settings {
         id: appSettings
         property string savedCity: "Giza"
@@ -1009,7 +1020,7 @@ ApplicationWindow {
                 Column {
                     width: parent.width * 0.305; height: parent.height; spacing: 20
 
-                    // Media Player
+                    // Media Player — MINI PLAYER TILE WITH CONTROLS
                     Item {
                         width: parent.width; height: parent.height * 0.65
                         Rectangle {
@@ -1042,55 +1053,159 @@ ApplicationWindow {
                                 NumberAnimation { target: mFloat; property: "y"; to: 4;  duration: 5500; easing.type: Easing.InOutSine }
                             }
 
+                            // Hover glow only — does NOT block clicks
+                            HoverHandler {
+                                onHoveredChanged: parent.hovered = hovered
+                            }
+
+                            // Small expand button (top-right) to open full page
+                            Rectangle {
+                                anchors.top: parent.top; anchors.right: parent.right
+                                anchors.margins: 18
+                                width: 35; height: 35; radius: 8
+                                color: expandMe.containsMouse ? Qt.rgba(1,1,1,0.15) : Qt.rgba(1,1,1,0.05)
+                                border.color: Qt.rgba(1,1,1,0.2)
+                                border.width: 1
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "↗"
+                                    color: "#aaccff"
+                                    font.pixelSize: 20
+                                    font.bold: true
+                                }
+                                MouseArea {
+                                    id: expandMe
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onClicked: launcherItem.openMedia()
+                                }
+                            }
+
                             Column {
-                                anchors.centerIn: parent; spacing: 12
+                                anchors.centerIn: parent; spacing: 10
+
+                                // Media icon
                                 Rectangle {
-                                    width: 80; height: 80; radius: 16
+                                    width: 70; height: 70; radius: 16
                                     color: Qt.rgba(1,1,1,0.08)
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    Text { anchors.centerIn: parent; text: "🎵"; font.pixelSize: 36 }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: mainWindow.currentMediaType === 1 ? "📻" : mainWindow.currentMediaType === 2 ? "🎵" : "🎬"
+                                        font.pixelSize: 32
+                                        visible: mainWindow.currentMediaType !== 0
+                                    }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "🎵"
+                                        font.pixelSize: 32
+                                        visible: mainWindow.currentMediaType === 0
+                                    }
                                 }
-                                Text { 
-                                    text: "Media Player"
+
+                                // Title
+                                Text {
+                                    text: mainWindow.currentMediaType !== 0 ? mainWindow.currentMediaTitle : "Media Player"
                                     color: "#ffffff"
-                                    font { pixelSize: 20; bold: true; family: "Arial" }
+                                    font { pixelSize: 18; bold: true; family: "Arial" }
                                     anchors.horizontalCenter: parent.horizontalCenter
+                                    elide: Text.ElideRight
+                                    width: parent.parent.width * 0.8
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
-                                Text { 
-                                    text: "Audio, Video & Radio"
+
+                                // Subtitle
+                                Text {
+                                    text: mainWindow.currentMediaType !== 0 ? mainWindow.currentMediaSubtitle : "Audio, Video & Radio"
                                     color: "#a3ffe0"
-                                    font { pixelSize: 13; family: "Arial" }
-                                    anchors.horizontalCenter: parent.horizontalCenter 
+                                    font { pixelSize: 12; family: "Arial" }
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    elide: Text.ElideRight
+                                    width: parent.parent.width * 0.8
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
+
+                                // MINI CONTROLS
+                                Row {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    spacing: 14
+                                    visible: mainWindow.currentMediaType !== 0
+
+                                    // Play/Pause
+                                    Rectangle {
+                                        width: 32; height: 32; radius: 16
+                                        color: tilePlayArea.containsMouse ? "#082839" : "#21cfa4"
+                                        border.color: "#21cfa4"
+                                        border.width: 1
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: mainWindow.mediaPlaying ? "❚❚" : "▶"
+                                            color: "#ffffff"
+                                            font.pixelSize: 14
+                                            font.bold: true
+                                        }
+                                        MouseArea {
+                                            id: tilePlayArea
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            onClicked: {
+                                                if (mainWindow.mediaPlaying) sharedMediaPlayer.pause()
+                                                else sharedMediaPlayer.play()
+                                            }
+                                        }
+                                    }
+
+                                    // Stop
+                                    Rectangle {
+                                        width: 32; height: 32; radius: 16
+                                        color: tileStopArea.containsMouse ? "#082839" : "#ff4444"
+                                        border.color: "#ff4444"
+                                        border.width: 1
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "⚪"
+                                            color: "#ffffff"
+                                            font.pixelSize: 14
+                                            font.bold: true
+                                        }
+                                        MouseArea {
+                                            id: tileStopArea
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            onClicked: {
+                                                sharedMediaPlayer.stop()
+                                                mainWindow.currentMediaType = 0
+                                                mainWindow.currentMediaTitle = ""
+                                                mainWindow.currentMediaSubtitle = ""
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Fake placeholder controls when idle (just for visual balance)
                                 Row {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 16
+                                    visible: mainWindow.currentMediaType === 0
                                     Text {
                                         text: "◀◀"
-                                        font.pixelSize: 16
+                                        font.pixelSize: 14
                                         color: "#21cfa4"
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
                                     Text {
                                         text: "▶"
-                                        font.pixelSize: 24
+                                        font.pixelSize: 20
                                         color: "#21cfa4"
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
                                     Text {
                                         text: "▶▶"
-                                        font.pixelSize: 16
+                                        font.pixelSize: 14
                                         color: "#21cfa4"
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
                                 }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent; hoverEnabled: true
-                                onEntered: parent.hovered = true
-                                onExited:  parent.hovered = false
-                                onClicked: launcherItem.openMedia()
                             }
                         }
                     }
@@ -1260,6 +1375,8 @@ ApplicationWindow {
     Component {
         id: mediaPage
         MediaPlayerPage {
+            mediaPlayer: sharedMediaPlayer
+            mediaPage: mainWindow
             onGoBack: stackView.pop()
         }
     }

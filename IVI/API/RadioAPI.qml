@@ -56,6 +56,9 @@ QtObject {
 
     function playStation(station) {
         radioPage.currentStation = station
+        radioPage.mediaPage.currentMediaTitle = station.name
+        radioPage.mediaPage.currentMediaSubtitle = (station.country || "") + " • " + (station.codec || "")
+        radioPage.mediaPage.currentMediaType = 1
         radioPlayer.stop()
         radioPlayer.source = station.url
         fetchData("https://de1.api.radio-browser.info/json/url/" + station.stationuuid, function() {})

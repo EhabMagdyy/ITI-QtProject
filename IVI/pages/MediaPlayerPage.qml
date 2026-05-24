@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
+import QtMultimedia
 pragma ComponentBehavior: Bound
 
 Item {
@@ -9,6 +10,12 @@ Item {
 
     property real fontSize: (width + height) / 60
     property color accentColor: "#D08831"
+
+    // ── Injected shared player & state owner (e.g. mainWindow) ──
+    required property MediaPlayer mediaPlayer
+    required property var        mediaPage
+
+    property bool mediaPlaying: mediaPlayer.playbackState === MediaPlayer.PlayingState
 
     WindowBar {
         id: titleBar
@@ -127,26 +134,161 @@ Item {
                 }
             }
         }
+
+        // Status bar inside MediaPlayerPage (visible when on media home and something is playing)
+        Rectangle {
+            id: statusBar
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottomMargin: root.height / 30
+            anchors.leftMargin: root.width / 15
+            anchors.rightMargin: root.width / 15
+            height: root.height / 12
+            radius: height / 2
+            color: "#5A3211"
+            border.color: "#D08831"
+            border.width: 1
+            visible: stackView.depth === 1 && mediaPage.currentMediaType !== 0
+            z: 2
+
+            Row {
+                anchors.fill: parent
+                anchors.margins: height * 0.2
+                anchors.leftMargin: height * 0.5
+                anchors.rightMargin: height * 0.5
+                spacing: root.width / 60
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: mediaPage.currentMediaType === 1 ? " 📻" : mediaPage.currentMediaType === 2 ? " 🎵" : " 🎬"
+                    font.pixelSize: parent.height * 0.7
+                    color: "#D08831"
+                }
+
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width * 0.55
+
+                    Text {
+                        text: mediaPage.currentMediaTitle || "Unknown"
+                        color: "#e7f1ef"
+                        font.pixelSize: statusBar.height * 0.3
+                        font.bold: true
+                        font.family: "Arial"
+                        elide: Text.ElideRight
+                        width: parent.width
+                    }
+                    Text {
+                        text: mediaPage.currentMediaSubtitle
+                        color: '#518693'
+                        font.pixelSize: statusBar.height * 0.21
+                        font.family: "Arial"
+                        elide: Text.ElideRight
+                        width: parent.width
+                    }
+                }
+
+                Item { width: parent.width * 0.05; height: 1 }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.mediaPlaying ? "  ▶  Playing" : "❚❚  Paused"
+                    color: '#ffffff'
+                    font.pixelSize: statusBar.height * 0.25
+                    font.family: "Arial"
+                    font.bold: true
+                }
+
+                Item { width: parent.width * 0.05; height: 1 }
+
+                // Play / Pause
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: statusBar.height * 0.65
+                    height: width
+                    radius: width / 2
+                    color: statusPlayArea.containsMouse ? "#082839" : "#964405"
+                    border.color: "#D08831"
+                    border.width: 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: root.mediaPlaying ? "❚❚" : "▶"
+                        color: "#ffffff"
+                        font.pixelSize: parent.width * 0.4
+                        font.family: "Arial"
+                        font.bold: true
+                    }
+                    MouseArea {
+                        id: statusPlayArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (root.mediaPlaying) mediaPlayer.pause()
+                            else mediaPlayer.play()
+                        }
+                    }
+                }
+
+                // Stop
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: statusBar.height * 0.65
+                    height: width
+                    radius: width / 2
+                    color: statusStopArea.containsMouse ? "#082839" : "#964405"
+                    border.color: "#D08831"
+                    border.width: 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "⚪"
+                        color: "#ffffff"
+                        font.pixelSize: parent.width * 0.45
+                        font.family: "Arial"
+                        font.bold: true
+                    }
+                    MouseArea {
+                        id: statusStopArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            mediaPlayer.stop()
+                            mediaPage.currentMediaType = 0
+                            mediaPage.currentMediaTitle = ""
+                            mediaPage.currentMediaSubtitle = ""
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // ============================================ Pages ===============================================
     Component {
         id: radioPageComponent
-        Radio {
+        RadioPage {
             stackView: stackView
+            mediaPlayer: root.mediaPlayer
+            mediaPage: root.mediaPage
         }
     }
 
     Component {
         id: audioPageComponent
-        Audio {
+        AudioPage {
             stackView: stackView
+            mediaPlayer: root.mediaPlayer
+            mediaPage: root.mediaPage
         }
     }
 
     Component {
         id: videoPageComponent
-        Video {
+        VideoPage {
             stackView: stackView
         }
     }

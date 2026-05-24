@@ -53,12 +53,11 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         visible: showBackButton
 
-        Text {
+        Image {
             anchors.centerIn: parent
-            text: "←"
-            color: "#FFFFFF"
-            font.bold: true
-            font.pixelSize: 16
+            source: "qrc:/assets/icons/home.png"
+            width: 13; height: 13
+            fillMode: Image.PreserveAspectFit
         }
 
         MouseArea {

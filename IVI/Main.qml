@@ -1022,7 +1022,7 @@ ApplicationWindow {
 
                     // Media Player — MINI PLAYER TILE WITH CONTROLS
                     Item {
-                        width: parent.width; height: parent.height * 0.65
+                        width: parent.width; height: parent.height * 0.45
                         Rectangle {
                             anchors.fill: parent; radius: 28
                             color: Qt.rgba(1,1,1,0.05)
@@ -1091,7 +1091,7 @@ ApplicationWindow {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     Text {
                                         anchors.centerIn: parent
-                                        text: mainWindow.currentMediaType === 1 ? "📻" : mainWindow.currentMediaType === 2 ? "🎵" : "🎬"
+                                        text: mainWindow.currentMediaType === 1 ? "📻" : "🎵"
                                         font.pixelSize: 32
                                         visible: mainWindow.currentMediaType !== 0
                                     }
@@ -1210,9 +1210,9 @@ ApplicationWindow {
                         }
                     }
 
-                    // Settings
+                    // Navigation
                     Item {
-                        width: parent.width; height: parent.height * 0.30
+                        width: parent.width; height: parent.height * 0.225
                         Rectangle {
                             anchors.fill: parent; radius: 28
                             color: Qt.rgba(1,1,1,0.05)
@@ -1234,6 +1234,70 @@ ApplicationWindow {
                             Rectangle {
                                 anchors.fill: parent; radius: parent.radius
                                 color: "#f79b55"; opacity: 0.06; z: -1; anchors.margins: -2
+                            }
+
+                            transform: Translate { id: navFloat }
+                            SequentialAnimation {
+                                loops: Animation.Infinite; running: true
+                                NumberAnimation { target: navFloat; property: "y"; to: -4; duration: 5500; easing.type: Easing.InOutSine }
+                                NumberAnimation { target: navFloat; property: "y"; to: 4;  duration: 5500; easing.type: Easing.InOutSine }
+                            }
+
+                            Column {
+                                anchors.centerIn: parent; spacing: 0
+                                Image {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    source: "qrc:/assets/icons/navigation.png"
+                                    width: 60; height: 60
+                                    fillMode: Image.PreserveAspectFit
+                                }
+                                Text {
+                                    text: "Navigation"
+                                    color: "#ffffff"
+                                    font { pixelSize: 16; bold: true; family: "Arial" }
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent; hoverEnabled: true
+                                onEntered: parent.hovered = true
+                                onExited:  parent.hovered = false
+                            }
+                        }
+                    }
+
+                    // Settings
+                    Item {
+                        width: parent.width; height: parent.height * 0.225
+                        Rectangle {
+                            anchors.fill: parent; radius: 28
+                            color: Qt.rgba(1,1,1,0.05)
+                            border.color: hovered ? Qt.rgba(1,1,1,0.3) : Qt.rgba(1,1,1,0.12)
+                            border.width: 1
+                            property bool hovered: false
+                            scale: hovered ? 1.05 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 200 } }
+                            Behavior on border.color { ColorAnimation { duration: 200 } }
+
+                            Rectangle {
+                                anchors.fill: parent; radius: parent.radius
+                                gradient: Gradient {
+                                    GradientStop { position: 0.0; color: Qt.rgba(1,1,1,0.08) }
+                                    GradientStop { position: 0.5; color: "transparent" }
+                                    GradientStop { position: 1.0; color: Qt.rgba(0,0,0,0.08) }
+                                }
+                            }
+                            Rectangle {
+                                anchors.fill: parent; radius: parent.radius
+                                color: "#f79b55"; opacity: 0.06; z: -1; anchors.margins: -2
+                            }
+
+                            transform: Translate { id: seFloat }
+                            SequentialAnimation {
+                                loops: Animation.Infinite; running: true
+                                NumberAnimation { target: seFloat; property: "y"; to: -4; duration: 5500; easing.type: Easing.InOutSine }
+                                NumberAnimation { target: seFloat; property: "y"; to: 4;  duration: 5500; easing.type: Easing.InOutSine }
                             }
 
                             Column {

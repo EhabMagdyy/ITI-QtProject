@@ -3,9 +3,9 @@ import QtQuick
 QtObject {
     id: radioAPI
 
-    required property var    stationsModel
-    required property var    radioPlayer
-    required property var    radioPage
+    required property var stationsModel
+    required property var radioPlayer
+    required property var mainWindow // Point to the global window
 
     signal loadingStarted()
     signal loadingFinished()
@@ -23,12 +23,8 @@ QtObject {
     }
 
     function buildURL() {
-        var url = "https://de1.api.radio-browser.info/json/stations/search?"
-        url += "hidebroken=true"
-        url += "&limit=100"
-        url += "&order=votes&reverse=true"
-        if (radioPage.searchQuery) url += "&name=" + encodeURIComponent(radioPage.searchQuery)
-        if (radioPage.tagFilter)   url += "&tag="  + encodeURIComponent(radioPage.tagFilter)
+        var url = "https://de1.api.radio-browser.info/json/stations/search?hidebroken=true&limit=100&order=votes&reverse=true"
+        if (mainWindow.radioSearchQuery) url += "&name=" + encodeURIComponent(mainWindow.radioSearchQuery)
         return url
     }
 
@@ -55,10 +51,12 @@ QtObject {
     }
 
     function playStation(station) {
-        radioPage.currentStation = station
-        radioPage.mediaPage.currentMediaTitle = station.name
-        radioPage.mediaPage.currentMediaSubtitle = (station.country || "") + " • " + (station.codec || "")
-        radioPage.mediaPage.currentMediaType = 1
+        mainWindow.currentRadioStation = station
+        mainWindow.currentMediaTitle = station.name
+        mainWindow.currentMediaSubtitle = (station.country || "") + " • " + (station.codec || "")
+        mainWindow.currentMediaFavicon = station.favicon || ""
+        mainWindow.currentMediaType = 1
+
         radioPlayer.stop()
         radioPlayer.source = station.url
         fetchData("https://de1.api.radio-browser.info/json/url/" + station.stationuuid, function() {})
@@ -66,54 +64,34 @@ QtObject {
     }
 
     function togglePlayPause() {
-        radioPlayer.playbackState === MediaPlayer.PlayingState
+        radioPlayer.playbackState === 1 // PlayingState
             ? radioPlayer.pause()
             : radioPlayer.play()
     }
 
     function playNext() {
-        if (!radioPage.currentStation || stationsModel.count === 0) return
+        if (!mainWindow.currentRadioStation || stationsModel.count === 0) return
         var currentIndex = -1
         for (var i = 0; i < stationsModel.count; i++) {
-            if (stationsModel.get(i).stationuuid === radioPage.currentStation.stationuuid) {
-                currentIndex = i
-                break
+            if (stationsModel.get(i).stationuuid === mainWindow.currentRadioStation.stationuuid) {
+                currentIndex = i; break;
             }
         }
         var nextIndex = currentIndex + 1
         if (nextIndex >= stationsModel.count) nextIndex = 0
-        var nextStation = stationsModel.get(nextIndex)
-        playStation({
-            stationuuid: nextStation.stationuuid,
-            name:        nextStation.name,
-            url:         nextStation.url,
-            favicon:     nextStation.favicon,
-            codec:       nextStation.codec,
-            tags:        nextStation.tags,
-            country:     nextStation.country
-        })
+        playStation(stationsModel.get(nextIndex))
     }
 
     function playPrevious() {
-        if (!radioPage.currentStation || stationsModel.count === 0) return
+        if (!mainWindow.currentRadioStation || stationsModel.count === 0) return
         var currentIndex = -1
         for (var i = 0; i < stationsModel.count; i++) {
-            if (stationsModel.get(i).stationuuid === radioPage.currentStation.stationuuid) {
-                currentIndex = i
-                break
+            if (stationsModel.get(i).stationuuid === mainWindow.currentRadioStation.stationuuid) {
+                currentIndex = i; break;
             }
         }
         var prevIndex = currentIndex - 1
         if (prevIndex < 0) prevIndex = stationsModel.count - 1
-        var prevStation = stationsModel.get(prevIndex)
-        playStation({
-            stationuuid: prevStation.stationuuid,
-            name:        prevStation.name,
-            url:         prevStation.url,
-            favicon:     prevStation.favicon,
-            codec:       prevStation.codec,
-            tags:        prevStation.tags,
-            country:     prevStation.country
-        })
+        playStation(stationsModel.get(prevIndex))
     }
 }

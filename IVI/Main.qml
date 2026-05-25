@@ -14,7 +14,51 @@ ApplicationWindow {
 
     property bool splashDone: false
 
-    // ── Shared Media Player (persistent across all pages) ──
+    // Splash screen
+    Item {
+        id: splashScreen
+        anchors.fill: parent
+        visible: !mainWindow.splashDone
+        z: 10
+
+        opacity: 1.0 
+        property bool fadingOut: false 
+
+        Behavior on opacity {
+            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+        }
+        Behavior on scale {
+            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+        }
+
+        Video {
+            id: splashVideo
+            anchors.fill: parent
+            source: "qrc:/assets/videos/splash.mp4"
+            autoPlay: true
+            loops: MediaPlayer.Once
+            fillMode: VideoOutput.PreserveAspectCrop
+            
+            playbackRate: 1.25 
+
+            onPositionChanged: {
+                if(duration > 0 && !splashScreen.fadingOut){
+                    if((duration - position) <= 500){
+                        splashScreen.fadingOut = true;
+                        splashScreen.opacity = 0; // Triggers the Behavior on opacity
+                    }
+                }
+            }
+
+            onPlaybackStateChanged: {
+                if(playbackState === MediaPlayer.StoppedState){
+                    mainWindow.splashDone = true 
+                }
+            }
+        }
+    }
+
+    // Shared Media Player (persistent across all pages)
     MediaPlayer {
         id: sharedMediaPlayer
         audioOutput: AudioOutput { id: sharedAudioOutput; volume: 0.7 }
@@ -22,8 +66,30 @@ ApplicationWindow {
 
     property string currentMediaTitle: ""
     property string currentMediaSubtitle: ""
-    property int    currentMediaType: 0      // 0=none, 1=radio, 2=audio, 3=video
+    property string currentMediaFavicon: ""
+    property int    currentMediaType: 0
     property bool   mediaPlaying: sharedMediaPlayer.playbackState === MediaPlayer.PlayingState
+
+    // --- NEW: GLOBAL RADIO STATE ---
+    property string radioSearchQuery: ""
+    property bool   radioSearchAttempted: false
+    property bool   radioIsLoading: false
+    property var    currentRadioStation: null
+
+    // Persistent Model & API
+    property alias  globalStationsModel: globalModel
+    property var    globalRadioAPI: mainRadioAPI
+
+    ListModel { id: globalModel }
+
+    RadioAPI {
+        id: mainRadioAPI
+        stationsModel: globalModel
+        radioPlayer: sharedMediaPlayer
+        mainWindow: mainWindow
+        onLoadingStarted: mainWindow.radioIsLoading = true
+        onLoadingFinished: mainWindow.radioIsLoading = false
+    }
 
     Settings {
         id: appSettings
@@ -47,9 +113,7 @@ ApplicationWindow {
         initialItem: launcherPage
     }
 
-    // ============================================================
     // LAUNCHER PAGE
-    // ============================================================
     Component {
         id: launcherPage
 
@@ -1089,12 +1153,28 @@ ApplicationWindow {
                                     width: 70; height: 70; radius: 16
                                     color: Qt.rgba(1,1,1,0.08)
                                     anchors.horizontalCenter: parent.horizontalCenter
+
+                                    // Favicon Image
+                                    Image {
+                                        id: faviconImage
+                                        anchors.fill: parent
+                                        anchors.margins: 6
+                                        source: mainWindow.currentMediaFavicon
+                                        fillMode: Image.PreserveAspectCrop
+                                        asynchronous: true
+                                        // Visible ONLY if it's a radio, has a URL, and loaded successfully without errors
+                                        visible: mainWindow.currentMediaType === 1 && mainWindow.currentMediaFavicon !== "" && status === Image.Ready
+                                    }
+
+                                    // Active Media Fallback (shown if the image fails or doesn't exist)
                                     Text {
                                         anchors.centerIn: parent
                                         text: mainWindow.currentMediaType === 1 ? "📻" : "🎵"
                                         font.pixelSize: 32
-                                        visible: mainWindow.currentMediaType !== 0
+                                        visible: mainWindow.currentMediaType !== 0 && !faviconImage.visible
                                     }
+                                    
+                                    // Idle Media State
                                     Text {
                                         anchors.centerIn: parent
                                         text: "🎵"
@@ -1131,23 +1211,27 @@ ApplicationWindow {
                                     spacing: 14
                                     visible: mainWindow.currentMediaType !== 0
 
+                                    // Previous
+                                    Rectangle {
+                                        width: 32; height: 32; radius: 16
+                                        color: tilePrevArea.containsMouse ? "#082839" : "#21cfa4"
+                                        border.color: "#21cfa4"; border.width: 1
+                                        visible: mainWindow.currentMediaType === 1 // Only for radio
+                                        Text { anchors.centerIn: parent; text: "◀◀"; color: "#ffffff"; font.pixelSize: 10; font.bold: true }
+                                        MouseArea {
+                                            id: tilePrevArea; anchors.fill: parent; hoverEnabled: true
+                                            onClicked: mainWindow.globalRadioAPI.playPrevious()
+                                        }
+                                    }
+
                                     // Play/Pause
                                     Rectangle {
                                         width: 32; height: 32; radius: 16
                                         color: tilePlayArea.containsMouse ? "#082839" : "#21cfa4"
-                                        border.color: "#21cfa4"
-                                        border.width: 1
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: mainWindow.mediaPlaying ? "❚❚" : "▶"
-                                            color: "#ffffff"
-                                            font.pixelSize: 14
-                                            font.bold: true
-                                        }
+                                        border.color: "#21cfa4"; border.width: 1
+                                        Text { anchors.centerIn: parent; text: mainWindow.mediaPlaying ? "❚❚" : "▶"; color: "#ffffff"; font.pixelSize: 14; font.bold: true }
                                         MouseArea {
-                                            id: tilePlayArea
-                                            anchors.fill: parent
-                                            hoverEnabled: true
+                                            id: tilePlayArea; anchors.fill: parent; hoverEnabled: true
                                             onClicked: {
                                                 if (mainWindow.mediaPlaying) sharedMediaPlayer.pause()
                                                 else sharedMediaPlayer.play()
@@ -1159,25 +1243,31 @@ ApplicationWindow {
                                     Rectangle {
                                         width: 32; height: 32; radius: 16
                                         color: tileStopArea.containsMouse ? "#082839" : "#ff4444"
-                                        border.color: "#ff4444"
-                                        border.width: 1
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "⚪"
-                                            color: "#ffffff"
-                                            font.pixelSize: 14
-                                            font.bold: true
-                                        }
+                                        border.color: "#ff4444"; border.width: 1
+                                        Text { anchors.centerIn: parent; text: "⚪"; color: "#ffffff"; font.pixelSize: 14; font.bold: true }
                                         MouseArea {
-                                            id: tileStopArea
-                                            anchors.fill: parent
-                                            hoverEnabled: true
+                                            id: tileStopArea; anchors.fill: parent; hoverEnabled: true
                                             onClicked: {
                                                 sharedMediaPlayer.stop()
                                                 mainWindow.currentMediaType = 0
                                                 mainWindow.currentMediaTitle = ""
                                                 mainWindow.currentMediaSubtitle = ""
+                                                mainWindow.currentMediaFavicon = ""
+                                                mainWindow.currentRadioStation = null // Clear radio specific
                                             }
+                                        }
+                                    }
+
+                                    // Next
+                                    Rectangle {
+                                        width: 32; height: 32; radius: 16
+                                        color: tileNextArea.containsMouse ? "#082839" : "#21cfa4"
+                                        border.color: "#21cfa4"; border.width: 1
+                                        visible: mainWindow.currentMediaType === 1
+                                        Text { anchors.centerIn: parent; text: "▶▶"; color: "#ffffff"; font.pixelSize: 10; font.bold: true }
+                                        MouseArea {
+                                            id: tileNextArea; anchors.fill: parent; hoverEnabled: true
+                                            onClicked: mainWindow.globalRadioAPI.playNext()
                                         }
                                     }
                                 }

@@ -189,7 +189,7 @@ Item {
                     }
                 }
 
-                Item { width: parent.width * 0.05; height: 1 }
+                Item { width: parent.width * 0.04; height: 1 }
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
@@ -200,7 +200,20 @@ Item {
                     font.bold: true
                 }
 
-                Item { width: parent.width * 0.05; height: 1 }
+                // Previous
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: statusBar.height * 0.65; height: width; radius: width / 2
+                    color: statusPrevArea.containsMouse ? "#082839" : "#964405"
+                    border.color: "#D08831"; border.width: 1
+                    visible: mediaPage.currentMediaType === 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Text { anchors.centerIn: parent; text: "◀◀"; color: "#ffffff"; font.pixelSize: parent.width * 0.35; font.bold: true }
+                    MouseArea {
+                        id: statusPrevArea; anchors.fill: parent; hoverEnabled: true
+                        onClicked: mediaPage.globalRadioAPI.playPrevious()
+                    }
+                }
 
                 // Play / Pause
                 Rectangle {
@@ -260,7 +273,23 @@ Item {
                             mediaPage.currentMediaType = 0
                             mediaPage.currentMediaTitle = ""
                             mediaPage.currentMediaSubtitle = ""
+                            mediaPage.currentRadioStation = null
                         }
+                    }
+                }
+
+                // Next
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: statusBar.height * 0.65; height: width; radius: width / 2
+                    color: statusNextArea.containsMouse ? "#082839" : "#964405"
+                    border.color: "#D08831"; border.width: 1
+                    visible: mediaPage.currentMediaType === 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Text { anchors.centerIn: parent; text: "▶▶"; color: "#ffffff"; font.pixelSize: parent.width * 0.35; font.bold: true }
+                    MouseArea {
+                        id: statusNextArea; anchors.fill: parent; hoverEnabled: true
+                        onClicked: mediaPage.globalRadioAPI.playNext()
                     }
                 }
             }

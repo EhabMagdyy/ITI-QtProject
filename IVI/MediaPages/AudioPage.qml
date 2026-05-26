@@ -90,7 +90,6 @@ Rectangle {
             Repeater {
                 model: [
                     { label: "🗂️  Local",    idx: 0 },
-                    { label: "🌐  Internet", idx: 1 },
                     { label: "🔵  Bluetooth",idx: 2 },
                     { label: "💾  USB",      idx: 3 }
                 ]
@@ -130,7 +129,7 @@ Rectangle {
             // =============== Spacer ===================
             Rectangle{
                 width: 1
-                height: audioPage.height / 3
+                height: audioPage.height / 2.3
                 color: "transparent"
             }
 
@@ -229,172 +228,6 @@ Rectangle {
                     font.family: "Arial"
                     width: audioPage.audioSelected? audioPage.width / 3 : audioPage.width / 4.1
                     wrapMode: Text.WordWrap
-                    anchors.top: parent.top
-                    anchors.topMargin: audioPage.audioSelected? audioPage.height / 15 : 0
-                }
-            }
-        }
-
-        // ================================================ Internet audio ============================================
-        Rectangle {
-            id: internetAudio
-            anchors.fill: parent 
-            visible: rightPanel.currentIndex === 1
-            color: 'transparent'
-
-            onVisibleChanged: {
-                if (visible) rightPanel.browseIcon = "🌐"
-            }
-
-            Dialog {
-                id: urlDialog
-                title: "Enter Audio URL"
-                anchors.centerIn: parent
-                width: audioPage.width / 2.5
-                contentHeight: audioPage.height / 10
-                modal: true
-                standardButtons: Dialog.Ok | Dialog.Cancel
-
-                background: Rectangle {
-                    color: '#082839'
-                    radius: 5
-                    border.color: '#D08831'
-                    border.width: 1
-                }
-
-                header: Rectangle {
-                    color: 'transparent'
-                    height: audioPage.height / 20
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Enter Audio URL"
-                        color: '#D08831'
-                        font.pixelSize: audioPage.width / 70
-                        font.bold: true
-                        font.family: "Arial"
-                    }
-                }
-
-                palette {
-                    buttonText: "#D08831"
-                    button: "#082839"
-                    dark: "#D08831"
-                    highlight: "#5A3211"
-                    window: "#082839"
-                    windowText: "#e7f1ef"
-                    base: "#082839"
-                    text: "#e7f1ef"
-                }
-
-                onAccepted: {
-                    if(urlField.text !== "") {
-                        mediaPlayer.source = urlField.text
-                        mediaPage.currentMediaType = 2
-                        mediaPage.currentMediaTitle = urlField.text
-                        mediaPage.currentMediaSubtitle = "Internet Stream"
-                        mediaPlayer.play()
-                    }
-                }
-                onOpened: urlField.forceActiveFocus()
-
-                TextField {
-                    id: urlField
-                    width: urlDialog.width - urlDialog.width * 0.1
-                    height: urlDialog.height / 3.3
-                    placeholderText: "https://..."
-                    placeholderTextColor: '#3D717E'
-                    color: '#e7f1ef'
-                    font.pixelSize: audioPage.width / 90
-                    font.family: "Arial"
-                    leftPadding: 12
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Keys.onReturnPressed: urlDialog.accept()
-
-                    background: Rectangle {
-                        color: '#082839'
-                        radius: 8
-                        border.color: urlField.activeFocus ? '#D08831' : '#3D717E'
-                        border.width: 1
-                        Behavior on border.color { ColorAnimation { duration: 150 } }
-                    }
-                }
-            }
-
-            Row {
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: -audioController.height / 2
-                spacing: audioPage.width / 40
-
-                Item {
-                    id: loadingItem
-                    width: audioPage.height / 3
-                    height: width
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: audioPage.audioSelected && audioPage.errorMessage === ""
-
-                    property bool isLoading: mediaPlayer.mediaStatus === MediaPlayer.BufferingMedia ||
-                                            mediaPlayer.mediaStatus === MediaPlayer.LoadingMedia   ||
-                                            mediaPlayer.mediaStatus === MediaPlayer.StalledMedia
-
-                    Image {
-                        anchors.fill: parent
-                        source: "qrc:/assets//icons/audio.png"
-                        fillMode: Image.PreserveAspectFit
-                        visible: !parent.isLoading
-                        opacity: visible ? 1 : 0
-                    }
-
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 8
-                        visible: parent.isLoading
-
-                        Rectangle {
-                            width: audioPage.width / 30
-                            height: width
-                            radius: width / 2
-                            color: 'transparent'
-                            border.color: '#D08831'
-                            border.width: 3
-                            anchors.horizontalCenter: parent.horizontalCenter
-
-                            Rectangle {
-                                width: parent.border.width + 2
-                                height: parent.border.width + 2
-                                color: '#082839'
-                                anchors.top: parent.top
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-
-                            RotationAnimation on rotation {
-                                running: loadingItem.isLoading
-                                loops: Animation.Infinite
-                                duration: 900
-                                from: 0; to: 360
-                            }
-                        }
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: mediaPlayer.mediaStatus === MediaPlayer.StalledMedia ? "⚠  Stalled" : "Loading..."
-                            color: '#D08831'
-                            font.pixelSize: audioPage.width / 85
-                            font.family: "Arial"
-                        }
-                    }
-                }
-
-                Text {
-                    text: audioPage.errorMessage !== "" ? audioPage.errorMessage : audioPage.audioSelected ? 
-                            mediaPlayer.source.toString().split("/").pop().replace(/\.[^.]+$/, "") : "Enter audio URL to stream"
-                    color: audioPage.errorMessage !== "" ? '#ff4444' : audioPage.audioSelected  ? '#e7f1ef' : '#3D717E'
-                    font.family: "Arial"
-                    font.bold: audioPage.audioSelected
-                    font.pixelSize: audioPage.errorMessage !== "" ? audioPage.width / 75
-                                : audioPage.audioSelected       ? audioPage.width / 60
-                                : audioPage.width / 35
-                    wrapMode: Text.WordWrap
-                    width: audioPage.width / 3
                     anchors.top: parent.top
                     anchors.topMargin: audioPage.audioSelected? audioPage.height / 15 : 0
                 }

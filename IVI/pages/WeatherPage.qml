@@ -56,6 +56,14 @@ Item {
         color0: '#082839'
         color1: '#10475E'
         color2: '#3D717E'
+
+        brightnessValue: mainWindow.appBrightness
+        volumeValue: systemVolume.volume
+        volumeMuted: systemVolume.muted
+        
+        onBrightnessChanged: (value) => mainWindow.appBrightness = value
+        onVolumeChanged: (value) => systemVolume.volume = value
+        onVolumeMuteToggled: systemVolume.toggleMute()
     }
 
     // Weather helper

@@ -58,6 +58,27 @@ ApplicationWindow {
         }
     }
 
+    property real appBrightness: 1.0
+
+    // GLOBAL BRIGHTNESS OVERLAY
+    Rectangle {
+        id: brightnessOverlay
+        parent: Overlay.overlay // Ensures it sits above popups and dialogs
+        anchors.fill: parent
+        color: "black"
+        z: 99999
+        
+        // Invert the brightness to get opacity. 
+        // Example: Brightness 1.0 -> Opacity 0.0 (Invisible)
+        // Example: Brightness 0.2 -> Opacity 0.8 (Dark screen)
+        opacity: 1.0 - mainWindow.appBrightness 
+        
+        // Optional: Animate the brightness changes so it feels premium
+        Behavior on opacity {
+            NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
+        }
+    }
+
     // Shared Media Player (persistent across all pages)
     MediaPlayer {
         id: sharedMediaPlayer
@@ -257,7 +278,7 @@ ApplicationWindow {
                 }
             }
 
-                        // TOP GLASS BAR
+            // TOP GLASS BAR
             Rectangle {
                 id: topBar
                 anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right
@@ -1117,12 +1138,10 @@ ApplicationWindow {
                                 NumberAnimation { target: mFloat; property: "y"; to: 4;  duration: 5500; easing.type: Easing.InOutSine }
                             }
 
-                            // Hover glow only — does NOT block clicks
                             HoverHandler {
                                 onHoveredChanged: parent.hovered = hovered
                             }
 
-                            // Small expand button (top-right) to open full page
                             Rectangle {
                                 anchors.top: parent.top; anchors.right: parent.right
                                 anchors.margins: 18
@@ -1148,13 +1167,11 @@ ApplicationWindow {
                             Column {
                                 anchors.centerIn: parent; spacing: 10
 
-                                // Media icon
                                 Rectangle {
                                     width: 70; height: 70; radius: 16
                                     color: Qt.rgba(1,1,1,0.08)
                                     anchors.horizontalCenter: parent.horizontalCenter
 
-                                    // Favicon Image
                                     Image {
                                         id: faviconImage
                                         anchors.fill: parent
@@ -1162,11 +1179,9 @@ ApplicationWindow {
                                         source: mainWindow.currentMediaFavicon
                                         fillMode: Image.PreserveAspectCrop
                                         asynchronous: true
-                                        // Visible ONLY if it's a radio, has a URL, and loaded successfully without errors
                                         visible: mainWindow.currentMediaType === 1 && mainWindow.currentMediaFavicon !== "" && status === Image.Ready
                                     }
 
-                                    // Active Media Fallback (shown if the image fails or doesn't exist)
                                     Text {
                                         anchors.centerIn: parent
                                         text: mainWindow.currentMediaType === 1 ? "📻" : "🎵"
@@ -1174,7 +1189,6 @@ ApplicationWindow {
                                         visible: mainWindow.currentMediaType !== 0 && !faviconImage.visible
                                     }
                                     
-                                    // Idle Media State
                                     Text {
                                         anchors.centerIn: parent
                                         text: "🎵"
@@ -1183,7 +1197,6 @@ ApplicationWindow {
                                     }
                                 }
 
-                                // Title
                                 Text {
                                     text: mainWindow.currentMediaType !== 0 ? mainWindow.currentMediaTitle : "Media Player"
                                     color: "#ffffff"
@@ -1194,7 +1207,6 @@ ApplicationWindow {
                                     horizontalAlignment: Text.AlignHCenter
                                 }
 
-                                // Subtitle
                                 Text {
                                     text: mainWindow.currentMediaType !== 0 ? mainWindow.currentMediaSubtitle : "Audio, Video & Radio"
                                     color: "#a3ffe0"
@@ -1205,18 +1217,16 @@ ApplicationWindow {
                                     horizontalAlignment: Text.AlignHCenter
                                 }
 
-                                // MINI CONTROLS
                                 Row {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 14
                                     visible: mainWindow.currentMediaType !== 0
 
-                                    // Previous
                                     Rectangle {
                                         width: 32; height: 32; radius: 16
                                         color: tilePrevArea.containsMouse ? "#082839" : "#21cfa4"
                                         border.color: "#21cfa4"; border.width: 1
-                                        visible: mainWindow.currentMediaType === 1 // Only for radio
+                                        visible: mainWindow.currentMediaType === 1
                                         Text { anchors.centerIn: parent; text: "◀◀"; color: "#ffffff"; font.pixelSize: 10; font.bold: true }
                                         MouseArea {
                                             id: tilePrevArea; anchors.fill: parent; hoverEnabled: true
@@ -1224,7 +1234,6 @@ ApplicationWindow {
                                         }
                                     }
 
-                                    // Play/Pause
                                     Rectangle {
                                         width: 32; height: 32; radius: 16
                                         color: tilePlayArea.containsMouse ? "#082839" : "#21cfa4"
@@ -1239,7 +1248,6 @@ ApplicationWindow {
                                         }
                                     }
 
-                                    // Stop
                                     Rectangle {
                                         width: 32; height: 32; radius: 16
                                         color: tileStopArea.containsMouse ? "#082839" : "#ff4444"
@@ -1253,12 +1261,11 @@ ApplicationWindow {
                                                 mainWindow.currentMediaTitle = ""
                                                 mainWindow.currentMediaSubtitle = ""
                                                 mainWindow.currentMediaFavicon = ""
-                                                mainWindow.currentRadioStation = null // Clear radio specific
+                                                mainWindow.currentRadioStation = null
                                             }
                                         }
                                     }
 
-                                    // Next
                                     Rectangle {
                                         width: 32; height: 32; radius: 16
                                         color: tileNextArea.containsMouse ? "#082839" : "#21cfa4"
@@ -1272,7 +1279,6 @@ ApplicationWindow {
                                     }
                                 }
 
-                                // Fake placeholder controls when idle (just for visual balance)
                                 Row {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 16
@@ -1300,16 +1306,17 @@ ApplicationWindow {
                         }
                     }
 
-                    // Navigation
+                    // Brightness Control (Left)
                     Item {
-                        width: parent.width; height: parent.height * 0.225
+                        width: parent.width
+                        height: parent.width * 0.39
                         Rectangle {
                             anchors.fill: parent; radius: 28
                             color: Qt.rgba(1,1,1,0.05)
-                            border.color: hovered ? Qt.rgba(1,1,1,0.3) : Qt.rgba(1,1,1,0.12)
+                            border.color: hovered ? Qt.rgba(0.95,0.75,0.2,0.5) : Qt.rgba(1,1,1,0.12)
                             border.width: 1
                             property bool hovered: false
-                            scale: hovered ? 1.05 : 1.0
+                            scale: hovered ? 1.02 : 1.0
                             Behavior on scale { NumberAnimation { duration: 200 } }
                             Behavior on border.color { ColorAnimation { duration: 200 } }
 
@@ -1323,43 +1330,86 @@ ApplicationWindow {
                             }
                             Rectangle {
                                 anchors.fill: parent; radius: parent.radius
-                                color: "#f79b55"; opacity: 0.06; z: -1; anchors.margins: -2
+                                color: "#f7c45f"; opacity: 0.06; z: -1; anchors.margins: -2
                             }
 
-                            transform: Translate { id: navFloat }
+                            transform: Translate { id: brFloat }
                             SequentialAnimation {
                                 loops: Animation.Infinite; running: true
-                                NumberAnimation { target: navFloat; property: "y"; to: -4; duration: 5500; easing.type: Easing.InOutSine }
-                                NumberAnimation { target: navFloat; property: "y"; to: 4;  duration: 5500; easing.type: Easing.InOutSine }
+                                NumberAnimation { target: brFloat; property: "y"; to: -3; duration: 5200; easing.type: Easing.InOutSine }
+                                NumberAnimation { target: brFloat; property: "y"; to: 3;  duration: 5200; easing.type: Easing.InOutSine }
+                            }
+
+                            HoverHandler {
+                                onHoveredChanged: parent.hovered = hovered
                             }
 
                             Column {
-                                anchors.centerIn: parent; spacing: 0
+                                anchors.centerIn: parent
+                                spacing: 6
+                                width: parent.width * 0.75
+
                                 Image {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    source: "qrc:/assets/icons/navigation.png"
-                                    width: 60; height: 60
+                                    source: "qrc:/assets/icons/brightness.png"
+                                    width: 34; height: 34
                                     fillMode: Image.PreserveAspectFit
                                 }
                                 Text {
-                                    text: "Navigation"
+                                    text: "Brightness"
                                     color: "#ffffff"
-                                    font { pixelSize: 16; bold: true; family: "Arial" }
+                                    font { pixelSize: 14; bold: true; family: "Arial" }
                                     anchors.horizontalCenter: parent.horizontalCenter
                                 }
-                            }
+                                Slider {
+                                    id: brightnessSlider
+                                    width: parent.width
+                                    height: 28
+                                    from: 0.1
+                                    to: 1.0
+                                    stepSize: 0.01
+                                    live: true
+                                    value: mainWindow.appBrightness
 
-                            MouseArea {
-                                anchors.fill: parent; hoverEnabled: true
-                                onEntered: parent.hovered = true
-                                onExited:  parent.hovered = false
+                                    onValueChanged: {
+                                        if (pressed && Math.abs(mainWindow.appBrightness - value) > 0.001)
+                                            mainWindow.appBrightness = value
+                                    }
+
+                                    background: Rectangle {
+                                        x: brightnessSlider.leftPadding
+                                        y: brightnessSlider.topPadding + brightnessSlider.availableHeight / 2 - height / 2
+                                        width: brightnessSlider.availableWidth
+                                        height: 6
+                                        radius: 3
+                                        color: "#082839"
+
+                                        Rectangle {
+                                            width: brightnessSlider.visualPosition * parent.width
+                                            height: parent.height
+                                            color: '#D08831'
+                                            radius: 3
+                                        }
+                                    }
+
+                                    handle: Rectangle {
+                                        x: brightnessSlider.leftPadding + brightnessSlider.visualPosition * (brightnessSlider.availableWidth - width)
+                                        y: brightnessSlider.topPadding + brightnessSlider.availableHeight / 2 - height / 2
+                                        width: 16
+                                        height: 16
+                                        radius: 8
+                                        color: brightnessSlider.pressed ? "#ffffff" : '#815116'
+                                        border.color: "#ffffff"
+                                        border.width: 1.5
+                                    }
+                                }
                             }
                         }
                     }
-
                     // Settings
                     Item {
-                        width: parent.width; height: parent.height * 0.225
+                        width: parent.width
+                        height: parent.width * 0.33
                         Rectangle {
                             anchors.fill: parent; radius: 28
                             color: Qt.rgba(1,1,1,0.05)

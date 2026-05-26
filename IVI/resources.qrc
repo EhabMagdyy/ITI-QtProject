@@ -22,5 +22,8 @@
         <file>assets/icons/feet.png</file>
         <file>assets/icons/home.png</file>
         <file>assets/icons/navigation.png</file>
+        <file>assets/icons/brightness.png</file>
+        <file>assets/icons/volumedown.png</file>
+        <file>assets/icons/volumeup.png</file>
     </qresource>
 </RCC>

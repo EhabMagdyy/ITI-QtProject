@@ -9,9 +9,7 @@ Item {
 
     signal goBack()
 
-    /* ============================================
-       NEW — exposed for home-page two-way sync
-       ============================================ */
+    // Exposed for home-page two-way sync
     property int frontTempValue: 23
     property int backTempValue: 23
     property int frontFanValue: 3
@@ -43,9 +41,7 @@ Item {
             backFanLoader.item.value = backFanValue
     }
 
-    /* ============================================
-       BACKGROUND — dark navy with subtle dot grid
-       ============================================ */
+    // BACKGROUND — dark navy with subtle dot grid
     Rectangle {
         z: -1
         anchors.fill: parent
@@ -73,9 +69,7 @@ Item {
         }
     }
 
-    /* ============================================
-       EXTERNAL COMPONENTS
-       ============================================ */
+    // EXTERNAL COMPONENTS
     WindowBar {
         id: titleBar
         z: 100
@@ -86,6 +80,15 @@ Item {
         color0: '#0a2f43'
         color1: '#10475E'
         color2: '#3e7785'
+
+        // Bind to your existing global properties
+        brightnessValue: mainWindow.appBrightness
+        volumeValue: systemVolume.volume
+        volumeMuted: systemVolume.muted
+
+        onBrightnessChanged: (value) => mainWindow.appBrightness = value
+        onVolumeChanged: (value) => systemVolume.volume = value
+        onVolumeMuteToggled: systemVolume.toggleMute()
     }
 
     WindowResize {
@@ -94,9 +97,7 @@ Item {
         window: root.Window.window
     }
 
-    /* ============================================
-       MAIN CONTENT
-       ============================================ */
+    // MAIN CONTENT
     Item {
         id: mainContent
         anchors {
@@ -119,9 +120,7 @@ Item {
 
             Item { Layout.fillWidth: true }
 
-            /* ============================================
-               FRONT PANEL
-               ============================================ */
+            // FRONT PANEL
             Item {
                 Layout.preferredWidth: 250
                 Layout.preferredHeight: 420
@@ -299,9 +298,7 @@ Item {
 
             Item { Layout.preferredWidth: 1 }
 
-            /* ============================================
-               BACK PANEL
-               ============================================ */
+            // BACK PANEL
             Item {
                 Layout.preferredWidth: 250
                 Layout.preferredHeight: 420
@@ -468,9 +465,7 @@ Item {
             Item { Layout.fillWidth: true }
         }
 
-        /* ============================================
-           BOTTOM GLOBAL CONTROLS
-           ============================================ */
+        // BOTTOM GLOBAL CONTROLS
         Rectangle {
             id: bottomBar
             anchors.bottom: parent.bottom
@@ -615,9 +610,7 @@ Item {
         }
     }
 
-    /* ============================================
-       SYNC LOGIC  (unchanged — still works)
-       ============================================ */
+    // SYNC LOGIC  (unchanged — still works)
     onSyncActiveChanged: {
         if (syncActive) {
             if (backTempLoader.item && frontTempLoader.item)
@@ -643,9 +636,7 @@ Item {
         }
     }
 
-    /* ============================================
-       DIAL COMPONENT — autumn palette
-       ============================================ */
+    // DIAL COMPONENT — autumn palette
     Component {
         id: dialComponent
 

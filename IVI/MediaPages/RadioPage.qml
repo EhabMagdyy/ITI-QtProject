@@ -11,23 +11,6 @@ Rectangle {
     anchors.fill: parent
     color: "transparent"
 
-    property var currentStation: null
-    property string searchQuery: ""
-    property string tagFilter: ""
-    property bool isLoading: false
-    property bool searchAttempted: false
-
-    RadioAPI {
-        id: api
-        stationsModel: stationsModel
-        radioPlayer:   mediaPlayer
-        radioPage:     radioPage
-        onLoadingStarted: radioPage.isLoading = true
-        onLoadingFinished: radioPage.isLoading = false
-    }
-
-    ListModel { id: stationsModel }
-
     // ── Listen to shared player status ──
     Connections {
         target: mediaPlayer
@@ -96,14 +79,17 @@ Rectangle {
                     font.pixelSize: radioPage.width / 60
                     font.family: "Arial"
                     clip: true
+                    
+                    // Bind to the global saved query
+                    text: mediaPage.radioSearchQuery 
+                    
                     onTextChanged: {
-                        radioPage.searchQuery = text
-                        if (text === "") radioPage.searchAttempted = false
+                        mediaPage.radioSearchQuery = text
+                        if (text === "") mediaPage.radioSearchAttempted = false
                     }
                     onAccepted: {
-                        radioPage.searchAttempted = true
-                        stationsModel.clear()
-                        api.fetchStations()
+                        mediaPage.radioSearchAttempted = true
+                        mediaPage.globalRadioAPI.fetchStations()
                     }
 
                     Text {
@@ -141,9 +127,9 @@ Rectangle {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        radioPage.searchAttempted = true
-                        stationsModel.clear()
-                        api.fetchStations()
+                        mediaPage.radioSearchAttempted = true
+                        mediaPage.globalStationsModel.clear()
+                        mediaPage.globalRadioAPI.fetchStations()
                     }
                 }
             }
@@ -159,7 +145,7 @@ Rectangle {
                     id: titleGlass
                     anchors.fill: parent
                     radius: height / 5
-                    color: radioPage.currentStation ? "#964405" : "#3D717E"
+                    color: mediaPage.currentRadioStation ? "#964405" : "#3D717E"
                     border.width: 1
                     border.color: "#50FFFFFF"
                     visible: false
@@ -189,7 +175,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: radioPage.currentStation ? "▶ " + radioPage.currentStation.name : "📻  Radio Browser"
+                    text: mediaPage.currentRadioStation ? "▶ " + mediaPage.currentRadioStation.name : "📻  Radio Browser"
                     color: "#e7f1ef"
                     font.pixelSize: radioPage.width / 70
                     font.family: "Arial"
@@ -252,7 +238,7 @@ Rectangle {
                 anchors.fill: parent
                 color: "#082839"
                 opacity: 0.85
-                visible: radioPage.isLoading
+                visible: mediaPage.radioIsLoading
                 radius: radioPage.height / 50
                 z: 10
 
@@ -295,10 +281,10 @@ Rectangle {
             ListView {
                 id: stationList
                 anchors { fill: parent; margins: 6; rightMargin: 16 }
-                model: stationsModel
+                model: mediaPage.globalStationsModel
                 clip: true
                 spacing: 4
-                visible: !radioPage.isLoading
+                visible: !mediaPage.radioIsLoading
 
                 ScrollBar.vertical: ScrollBar {
                     width: 8
@@ -339,8 +325,8 @@ Rectangle {
                     radius: height / 8
                     anchors.right: parent.right
                     anchors.rightMargin: 14
-                    color: delegateArea.containsMouse ? "#964405" : (radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name ? "#5A3211" : "#082839")
-                    border.color: radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name ? "#D08831" : "#3D717E"
+                    color: delegateArea.containsMouse ? "#964405" : (mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name ? "#5A3211" : "#082839")
+                    border.color: mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name ? "#D08831" : "#3D717E"
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 120 } }
 
@@ -415,7 +401,7 @@ Rectangle {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name
+                                text: mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name
                                     && mediaPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
                                 color: "#ffffff"
                                 font { pixelSize: parent.width * 0.35; family: "Arial"; bold: true }
@@ -426,10 +412,10 @@ Rectangle {
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 onClicked: {
-                                    if (radioPage.currentStation && radioPage.currentStation.name === stationDelegate.name)
-                                        api.togglePlayPause()
+                                    if (mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name)
+                                        mediaPage.globalRadioAPI.togglePlayPause()
                                     else
-                                        api.playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
+                                        mediaPage.globalRadioAPI.playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
                                                     url: stationDelegate.url, favicon: stationDelegate.favicon,
                                                     country: stationDelegate.country, codec: stationDelegate.codec,
                                                     tags: stationDelegate.tags })
@@ -443,7 +429,7 @@ Rectangle {
                         anchors.fill: parent
                         hoverEnabled: true
                         z: -1
-                        onDoubleClicked: api.playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
+                        onDoubleClicked: mediaPage.globalRadioAPI.playStation({ stationuuid: stationDelegate.stationuuid, name: stationDelegate.name,
                                                     url: stationDelegate.url, favicon: stationDelegate.favicon,
                                                     country: stationDelegate.country, codec: stationDelegate.codec,
                                                     tags: stationDelegate.tags })
@@ -455,19 +441,19 @@ Rectangle {
             Column {
                 anchors.centerIn: parent
                 spacing: 8
-                visible: stationsModel.count === 0 && !radioPage.isLoading
+                visible: mediaPage.globalStationsModel.count === 0 && !mediaPage.radioIsLoading
                 z: 5
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: radioPage.searchAttempted ? "⚠" : "📻"
+                    text: mediaPage.radioSearchAttempted ? "⚠" : "📻"
                     color: "#D08831"
                     font { pixelSize: radioPage.width / 30; family: "Arial" }
                 }
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: radioPage.searchAttempted
+                    text: mediaPage.radioSearchAttempted
                         ? "No station found with that name."
                         : "No stations.\nSearch or filter above."
                     color: "#e7f1ef"
@@ -544,7 +530,7 @@ Rectangle {
                         id: prevArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: api.playPrevious()
+                        onClicked: mediaPage.globalRadioAPI.playPrevious()
                     }
                 }
 
@@ -572,7 +558,7 @@ Rectangle {
                         id: playArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: if (radioPage.currentStation) {
+                        onClicked: if (mediaPage.currentRadioStation) {
                             mediaPlayer.playbackState === MediaPlayer.PlayingState ? mediaPlayer.pause() : mediaPlayer.play()
                         }
                     }
@@ -602,7 +588,7 @@ Rectangle {
                         id: nextArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: api.playNext()
+                        onClicked: mediaPage.globalRadioAPI.playNext()
                     }
                 }
             }

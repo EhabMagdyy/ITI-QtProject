@@ -20,6 +20,15 @@ Item {
         color0: '#082839'
         color1: '#10475E'
         color2: '#3D717E'
+
+        // Bind to your existing global properties
+        brightnessValue: mainWindow.appBrightness
+        volumeValue: systemVolume.volume
+        volumeMuted: systemVolume.muted
+
+        onBrightnessChanged: (value) => mainWindow.appBrightness = value
+        onVolumeChanged: (value) => systemVolume.volume = value
+        onVolumeMuteToggled: systemVolume.toggleMute()
     }
 
     // BACKGROUND — autumn dark navy

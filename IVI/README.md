@@ -850,7 +850,10 @@ A `Rectangle` with `parent: Overlay.overlay` and `z: 99999` sits above all conte
 - Popup fade-in: `Behavior on opacity { NumberAnimation { duration: 200 } }` with `Component.onCompleted: opacity = 1`.
 
 ---
+## Demo
+> 🎬 **[Watch the full demo video →](https://drive.google.com/file/d/1Oj1QQaDpHGheh9F3O2MxpUNavDnGgvdd/view?usp=drive_link)**
 
+---
 ## Author
 
 **Ehab Magdy**
@@ -858,4 +861,3 @@ A `Rectangle` with `parent: Overlay.overlay` and `z: 99999` sits above all conte
 ---
 
 *IVI Dashboard — Qt 6 · QML · C++ · PulseAudio · BlueZ · NetworkManager · Vosk*
-

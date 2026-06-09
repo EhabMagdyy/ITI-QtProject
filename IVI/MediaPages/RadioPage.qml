@@ -411,12 +411,12 @@ Rectangle {
                             border.width: 1
                             Behavior on color { ColorAnimation { duration: 150 } }
 
-                            Text {
+                            Image{
                                 anchors.centerIn: parent
-                                text: mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name
-                                    && mediaPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                                color: "#ffffff"
-                                font { pixelSize: parent.width * 0.35; family: "Arial"; bold: true }
+                                width: 20; height: 20
+                                source:  mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name
+                                    && mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                                fillMode: Image.PreserveAspectFit
                             }
 
                             MouseArea {
@@ -529,14 +529,11 @@ Rectangle {
                     border.color: "#D08831"
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 150 } }
-
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: "◀◀"
-                        color: '#ffffff'
-                        font.pixelSize: (parent.width + parent.height) / 6
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 20; height: 20
+                        source: "qrc:/assets/icons/prev.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: prevArea
@@ -558,13 +555,11 @@ Rectangle {
                     border.width: 2
                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: mediaPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                        color: '#ffffff'
-                        font.pixelSize: mediaPlayer.playbackState === MediaPlayer.PlayingState ? (parent.width + parent.height) / 5 : (parent.width + parent.height) / 4
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 28; height: 28
+                        source:  mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: playArea
@@ -587,14 +582,11 @@ Rectangle {
                     border.color: "#D08831"
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 150 } }
-
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: "▶▶"
-                        color: '#ffffff'
-                        font.pixelSize: (parent.width + parent.height) / 6
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 20; height: 20
+                        source: "qrc:/assets/icons/next.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: nextArea

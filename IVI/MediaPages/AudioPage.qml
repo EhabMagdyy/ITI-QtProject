@@ -752,23 +752,46 @@ Rectangle {
                 anchors.centerIn: parent
                 spacing: audioController.width / 55
                 // Prev
-                ControlBtn {
-                    icon: "◀◀"
-                    fontPixel: audioController.width / 55
-                    onClicked: {
-                        if (rightPanel.currentIndex === 2 && btManager && btManager.connected)
-                            btManager.previous()
-                        else if (rightPanel.currentIndex === 3 && usbManager.connected && usbManager.audioFiles.length > 0) {
-                            var newIndex = audioPage.currentFileIndex - 1
-                            if(newIndex < 0) newIndex = usbManager.audioFiles.length - 1
-                            audioPage.currentFileIndex = newIndex
-                            mediaPlayer.source = "file://" + usbManager.audioFiles[newIndex]
-                            mediaPage.currentMediaTitle = usbManager.fileName(usbManager.audioFiles[newIndex])
-                            mediaPage.currentMediaSubtitle = "USB"
-                            mediaPlayer.play()
+                Rectangle {
+                    id: prevBtn
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: audioController.height * 0.6
+                    height: width
+                    radius: width / 2
+                    color: prevArea.containsMouse ? "#964405" : "#5A3211"
+                    border.color: "#D08831"
+                    border.width: 1
+                    scale: prevArea.containsMouse ? 1.15 : 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on scale { NumberAnimation { duration: 150 } }
+
+                    Image {
+                        anchors.centerIn: parent
+                        source: "qrc:/assets/icons/prev.png"
+                        width: parent.width * 0.5
+                        height: parent.height * 0.5
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    MouseArea {
+                        id: prevArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (rightPanel.currentIndex === 2 && btManager && btManager.connected)
+                                btManager.previous()
+                            else if (rightPanel.currentIndex === 3 && usbManager.connected && usbManager.audioFiles.length > 0) {
+                                var newIndex = audioPage.currentFileIndex - 1
+                                if(newIndex < 0) newIndex = usbManager.audioFiles.length - 1
+                                audioPage.currentFileIndex = newIndex
+                                mediaPlayer.source = "file://" + usbManager.audioFiles[newIndex]
+                                mediaPage.currentMediaTitle = usbManager.fileName(usbManager.audioFiles[newIndex])
+                                mediaPage.currentMediaSubtitle = "USB"
+                                mediaPlayer.play()
+                            }
+                            else
+                                mediaPlayer.position = 0
                         }
-                        else
-                            mediaPlayer.position = 0
                     }
                 }
 
@@ -782,23 +805,16 @@ Rectangle {
                     border.width: 2
                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                    Text {
-                        id: playPauseText
+                    Image{
                         anchors.centerIn: parent
-                        text:   if(rightPanel.currentIndex === 2 && btManager && btManager.connected){
-                                    btManager.playerStatus === "playing" ? "❚❚" : "▶"
+                        width: 26; height: 26
+                        source:  if(rightPanel.currentIndex === 2 && btManager && btManager.connected){
+                                    btManager.playerStatus === "playing" ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
                                 } 
                                 else {
-                                    mediaPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
+                                    mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
                                 }
-                        font.pixelSize: if(rightPanel.currentIndex === 2 && btManager && btManager.connected){
-                                            btManager.playerStatus === "playing" ? parent.width / 2.4 : parent.width / 2
-                                        } 
-                                        else {
-                                            mediaPlayer.playbackState === MediaPlayer.PlayingState ? parent.width / 2.4 : parent.width / 2
-                                        }
-                        color: '#ffffff'
-                        font.bold: true
+                        fillMode: Image.PreserveAspectFit
                     }
 
                     MouseArea {
@@ -822,23 +838,46 @@ Rectangle {
                 }
 
                 // Next
-                ControlBtn {
-                    icon: "▶▶"
-                    fontPixel: audioController.width / 55
-                    onClicked: {
-                        if (rightPanel.currentIndex === 2 && btManager && btManager.connected)
-                            btManager.next()
-                        else if (rightPanel.currentIndex === 3 && usbManager.connected && usbManager.audioFiles.length > 0) {
-                            var newIndex = audioPage.currentFileIndex + 1
-                            if(newIndex >= usbManager.audioFiles.length) newIndex = 0
-                            audioPage.currentFileIndex = newIndex
-                            mediaPlayer.source = "file://" + usbManager.audioFiles[newIndex]
-                            mediaPage.currentMediaTitle = usbManager.fileName(usbManager.audioFiles[newIndex])
-                            mediaPage.currentMediaSubtitle = "USB"
-                            mediaPlayer.play()
+                Rectangle {
+                    id: nextBtn
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: audioController.height * 0.6
+                    height: width
+                    radius: width / 2
+                    color: nextArea.containsMouse ? "#964405" : "#5A3211"
+                    border.color: "#D08831"
+                    border.width: 1
+                    scale: nextArea.containsMouse ? 1.15 : 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on scale { NumberAnimation { duration: 150 } }
+
+                    Image {
+                        anchors.centerIn: parent
+                        source: "qrc:/assets/icons/next.png"
+                        width: parent.width * 0.5
+                        height: parent.height * 0.5
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    MouseArea {
+                        id: nextArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (rightPanel.currentIndex === 2 && btManager && btManager.connected)
+                                btManager.next()
+                            else if (rightPanel.currentIndex === 3 && usbManager.connected && usbManager.audioFiles.length > 0) {
+                                var newIndex = audioPage.currentFileIndex + 1
+                                if(newIndex >= usbManager.audioFiles.length) newIndex = 0
+                                audioPage.currentFileIndex = newIndex
+                                mediaPlayer.source = "file://" + usbManager.audioFiles[newIndex]
+                                mediaPage.currentMediaTitle = usbManager.fileName(usbManager.audioFiles[newIndex])
+                                mediaPage.currentMediaSubtitle = "USB"
+                                mediaPlayer.play()
+                            }
+                            else
+                                mediaPlayer.position = mediaPlayer.duration
                         }
-                        else
-                            mediaPlayer.position = mediaPlayer.duration
                     }
                 }
             }

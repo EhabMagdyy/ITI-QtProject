@@ -131,7 +131,14 @@ Item {
         z: 5
         Behavior on scale   { NumberAnimation { duration: 120 } }
         Behavior on opacity { NumberAnimation { duration: 120 } }
-        Text { anchors.centerIn: parent; text: "↻"; color: "#dd9c4d"; font.pointSize: root.height * 0.036 }
+        
+        Image{
+            anchors.centerIn: parent
+            width: 18; height: 18
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/assets/icons/reload.png"
+        }
+
         MouseArea {
             anchors.fill: parent; hoverEnabled: true
             onEntered:  refreshBtn.opacity = 1.0

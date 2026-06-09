@@ -693,29 +693,53 @@ Rectangle {
                 }
             }
 
-            Row {
+           Row {
                 anchors.centerIn: parent
                 spacing: videoController.width / 55
 
-                ControlBtn {
-                    icon: "◀◀"
-                    fontPixel: videoController.width / 55
-                    onClicked: {
-                        if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
-                            var newIndex = videoPlayer.currentFileIndex - 1
-                            if (newIndex < 0) newIndex = usbManager.videoFiles.length - 1
-                            videoPlayer.currentFileIndex = newIndex
-                            videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
-                            videoPlayer.videoSelected = true
-                            videoPlayer.play()
-                        } else {
-                            videoPlayer.position = 0
+                // Prev
+                Rectangle {
+                    id: prevBtn
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: videoController.height * 0.6
+                    height: width
+                    radius: width / 2
+                    color: prevArea.containsMouse ? "#964405" : "#5A3211"
+                    border.color: "#D08831"
+                    border.width: 1
+                    scale: prevArea.containsMouse ? 1.15 : 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on scale { NumberAnimation { duration: 150 } }
+
+                    Image {
+                        anchors.centerIn: parent
+                        source: "qrc:/assets/icons/prev.png"
+                        width: parent.width * 0.5
+                        height: parent.height * 0.5
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    MouseArea {
+                        id: prevArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
+                                var newIndex = videoPlayer.currentFileIndex - 1
+                                if (newIndex < 0) newIndex = usbManager.videoFiles.length - 1
+                                videoPlayer.currentFileIndex = newIndex
+                                videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
+                                videoPlayer.videoSelected = true
+                                videoPlayer.play()
+                            } else {
+                                videoPlayer.position = 0
+                            }
                         }
                     }
                 }
 
+                // Play / Pause
                 Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
                     width: videoController.height * 0.72
                     height: width
                     radius: width / 2
@@ -724,12 +748,11 @@ Rectangle {
                     border.width: 2
                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                    Text {
+                    Image {
                         anchors.centerIn: parent
-                        text: videoPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                        font.pixelSize: videoPlayer.playbackState === MediaPlayer.PlayingState ? parent.width / 2.4 : parent.width / 2
-                        color: '#ffffff'
-                        font.bold: true
+                        width: 26; height: 26
+                        source: videoPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                        fillMode: Image.PreserveAspectFit
                     }
 
                     MouseArea {
@@ -741,19 +764,43 @@ Rectangle {
                     }
                 }
 
-                ControlBtn {
-                    icon: "▶▶"
-                    fontPixel: videoController.width / 55
-                    onClicked: {
-                        if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
-                            var newIndex = videoPlayer.currentFileIndex + 1
-                            if (newIndex >= usbManager.videoFiles.length) newIndex = 0
-                            videoPlayer.currentFileIndex = newIndex
-                            videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
-                            videoPlayer.videoSelected = true
-                            videoPlayer.play()
-                        } else {
-                            videoPlayer.position = videoPlayer.duration
+                // Next
+                Rectangle {
+                    id: nextBtn
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: videoController.height * 0.6
+                    height: width
+                    radius: width / 2
+                    color: nextArea.containsMouse ? "#964405" : "#5A3211"
+                    border.color: "#D08831"
+                    border.width: 1
+                    scale: nextArea.containsMouse ? 1.15 : 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on scale { NumberAnimation { duration: 150 } }
+
+                    Image {
+                        anchors.centerIn: parent
+                        source: "qrc:/assets/icons/next.png"
+                        width: parent.width * 0.5
+                        height: parent.height * 0.5
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    MouseArea {
+                        id: nextArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
+                                var newIndex = videoPlayer.currentFileIndex + 1
+                                if (newIndex >= usbManager.videoFiles.length) newIndex = 0
+                                videoPlayer.currentFileIndex = newIndex
+                                videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
+                                videoPlayer.videoSelected = true
+                                videoPlayer.play()
+                            } else {
+                                videoPlayer.position = videoPlayer.duration
+                            }
                         }
                     }
                 }

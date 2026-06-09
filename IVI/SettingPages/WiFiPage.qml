@@ -424,11 +424,11 @@ Rectangle {
         }
     }
 
-    // Password Popup
+// Password Popup with Virtual Keyboard
     Popup {
         id: passwordPopup
-        width: parent.width * 0.5
-        height: parent.height * 0.28
+        width: parent.width * 0.85
+        height: parent.height * 0.75
         anchors.centerIn: parent
         modal: true
         focus: true
@@ -436,19 +436,20 @@ Rectangle {
 
         background: Rectangle {
             color: "#082839"
-            radius: 12
+            radius: 16
             border.color: "#D08831"
             border.width: 2
         }
 
         Column {
             anchors.fill: parent
-            anchors.margins: passwordPopup.width * 0.06
-            spacing: wifiPage.height * 0.02
+            anchors.margins: 20
+            spacing: 16
 
+            // Header
             Text {
                 id: passwordPopupSsid
-                font.pixelSize: wifiPage.height * 0.025
+                font.pixelSize: wifiPage.height * 0.04
                 color: "#D08831"
                 font.bold: true
                 font.family: "Arial"
@@ -456,124 +457,56 @@ Rectangle {
             }
 
             Text {
-                text: "Enter password"
-                font.pixelSize: wifiPage.height * 0.02
+                text: "Enter Wi-Fi Password"
+                font.pixelSize: wifiPage.height * 0.025
                 color: "#3D717E"
                 font.family: "Arial"
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            Rectangle {
-                width: parent.width
-                height: wifiPage.height / 18
-                radius: height / 4
-                color: "#10475E"
-                border.color: popupPassField.activeFocus ? "#D08831" : "#3D717E"
-                border.width: popupPassField.activeFocus ? 2 : 1
+            // Hidden TextInput (for backend compatibility, but invisible)
+            TextInput {
+                id: popupPassField
+                visible: false
+                text: keyboard.targetText
+                echoMode: TextInput.Password
+            }
 
-                TextInput {
-                    id: popupPassField
-                    anchors.fill: parent
-                    anchors.leftMargin: parent.width * 0.05
-                    anchors.rightMargin: parent.width * 0.05
-                    verticalAlignment: TextInput.AlignVCenter
-                    font.pixelSize: parent.height * 0.38
-                    color: "#e7f1ef"
-                    font.family: "Arial"
-                    echoMode: TextInput.Password
-                    clip: true
-                    Text {
-                        anchors.fill: parent
-                        verticalAlignment: Text.AlignVCenter
-                        text: "Password"
-                        font.pixelSize: parent.height * 0.38
-                        color: "#3D717E"
-                        font.family: "Arial"
-                        visible: !popupPassField.text && !popupPassField.activeFocus
+            // Virtual Keyboard
+            VirtualKeyboard {
+                id: keyboard
+                width: parent.width
+                targetItem: popupPassField
+                passwordMode: true
+                maxLength: 64
+
+                onAccepted: {
+                    if (popupPassField.text.length >= 8) {
+                        WifiManager.connectToNetwork(passwordPopupSsid.text, popupPassField.text)
+                        keyboard.clear()
+                        passwordPopup.close()
+                    } else {
+                        showToast("Password must be 8+ characters", true)
                     }
-                    Keys.onPressed: (event) => {
-                        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                            if (popupPassField.text.length >= 8) {
-                                WifiManager.connectToNetwork(passwordPopupSsid.text, popupPassField.text)
-                                popupPassField.text = ""
-                                passwordPopup.close()
-                            } else {
-                                showToast("Password must be 8+ characters", true)
-                            }
-                            event.accepted = true
-                        }
-                    }
+                }
+
+                onCancelled: {
+                    keyboard.clear()
+                    passwordPopup.close()
                 }
             }
 
-            Row {
-                width: parent.width
-                spacing: 10
-
-                Rectangle {
-                    width: (parent.width - parent.spacing) / 2
-                    height: wifiPage.height / 18
-                    radius: height / 4
-                    color: popupCancelArea.containsMouse ? "#3D717E" : "#10475E"
-                    border.color: "#3D717E"
-                    border.width: 1
-                    Behavior on color { ColorAnimation { duration: 100 } }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Cancel"
-                        font.pixelSize: parent.height * 0.38
-                        color: "#e7f1ef"
-                        font.bold: true
-                        font.family: "Arial"
-                    }
-                    MouseArea {
-                        id: popupCancelArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: {
-                            popupPassField.text = ""
-                            passwordPopup.close()
-                        }
-                    }
-                }
-
-                Rectangle {
-                    width: (parent.width - parent.spacing) / 2
-                    height: wifiPage.height / 18
-                    radius: height / 4
-                    color: popupConnectArea2.containsMouse ? "#964405" : "#5A3211"
-                    border.color: "#D08831"
-                    border.width: 1
-                    Behavior on color { ColorAnimation { duration: 100 } }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Connect"
-                        font.pixelSize: parent.height * 0.38
-                        color: "#e7f1ef"
-                        font.bold: true
-                        font.family: "Arial"
-                    }
-                    MouseArea {
-                        id: popupConnectArea2
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: {
-                            if (popupPassField.text.length >= 8) {
-                                WifiManager.connectToNetwork(passwordPopupSsid.text, popupPassField.text)
-                                popupPassField.text = ""
-                                passwordPopup.close()
-                            } else {
-                                showToast("Password must be 8+ characters", true)
-                            }
-                        }
-                    }
-                }
+            // Password strength hint
+            Text {
+                text: popupPassField.text.length + " / 64 characters"
+                color: popupPassField.text.length < 8 ? "#ff8a7a" : "#3D717E"
+                font.pixelSize: 14
+                font.family: "Arial"
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
     }
-
+    
     // Status Toast
     Rectangle {
         id: statusToast

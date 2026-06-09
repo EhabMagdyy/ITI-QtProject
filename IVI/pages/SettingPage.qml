@@ -474,6 +474,7 @@ Item {
                         }
 
                         // WEATHER CITY CARD — glass morphism
+                                                // WEATHER CITY CARD — glass morphism
                         Item {
                             id: weatherCard
                             width: root.width / 5.5
@@ -566,28 +567,55 @@ Item {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                 }
 
-                                TextField {
+                                // Hidden input — syncs with VirtualKeyboard
+                                TextInput {
                                     id: cityInput
+                                    visible: false
+                                    text: root.preferredCity || ""
+                                }
+
+                                // Visual display (replaces TextField)
+                                Rectangle {
+                                    id: cityInputDisplay
                                     width: parent.parent.width * 0.75
                                     height: parent.parent.height * 0.13
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    placeholderText: "Enter city..."
-                                    placeholderTextColor: "#8899bb"
-                                    font.pixelSize: root.fontSize * 0.4
-                                    horizontalAlignment: Text.AlignHCenter
-                                    color: '#ffffff'
-                                    selectedTextColor: "#ffffff"
-                                    selectionColor: root.accentColor
-                                                                        
-                                    background: Rectangle {
-                                        radius: height * 0.25
-                                        color: '#082839'
-                                        border.color: cityInput.focus ? root.accentColor : Qt.rgba(1,1,1,0.1)
-                                        border.width: 1.5
+                                    radius: height * 0.25
+                                    color: '#082839'
+                                    border.color: cityInputMouse.containsMouse ? root.accentColor : Qt.rgba(1,1,1,0.1)
+                                    border.width: 1.5
+
+                                    Text {
+                                        anchors.fill: parent
+                                        anchors.leftMargin: 10
+                                        anchors.rightMargin: 10
+                                        verticalAlignment: Text.AlignVCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: cityInput.text
+                                        color: '#ffffff'
+                                        font.pixelSize: root.fontSize * 0.4
+                                        elide: Text.ElideRight
+                                        visible: cityInput.text !== ""
                                     }
-                                    
-                                    Keys.onReturnPressed: weatherCard.saveCity()
-                                    Keys.onEnterPressed: weatherCard.saveCity()
+
+                                    Text {
+                                        anchors.fill: parent
+                                        anchors.leftMargin: 10
+                                        anchors.rightMargin: 10
+                                        verticalAlignment: Text.AlignVCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: "Enter city..."
+                                        color: "#8899bb"
+                                        font.pixelSize: root.fontSize * 0.4
+                                        visible: cityInput.text === ""
+                                    }
+
+                                    MouseArea {
+                                        id: cityInputMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        onClicked: keyboardPopup.open()
+                                    }
                                 }
 
                                 Rectangle {
@@ -632,6 +660,63 @@ Item {
                                 }
                             }
                             HoverHandler { id: weatherHover }
+
+                            // Virtual Keyboard Popup — parented to Overlay so it isn't clipped
+                            Popup {
+                                id: keyboardPopup
+                                parent: Overlay.overlay
+                                width: root.width * 0.6
+                                height: root.height * 0.7
+                                anchors.centerIn: Overlay.overlay
+                                modal: true
+                                focus: true
+                                closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+                                background: Rectangle {
+                                    color: "#082839"
+                                    radius: 16
+                                    border.color: root.accentColor
+                                    border.width: 2
+                                }
+
+                                Column {
+                                    anchors.fill: parent
+                                    anchors.margins: 20
+                                    spacing: 16
+
+                                    Text {
+                                        text: "Enter City"
+                                        font.pixelSize: root.fontSize * 0.7
+                                        color: root.accentColor
+                                        font.bold: true
+                                        font.family: "Arial"
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                    }
+
+                                    VirtualKeyboard {
+                                        id: keyboard
+                                        width: parent.width
+                                        targetItem: cityInput
+                                        passwordMode: false
+                                        maxLength: 32
+
+                                        onAccepted: {
+                                            weatherCard.saveCity()
+                                            keyboard.clear()
+                                            keyboardPopup.close()
+                                        }
+
+                                        onCancelled: {
+                                            keyboard.clear()
+                                            keyboardPopup.close()
+                                        }
+                                    }
+                                }
+
+                                onOpened: {
+                                    keyboard.targetText = cityInput.text
+                                }
+                            }
                         }
                     }
                 }

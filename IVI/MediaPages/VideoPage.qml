@@ -231,76 +231,11 @@ Rectangle {
                 if (visible) rightPanel.browseIcon = "🌐"
             }
 
-            Dialog {
-                id: urlDialog
-                title: "Enter Video URL"
-                anchors.centerIn: parent
-                width: videoPage.width / 2.5
-                contentHeight: videoPage.height / 10
-                modal: true
-                standardButtons: Dialog.Ok | Dialog.Cancel
-
-                background: Rectangle {
-                    color: '#082839'
-                    radius: 5
-                    border.color: '#D08831'
-                    border.width: 1
-                }
-
-                header: Rectangle {
-                    color: 'transparent'
-                    height: videoPage.height / 20
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Enter Video URL"
-                        color: '#D08831'
-                        font.pixelSize: videoPage.width / 70
-                        font.bold: true
-                        font.family: "Arial"
-                    }
-                }
-
-                palette {
-                    buttonText: "#D08831"
-                    button: "#082839"
-                    dark: "#D08831"
-                    highlight: "#5A3211"
-                    window: "#082839"
-                    windowText: "#e7f1ef"
-                    base: "#082839"
-                    text: "#e7f1ef"
-                }
-
-                onAccepted: {
-                    if (urlField.text !== "") {
-                        videoPlayer.source = urlField.text
-                        videoPlayer.videoSelected = true
-                        videoPlayer.play()
-                    }
-                }
-                onOpened: urlField.forceActiveFocus()
-
-                TextField {
-                    id: urlField
-                    width: urlDialog.width - urlDialog.width * 0.1
-                    height: urlDialog.height / 3.3
-                    placeholderText: "https://..."
-                    placeholderTextColor: '#3D717E'
-                    color: '#e7f1ef'
-                    font.pixelSize: videoPage.width / 90
-                    font.family: "Arial"
-                    leftPadding: 12
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Keys.onReturnPressed: urlDialog.accept()
-
-                    background: Rectangle {
-                        color: '#082839'
-                        radius: 8
-                        border.color: urlField.activeFocus ? '#D08831' : '#3D717E'
-                        border.width: 1
-                        Behavior on border.color { ColorAnimation { duration: 150 } }
-                    }
-                }
+            // Hidden input — syncs with VirtualKeyboard
+            TextInput {
+                id: urlField
+                visible: false
+                text: ""
             }
 
             Rectangle {
@@ -875,7 +810,7 @@ Rectangle {
                 anchors.right: parent.right
                 anchors.rightMargin: videoController.width / 20
                 onClicked: rightPanel.currentIndex === 0 ? fileDialog.open() :
-                            rightPanel.currentIndex === 1 ? urlDialog.open() :
+                            rightPanel.currentIndex === 1 ? urlKeyboardPopup.open() :
                             console.log("Browse action for other sources coming soon")
             }
         }
@@ -913,6 +848,67 @@ Rectangle {
                     videoPlayer.videoSelected = false
                 }
             }
+        }
+    }
+
+    // ========================================== URL Keyboard Popup =========================================
+    Popup {
+        id: urlKeyboardPopup
+        parent: Overlay.overlay
+        width: videoPage.width * 0.6
+        height: videoPage.height * 0.7
+        anchors.centerIn: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: "#082839"
+            radius: 16
+            border.color: "#D08831"
+            border.width: 2
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 16
+
+            Text {
+                text: "Enter Video URL"
+                font.pixelSize: videoPage.height * 0.04
+                color: "#D08831"
+                font.bold: true
+                font.family: "Arial"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            VirtualKeyboard {
+                id: urlKeyboard
+                width: parent.width
+                targetItem: urlField
+                passwordMode: false
+                maxLength: 256
+
+                onAccepted: {
+                    if (urlField.text !== "") {
+                        videoPlayer.source = urlField.text
+                        videoPlayer.videoSelected = true
+                        videoPlayer.play()
+                    }
+                    urlKeyboard.clear()
+                    urlKeyboardPopup.close()
+                }
+
+                onCancelled: {
+                    urlKeyboard.clear()
+                    urlKeyboardPopup.close()
+                }
+            }
+        }
+
+        onOpened: {
+            urlKeyboard.targetText = urlField.text
         }
     }
 

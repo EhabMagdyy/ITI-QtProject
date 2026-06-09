@@ -131,47 +131,75 @@ Item {
         z: 5
         Behavior on scale   { NumberAnimation { duration: 120 } }
         Behavior on opacity { NumberAnimation { duration: 120 } }
-        Text { anchors.centerIn: parent; text: "↻"; color: "#dd9c4d"; font.pointSize: root.height * 0.036 }
+        
+        Image{
+            anchors.centerIn: parent
+            width: 18; height: 18
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/assets/icons/reload.png"
+        }
+
         MouseArea {
             anchors.fill: parent; hoverEnabled: true
             onEntered:  refreshBtn.opacity = 1.0
             onExited:   refreshBtn.opacity = 0.9
             onPressed:  refreshBtn.scale   = 0.88
-            onReleased: { refreshBtn.scale = 1.0; weatherAPI.fetch(cityInput.text) }
+            onReleased: { refreshBtn.scale = 1.0; weatherAPI.fetch(cityInputHidden.text) }
         }
     }
 
     // Main Content
     Column {
+        id: mainContent
         width: parent.width
         anchors { top: titleBar.bottom; topMargin: root.height * 0.028; horizontalCenter: parent.horizontalCenter }
         spacing: root.height * 0.028
 
-        // Search field — glass style
-        TextField {
-            id: cityInput
+        // Search field — glass style (read-only, opens keyboard popup)
+        Rectangle {
+            id: cityInputContainer
             width: root.width * 0.3
             height: root.height * 0.055
-            placeholderText: "🔍 Enter city name..."
             anchors.horizontalCenter: parent.horizontalCenter
-            font { pointSize: root.height * 0.016; family: "Arial" }
-            color: "white"; placeholderTextColor: '#dd9c4d'
-            leftPadding: root.width * 0.012
-            verticalAlignment: TextInput.AlignVCenter
-            selectByMouse: true
-            background: Rectangle {
-                color: "#082839"; radius: root.height * 0.027
-                border.color: cityInput.activeFocus ? "#dd9c4d" : "#3D717E"
-                border.width: cityInput.activeFocus ? 2 : 1
-                opacity: 0.85
+            color: "#082839"
+            radius: root.height * 0.027
+            border.color: cityInputMouse.containsMouse ? "#dd9c4d" : "#3D717E"
+            border.width: cityInputMouse.containsMouse ? 2 : 1
+            opacity: 0.85
+
+            Text {
+                id: cityInputDisplay
+                anchors.fill: parent
+                anchors.leftMargin: root.width * 0.012
+                anchors.rightMargin: root.width * 0.012
+                verticalAlignment: Text.AlignVCenter
+                font { pointSize: root.height * 0.016; family: "Arial" }
+                color: "white"
+                text: cityInputHidden.text
+                elide: Text.ElideRight
             }
+
+            Text {
+                id: cityPlaceholder
+                anchors.fill: parent
+                anchors.leftMargin: root.width * 0.012
+                verticalAlignment: Text.AlignVCenter
+                text: "🔍 Enter city name..."
+                color: '#dd9c4d'
+                font { pointSize: root.height * 0.016; family: "Arial" }
+                visible: cityInputHidden.text === ""
+            }
+
+            MouseArea {
+                id: cityInputMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: keyboardPopup.open()
+                onEntered: cityInputContainer.scale = 1.05
+                onExited: cityInputContainer.scale = 1.0
+            }
+
             Behavior on scale { NumberAnimation { duration: 120 } }
-            onHoveredChanged: scale = hovered ? 1.05 : 1.0
-            onActiveFocusChanged: {
-                if (activeFocus && (text === "" || text.startsWith("⚠️"))) placeholderText = ""
-                else if (!activeFocus && text === "") placeholderText = "🔍  Enter city name..."
-            }
-            Keys.onReturnPressed: weatherAPI.fetch(cityInput.text)
         }
 
         // Main info banner — GLASS MORPHISM
@@ -503,6 +531,79 @@ Item {
         }
     }
 
+    // Hidden TextInput to sync with keyboard
+    TextInput {
+        id: cityInputHidden
+        visible: false
+        text: ""
+    }
+
+    // Keyboard Popup — uses your existing VirtualKeyboard.qml
+    Popup {
+        id: keyboardPopup
+        width: parent.width * 0.85
+        height: parent.height * 0.75
+        anchors.centerIn: parent
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: "#082839"
+            radius: 16
+            border.color: "#dd9c4d"
+            border.width: 2
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 16
+
+            // Header
+            Text {
+                text: "Search City"
+                font.pixelSize: root.height * 0.04
+                color: "#dd9c4d"
+                font.bold: true
+                font.family: "Arial"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Text {
+                text: "Enter city name"
+                font.pixelSize: root.height * 0.025
+                color: "#3D717E"
+                font.family: "Arial"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            // Virtual Keyboard
+            VirtualKeyboard {
+                id: keyboard
+                width: parent.width
+                targetItem: cityInputHidden
+                passwordMode: false
+                maxLength: 32
+
+                onAccepted: {
+                    weatherAPI.fetch(cityInputHidden.text)
+                    keyboard.clear()
+                    keyboardPopup.close()
+                }
+
+                onCancelled: {
+                    keyboard.clear()
+                    keyboardPopup.close()
+                }
+            }
+        }
+
+        onOpened: {
+            keyboard.targetText = cityInputHidden.text
+        }
+    }
+
     // API
     WeatherAPI {
         id: weatherAPI
@@ -548,21 +649,21 @@ Item {
                 })
             }
         }
-        onCityNotFound:  function(city)    { cityInput.text = "⚠️ City Not found!" }
-        onNetworkError:  function(message) { cityInput.text = "⚠️ Network error"  }
+        onCityNotFound:  function(city)    { cityInputHidden.text = ""; cityPlaceholder.visible = true }
+        onNetworkError:  function(message) { cityInputHidden.text = ""; cityPlaceholder.visible = true }
     }
 
     // Auto-fetch when page loads or city changes
     onCityChanged: {
         if(city !== "" && weatherAPI) {
             weatherAPI.fetch(city)
-            cityInput.text = city
+            cityInputHidden.text = city
         }
     }
     
     Component.onCompleted: {
         if(root.city !== "") {
-            cityInput.text = root.city
+            cityInputHidden.text = root.city
             weatherAPI.fetch(root.city)
         }
     }

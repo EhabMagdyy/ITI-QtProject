@@ -54,9 +54,9 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "✕"
+                text: "×"
                 color: closeMa.containsMouse ? "#ff4444" : "#8899bb"
-                font { pixelSize: 14; bold: true }
+                font { pixelSize: 16; bold: true }
             }
 
             MouseArea {

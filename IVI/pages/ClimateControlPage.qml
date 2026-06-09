@@ -266,11 +266,11 @@ Item {
                         radius: 20
                         color: root.frontPowerOn ? '#964405' : "#082839"
 
-                        Text {
+                        Image{
                             anchors.centerIn: parent
-                            text: "⏻"
-                            color: "#FFFFFF"
-                            font.pixelSize: 18
+                            width: 20; height: 20
+                            fillMode: Image.PreserveAspectFit
+                            source: "qrc:/assets/icons/power.png"
                         }
 
                         MouseArea {
@@ -444,11 +444,11 @@ Item {
                         radius: 20
                         color: root.backPowerOn ? '#964405' : "#082839"
 
-                        Text {
+                        Image{
                             anchors.centerIn: parent
-                            text: "⏻"
-                            color: "#FFFFFF"
-                            font.pixelSize: 18
+                            width: 20; height: 20
+                            fillMode: Image.PreserveAspectFit
+                            source: "qrc:/assets/icons/power.png"
                         }
 
                         MouseArea {

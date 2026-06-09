@@ -231,76 +231,11 @@ Rectangle {
                 if (visible) rightPanel.browseIcon = "🌐"
             }
 
-            Dialog {
-                id: urlDialog
-                title: "Enter Video URL"
-                anchors.centerIn: parent
-                width: videoPage.width / 2.5
-                contentHeight: videoPage.height / 10
-                modal: true
-                standardButtons: Dialog.Ok | Dialog.Cancel
-
-                background: Rectangle {
-                    color: '#082839'
-                    radius: 5
-                    border.color: '#D08831'
-                    border.width: 1
-                }
-
-                header: Rectangle {
-                    color: 'transparent'
-                    height: videoPage.height / 20
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Enter Video URL"
-                        color: '#D08831'
-                        font.pixelSize: videoPage.width / 70
-                        font.bold: true
-                        font.family: "Arial"
-                    }
-                }
-
-                palette {
-                    buttonText: "#D08831"
-                    button: "#082839"
-                    dark: "#D08831"
-                    highlight: "#5A3211"
-                    window: "#082839"
-                    windowText: "#e7f1ef"
-                    base: "#082839"
-                    text: "#e7f1ef"
-                }
-
-                onAccepted: {
-                    if (urlField.text !== "") {
-                        videoPlayer.source = urlField.text
-                        videoPlayer.videoSelected = true
-                        videoPlayer.play()
-                    }
-                }
-                onOpened: urlField.forceActiveFocus()
-
-                TextField {
-                    id: urlField
-                    width: urlDialog.width - urlDialog.width * 0.1
-                    height: urlDialog.height / 3.3
-                    placeholderText: "https://..."
-                    placeholderTextColor: '#3D717E'
-                    color: '#e7f1ef'
-                    font.pixelSize: videoPage.width / 90
-                    font.family: "Arial"
-                    leftPadding: 12
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Keys.onReturnPressed: urlDialog.accept()
-
-                    background: Rectangle {
-                        color: '#082839'
-                        radius: 8
-                        border.color: urlField.activeFocus ? '#D08831' : '#3D717E'
-                        border.width: 1
-                        Behavior on border.color { ColorAnimation { duration: 150 } }
-                    }
-                }
+            // Hidden input — syncs with VirtualKeyboard
+            TextInput {
+                id: urlField
+                visible: false
+                text: ""
             }
 
             Rectangle {
@@ -758,29 +693,53 @@ Rectangle {
                 }
             }
 
-            Row {
+           Row {
                 anchors.centerIn: parent
                 spacing: videoController.width / 55
 
-                ControlBtn {
-                    icon: "◀◀"
-                    fontPixel: videoController.width / 55
-                    onClicked: {
-                        if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
-                            var newIndex = videoPlayer.currentFileIndex - 1
-                            if (newIndex < 0) newIndex = usbManager.videoFiles.length - 1
-                            videoPlayer.currentFileIndex = newIndex
-                            videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
-                            videoPlayer.videoSelected = true
-                            videoPlayer.play()
-                        } else {
-                            videoPlayer.position = 0
+                // Prev
+                Rectangle {
+                    id: prevBtn
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: videoController.height * 0.6
+                    height: width
+                    radius: width / 2
+                    color: prevArea.containsMouse ? "#964405" : "#5A3211"
+                    border.color: "#D08831"
+                    border.width: 1
+                    scale: prevArea.containsMouse ? 1.15 : 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on scale { NumberAnimation { duration: 150 } }
+
+                    Image {
+                        anchors.centerIn: parent
+                        source: "qrc:/assets/icons/prev.png"
+                        width: parent.width * 0.5
+                        height: parent.height * 0.5
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    MouseArea {
+                        id: prevArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
+                                var newIndex = videoPlayer.currentFileIndex - 1
+                                if (newIndex < 0) newIndex = usbManager.videoFiles.length - 1
+                                videoPlayer.currentFileIndex = newIndex
+                                videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
+                                videoPlayer.videoSelected = true
+                                videoPlayer.play()
+                            } else {
+                                videoPlayer.position = 0
+                            }
                         }
                     }
                 }
 
+                // Play / Pause
                 Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
                     width: videoController.height * 0.72
                     height: width
                     radius: width / 2
@@ -789,12 +748,11 @@ Rectangle {
                     border.width: 2
                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                    Text {
+                    Image {
                         anchors.centerIn: parent
-                        text: videoPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                        font.pixelSize: videoPlayer.playbackState === MediaPlayer.PlayingState ? parent.width / 2.4 : parent.width / 2
-                        color: '#ffffff'
-                        font.bold: true
+                        width: 26; height: 26
+                        source: videoPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                        fillMode: Image.PreserveAspectFit
                     }
 
                     MouseArea {
@@ -806,19 +764,43 @@ Rectangle {
                     }
                 }
 
-                ControlBtn {
-                    icon: "▶▶"
-                    fontPixel: videoController.width / 55
-                    onClicked: {
-                        if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
-                            var newIndex = videoPlayer.currentFileIndex + 1
-                            if (newIndex >= usbManager.videoFiles.length) newIndex = 0
-                            videoPlayer.currentFileIndex = newIndex
-                            videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
-                            videoPlayer.videoSelected = true
-                            videoPlayer.play()
-                        } else {
-                            videoPlayer.position = videoPlayer.duration
+                // Next
+                Rectangle {
+                    id: nextBtn
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: videoController.height * 0.6
+                    height: width
+                    radius: width / 2
+                    color: nextArea.containsMouse ? "#964405" : "#5A3211"
+                    border.color: "#D08831"
+                    border.width: 1
+                    scale: nextArea.containsMouse ? 1.15 : 1
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on scale { NumberAnimation { duration: 150 } }
+
+                    Image {
+                        anchors.centerIn: parent
+                        source: "qrc:/assets/icons/next.png"
+                        width: parent.width * 0.5
+                        height: parent.height * 0.5
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    MouseArea {
+                        id: nextArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (rightPanel.currentIndex === 2 && usbManager.connected && usbManager.videoFiles.length > 0) {
+                                var newIndex = videoPlayer.currentFileIndex + 1
+                                if (newIndex >= usbManager.videoFiles.length) newIndex = 0
+                                videoPlayer.currentFileIndex = newIndex
+                                videoPlayer.source = "file://" + usbManager.videoFiles[newIndex]
+                                videoPlayer.videoSelected = true
+                                videoPlayer.play()
+                            } else {
+                                videoPlayer.position = videoPlayer.duration
+                            }
                         }
                     }
                 }
@@ -875,7 +857,7 @@ Rectangle {
                 anchors.right: parent.right
                 anchors.rightMargin: videoController.width / 20
                 onClicked: rightPanel.currentIndex === 0 ? fileDialog.open() :
-                            rightPanel.currentIndex === 1 ? urlDialog.open() :
+                            rightPanel.currentIndex === 1 ? urlKeyboardPopup.open() :
                             console.log("Browse action for other sources coming soon")
             }
         }
@@ -913,6 +895,67 @@ Rectangle {
                     videoPlayer.videoSelected = false
                 }
             }
+        }
+    }
+
+    // ========================================== URL Keyboard Popup =========================================
+    Popup {
+        id: urlKeyboardPopup
+        parent: Overlay.overlay
+        width: videoPage.width * 0.6
+        height: videoPage.height * 0.7
+        anchors.centerIn: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: "#082839"
+            radius: 16
+            border.color: "#D08831"
+            border.width: 2
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 16
+
+            Text {
+                text: "Enter Video URL"
+                font.pixelSize: videoPage.height * 0.04
+                color: "#D08831"
+                font.bold: true
+                font.family: "Arial"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            VirtualKeyboard {
+                id: urlKeyboard
+                width: parent.width
+                targetItem: urlField
+                passwordMode: false
+                maxLength: 256
+
+                onAccepted: {
+                    if (urlField.text !== "") {
+                        videoPlayer.source = urlField.text
+                        videoPlayer.videoSelected = true
+                        videoPlayer.play()
+                    }
+                    urlKeyboard.clear()
+                    urlKeyboardPopup.close()
+                }
+
+                onCancelled: {
+                    urlKeyboard.clear()
+                    urlKeyboardPopup.close()
+                }
+            }
+        }
+
+        onOpened: {
+            urlKeyboard.targetText = urlField.text
         }
     }
 

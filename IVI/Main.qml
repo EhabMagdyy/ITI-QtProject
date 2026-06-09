@@ -12,51 +12,51 @@ ApplicationWindow {
     title: qsTr("IVI Dashboard")
     flags: Qt.FramelessWindowHint | Qt.Window
 
-    property bool splashDone: false
+    property bool splashDone: true
 
     // Splash screen
-    Item {
-        id: splashScreen
-        anchors.fill: parent
-        visible: !mainWindow.splashDone
-        z: 10
+    // Item {
+    //     id: splashScreen
+    //     anchors.fill: parent
+    //     visible: !mainWindow.splashDone
+    //     z: 10
 
-        opacity: 1.0 
-        property bool fadingOut: false 
+    //     opacity: 1.0 
+    //     property bool fadingOut: false 
 
-        Behavior on opacity {
-            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
-        }
-        Behavior on scale {
-            NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
-        }
+    //     Behavior on opacity {
+    //         NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+    //     }
+    //     Behavior on scale {
+    //         NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+    //     }
 
-        Video {
-            id: splashVideo
-            anchors.fill: parent
-            source: "qrc:/assets/videos/splash.mp4"
-            autoPlay: true
-            loops: MediaPlayer.Once
-            fillMode: VideoOutput.PreserveAspectCrop
+    //     Video {
+    //         id: splashVideo
+    //         anchors.fill: parent
+    //         source: "qrc:/assets/videos/splash.webm"
+    //         autoPlay: true
+    //         loops: MediaPlayer.Once
+    //         fillMode: VideoOutput.PreserveAspectCrop
             
-            playbackRate: 1.25 
+    //         playbackRate: 1.25 
 
-            onPositionChanged: {
-                if(duration > 0 && !splashScreen.fadingOut){
-                    if((duration - position) <= 500){
-                        splashScreen.fadingOut = true;
-                        splashScreen.opacity = 0; // Triggers the Behavior on opacity
-                    }
-                }
-            }
+    //         onPositionChanged: {
+    //             if(duration > 0 && !splashScreen.fadingOut){
+    //                 if((duration - position) <= 500){
+    //                     splashScreen.fadingOut = true;
+    //                     splashScreen.opacity = 0; // Triggers the Behavior on opacity
+    //                 }
+    //             }
+    //         }
 
-            onPlaybackStateChanged: {
-                if(playbackState === MediaPlayer.StoppedState){
-                    mainWindow.splashDone = true 
-                }
-            }
-        }
-    }
+    //         onPlaybackStateChanged: {
+    //             if(playbackState === MediaPlayer.StoppedState){
+    //                 mainWindow.splashDone = true 
+    //             }
+    //         }
+    //     }
+    // }
 
     property real appBrightness: 1.0
 
@@ -807,12 +807,11 @@ ApplicationWindow {
                                 color: expandMa.containsMouse ? Qt.rgba(1,1,1,0.15) : Qt.rgba(1,1,1,0.05)
                                 border.color: Qt.rgba(1,1,1,0.2)
                                 border.width: 1
-                                Text {
+                                Image{
                                     anchors.centerIn: parent
-                                    text: "↗"
-                                    color: "#aaccff"
-                                    font.pixelSize: 20
-                                    font.bold: true
+                                    width: 20; height: 20
+                                    source: "qrc:/assets/icons/pagenavigation.png"
+                                    fillMode: Image.PreserveAspectFit
                                 }
                                 MouseArea {
                                     id: expandMa
@@ -1034,15 +1033,22 @@ ApplicationWindow {
                                 // ---- 5 master toggles (Recirc, AQ, Auto, Sync, Power) ----
                                 Row {
                                     anchors.horizontalCenter: parent.horizontalCenter
+                                    // Recirc
                                     spacing: 8
                                     Rectangle {
                                         width: 36; height: 36; radius: 8
                                         color: launcherItem.recircActive ? '#18b78f' : Qt.rgba(1,1,1,0.08)
                                         border.color: "#FFFFFF"
                                         border.width: launcherItem.recircActive ? 2 : 0
-                                        Text { anchors.centerIn: parent; text: "↻"; color: "#FFFFFF"; font.pixelSize: 14 }
+                                        Image{
+                                            anchors.centerIn: parent
+                                            width: 18; height: 18
+                                            fillMode: Image.PreserveAspectFit
+                                            source: "qrc:/assets/icons/reload.png"
+                                        }
                                         MouseArea { anchors.fill: parent; onClicked: launcherItem.recircActive = !launcherItem.recircActive }
                                     }
+                                    // Air Quality
                                     Rectangle {
                                         width: 36; height: 36; radius: 8
                                         color: launcherItem.airQualityActive ? '#18b78f' : Qt.rgba(1,1,1,0.08)
@@ -1062,7 +1068,12 @@ ApplicationWindow {
                                         color: launcherItem.climatePower ? '#964405' : Qt.rgba(1,1,1,0.08)
                                         border.color: launcherItem.climatePower ? '#97ffffff' : "transparent"
                                         border.width: 1
-                                        Text { anchors.centerIn: parent; text: "⏻"; color: "#FFFFFF"; font.pixelSize: 14 }
+                                        Image{
+                                            anchors.centerIn: parent
+                                            width: 18; height: 18
+                                            fillMode: Image.PreserveAspectFit
+                                            source: "qrc:/assets/icons/power.png"
+                                        }
                                         MouseArea { anchors.fill: parent; onClicked: launcherItem.climatePower = !launcherItem.climatePower }
                                     }
                                     // Spacer
@@ -1149,12 +1160,11 @@ ApplicationWindow {
                                 color: expandMe.containsMouse ? Qt.rgba(1,1,1,0.15) : Qt.rgba(1,1,1,0.05)
                                 border.color: Qt.rgba(1,1,1,0.2)
                                 border.width: 1
-                                Text {
+                                Image{
                                     anchors.centerIn: parent
-                                    text: "↗"
-                                    color: "#aaccff"
-                                    font.pixelSize: 20
-                                    font.bold: true
+                                    width: 20; height: 20
+                                    source: "qrc:/assets/icons/pagenavigation.png"
+                                    fillMode: Image.PreserveAspectFit
                                 }
                                 MouseArea {
                                     id: expandMe
@@ -1217,6 +1227,13 @@ ApplicationWindow {
                                     horizontalAlignment: Text.AlignHCenter
                                 }
 
+                                // Spacer
+                                Rectangle{
+                                    height: 5
+                                    width: 1
+                                    color: "transparent"
+                                }
+
                                 Row {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 14
@@ -1227,7 +1244,12 @@ ApplicationWindow {
                                         color: tilePrevArea.containsMouse ? "#082839" : "#21cfa4"
                                         border.color: "#21cfa4"; border.width: 1
                                         visible: mainWindow.currentMediaType === 1
-                                        Text { anchors.centerIn: parent; text: "◀◀"; color: "#ffffff"; font.pixelSize: 10; font.bold: true }
+                                        Image{
+                                            anchors.centerIn: parent
+                                            width: 18; height: 18
+                                            source: "qrc:/assets/icons/prev.png"
+                                            fillMode: Image.PreserveAspectFit
+                                        }
                                         MouseArea {
                                             id: tilePrevArea; anchors.fill: parent; hoverEnabled: true
                                             onClicked: mainWindow.globalRadioAPI.playPrevious()
@@ -1238,7 +1260,12 @@ ApplicationWindow {
                                         width: 32; height: 32; radius: 16
                                         color: tilePlayArea.containsMouse ? "#082839" : "#21cfa4"
                                         border.color: "#21cfa4"; border.width: 1
-                                        Text { anchors.centerIn: parent; text: mainWindow.mediaPlaying ? "❚❚" : "▶"; color: "#ffffff"; font.pixelSize: 14; font.bold: true }
+                                        Image{
+                                            anchors.centerIn: parent
+                                            width: 25; height: 25
+                                            source: mainWindow.mediaPlaying? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                                            fillMode: Image.PreserveAspectFit
+                                        }
                                         MouseArea {
                                             id: tilePlayArea; anchors.fill: parent; hoverEnabled: true
                                             onClicked: {
@@ -1252,7 +1279,12 @@ ApplicationWindow {
                                         width: 32; height: 32; radius: 16
                                         color: tileStopArea.containsMouse ? "#082839" : "#ff4444"
                                         border.color: "#ff4444"; border.width: 1
-                                        Text { anchors.centerIn: parent; text: "⚪"; color: "#ffffff"; font.pixelSize: 14; font.bold: true }
+                                        Image{
+                                            anchors.centerIn: parent
+                                            width: 16; height: 16
+                                            source: "qrc:/assets/icons/stop.png"
+                                            fillMode: Image.PreserveAspectFit
+                                        }
                                         MouseArea {
                                             id: tileStopArea; anchors.fill: parent; hoverEnabled: true
                                             onClicked: {
@@ -1271,7 +1303,12 @@ ApplicationWindow {
                                         color: tileNextArea.containsMouse ? "#082839" : "#21cfa4"
                                         border.color: "#21cfa4"; border.width: 1
                                         visible: mainWindow.currentMediaType === 1
-                                        Text { anchors.centerIn: parent; text: "▶▶"; color: "#ffffff"; font.pixelSize: 10; font.bold: true }
+                                        Image{
+                                            anchors.centerIn: parent
+                                            width: 18; height: 18
+                                            source: "qrc:/assets/icons/next.png"
+                                            fillMode: Image.PreserveAspectFit
+                                        }
                                         MouseArea {
                                             id: tileNextArea; anchors.fill: parent; hoverEnabled: true
                                             onClicked: mainWindow.globalRadioAPI.playNext()
@@ -1283,23 +1320,23 @@ ApplicationWindow {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 16
                                     visible: mainWindow.currentMediaType === 0
-                                    Text {
-                                        text: "◀◀"
-                                        font.pixelSize: 14
-                                        color: "#21cfa4"
+                                    Image{
                                         anchors.verticalCenter: parent.verticalCenter
+                                        width: 18; height: 18
+                                        source: "qrc:/assets/icons/prev.png"
+                                        fillMode: Image.PreserveAspectFit
                                     }
-                                    Text {
-                                        text: "▶"
-                                        font.pixelSize: 20
-                                        color: "#21cfa4"
+                                    Image{
                                         anchors.verticalCenter: parent.verticalCenter
+                                        width: 21; height: 21
+                                        source: "qrc:/assets/icons/play.png"
+                                        fillMode: Image.PreserveAspectFit
                                     }
-                                    Text {
-                                        text: "▶▶"
-                                        font.pixelSize: 14
-                                        color: "#21cfa4"
+                                    Image{
                                         anchors.verticalCenter: parent.verticalCenter
+                                        width: 18; height: 18
+                                        source: "qrc:/assets/icons/next.png"
+                                        fillMode: Image.PreserveAspectFit
                                     }
                                 }
                             }

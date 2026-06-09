@@ -63,44 +63,56 @@ Rectangle {
             spacing: radioPage.width / 60
             height: radioPage.height / 18
 
+            // Visual display (replaces TextInput)
             Rectangle {
                 width: parent.width * 0.35
                 height: parent.height
                 radius: height / 2
                 color: "#082839"
-                border.color: "#3D717E"
+                border.color: searchMouse.containsMouse ? "#D08831" : "#3D717E"
                 border.width: 1
 
+                // Hidden input — syncs with VirtualKeyboard
                 TextInput {
                     id: searchField
-                    anchors { fill: parent; leftMargin: 14; rightMargin: 14; verticalCenter: parent.verticalCenter }
-                    verticalAlignment: TextInput.AlignVCenter
-                    color: "#e7f1ef"
-                    font.pixelSize: radioPage.width / 60
-                    font.family: "Arial"
-                    clip: true
-                    
-                    // Bind to the global saved query
-                    text: mediaPage.radioSearchQuery 
-                    
+                    visible: false
+                    text: mediaPage.radioSearchQuery
                     onTextChanged: {
                         mediaPage.radioSearchQuery = text
                         if (text === "") mediaPage.radioSearchAttempted = false
                     }
-                    onAccepted: {
-                        mediaPage.radioSearchAttempted = true
-                        mediaPage.globalRadioAPI.fetchStations()
-                    }
+                }
 
-                    Text {
-                        anchors.fill: parent
-                        verticalAlignment: Text.AlignVCenter
-                        text: "🔍 Search station name..."
-                        color: "#3D717E"
-                        font.pixelSize: radioPage.width / 65
-                        font.family: "Arial"
-                        visible: searchField.text === ""
-                    }
+                Text {
+                    anchors.fill: parent
+                    anchors.leftMargin: 14
+                    anchors.rightMargin: 14
+                    verticalAlignment: Text.AlignVCenter
+                    text: searchField.text
+                    color: "#e7f1ef"
+                    font.pixelSize: radioPage.width / 60
+                    font.family: "Arial"
+                    elide: Text.ElideRight
+                    visible: searchField.text !== ""
+                }
+
+                Text {
+                    anchors.fill: parent
+                    anchors.leftMargin: 14
+                    anchors.rightMargin: 14
+                    verticalAlignment: Text.AlignVCenter
+                    text: "🔍 Search station name..."
+                    color: "#3D717E"
+                    font.pixelSize: radioPage.width / 65
+                    font.family: "Arial"
+                    visible: searchField.text === ""
+                }
+
+                MouseArea {
+                    id: searchMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: keyboardPopup.open()
                 }
             }
 
@@ -399,12 +411,12 @@ Rectangle {
                             border.width: 1
                             Behavior on color { ColorAnimation { duration: 150 } }
 
-                            Text {
+                            Image{
                                 anchors.centerIn: parent
-                                text: mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name
-                                    && mediaPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                                color: "#ffffff"
-                                font { pixelSize: parent.width * 0.35; family: "Arial"; bold: true }
+                                width: 20; height: 20
+                                source:  mediaPage.currentRadioStation && mediaPage.currentRadioStation.name === stationDelegate.name
+                                    && mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                                fillMode: Image.PreserveAspectFit
                             }
 
                             MouseArea {
@@ -517,14 +529,11 @@ Rectangle {
                     border.color: "#D08831"
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 150 } }
-
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: "◀◀"
-                        color: '#ffffff'
-                        font.pixelSize: (parent.width + parent.height) / 6
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 20; height: 20
+                        source: "qrc:/assets/icons/prev.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: prevArea
@@ -546,13 +555,11 @@ Rectangle {
                     border.width: 2
                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: mediaPlayer.playbackState === MediaPlayer.PlayingState ? "❚❚" : "▶"
-                        color: '#ffffff'
-                        font.pixelSize: mediaPlayer.playbackState === MediaPlayer.PlayingState ? (parent.width + parent.height) / 5 : (parent.width + parent.height) / 4
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 28; height: 28
+                        source:  mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: playArea
@@ -575,14 +582,11 @@ Rectangle {
                     border.color: "#D08831"
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 150 } }
-
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: "▶▶"
-                        color: '#ffffff'
-                        font.pixelSize: (parent.width + parent.height) / 6
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 20; height: 20
+                        source: "qrc:/assets/icons/next.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: nextArea
@@ -658,6 +662,65 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    // Virtual Keyboard Popup — parented to Overlay so it isn't clipped
+    Popup {
+        id: keyboardPopup
+        parent: Overlay.overlay
+        width: radioPage.width * 0.6
+        height: radioPage.height * 0.7
+        anchors.centerIn: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: "#082839"
+            radius: 16
+            border.color: "#D08831"
+            border.width: 2
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 16
+
+            Text {
+                text: "Search Station"
+                font.pixelSize: radioPage.height * 0.04
+                color: "#D08831"
+                font.bold: true
+                font.family: "Arial"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            VirtualKeyboard {
+                id: keyboard
+                width: parent.width
+                targetItem: searchField
+                passwordMode: false
+                maxLength: 64
+
+                onAccepted: {
+                    mediaPage.radioSearchAttempted = true
+                    mediaPage.globalStationsModel.clear()
+                    mediaPage.globalRadioAPI.fetchStations()
+                    keyboard.clear()
+                    keyboardPopup.close()
+                }
+
+                onCancelled: {
+                    keyboard.clear()
+                    keyboardPopup.close()
+                }
+            }
+        }
+
+        onOpened: {
+            keyboard.targetText = searchField.text
         }
     }
 }

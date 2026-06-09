@@ -21,7 +21,7 @@ qt_add_executable(appIVI
     Backend/SpeechManager.cpp
 )
 
-target_include_directories(appIVI PRIVATE ${PULSE_INCLUDE_DIRS} /usr/local/include)
+target_include_directories(appIVI PRIVATE ${PULSE_INCLUDE_DIRS})
 
 qt_add_qml_module(appIVI
     URI IVI
@@ -40,6 +40,7 @@ qt_add_qml_module(appIVI
         Components/NetworkCard.qml
         Components/MediaCard.qml
         Components/CarInfoPopup.qml
+        Components/VirtualKeyboard.qml
         MediaPages/AudioPage.qml
         MediaPages/VideoPage.qml
         MediaPages/RadioPage.qml

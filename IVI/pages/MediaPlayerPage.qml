@@ -201,8 +201,9 @@ Item {
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: root.mediaPlaying ? "  ▶  Playing" : "❚❚  Paused"
+                    text: root.mediaPlaying ? "Playing" : "Paused"
                     color: '#ffffff'
+                    opacity: 0.6
                     font.pixelSize: statusBar.height * 0.25
                     font.family: "Arial"
                     font.bold: true
@@ -216,7 +217,12 @@ Item {
                     border.color: "#D08831"; border.width: 1
                     visible: mediaPage.currentMediaType === 1
                     Behavior on color { ColorAnimation { duration: 150 } }
-                    Text { anchors.centerIn: parent; text: "◀◀"; color: "#ffffff"; font.pixelSize: parent.width * 0.35; font.bold: true }
+                    Image{
+                        anchors.centerIn: parent
+                        width: 18; height: 18
+                        source: "qrc:/assets/icons/prev.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
                     MouseArea {
                         id: statusPrevArea; anchors.fill: parent; hoverEnabled: true
                         onClicked: mediaPage.globalRadioAPI.playPrevious()
@@ -234,13 +240,11 @@ Item {
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: root.mediaPlaying ? "❚❚" : "▶"
-                        color: "#ffffff"
-                        font.pixelSize: parent.width * 0.4
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 25; height: 25
+                        source: mainWindow.mediaPlaying? "qrc:/assets/icons/pause.png" : "qrc:/assets/icons/play.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: statusPlayArea
@@ -264,13 +268,11 @@ Item {
                     border.width: 1
                     Behavior on color { ColorAnimation { duration: 150 } }
 
-                    Text {
+                    Image{
                         anchors.centerIn: parent
-                        text: "⚪"
-                        color: "#ffffff"
-                        font.pixelSize: parent.width * 0.45
-                        font.family: "Arial"
-                        font.bold: true
+                        width: 16; height: 16
+                        source: "qrc:/assets/icons/stop.png"
+                        fillMode: Image.PreserveAspectFit
                     }
                     MouseArea {
                         id: statusStopArea
@@ -294,7 +296,12 @@ Item {
                     border.color: "#D08831"; border.width: 1
                     visible: mediaPage.currentMediaType === 1
                     Behavior on color { ColorAnimation { duration: 150 } }
-                    Text { anchors.centerIn: parent; text: "▶▶"; color: "#ffffff"; font.pixelSize: parent.width * 0.35; font.bold: true }
+                    Image{
+                        anchors.centerIn: parent
+                        width: 18; height: 18
+                        source: "qrc:/assets/icons/next.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
                     MouseArea {
                         id: statusNextArea; anchors.fill: parent; hoverEnabled: true
                         onClicked: mediaPage.globalRadioAPI.playNext()

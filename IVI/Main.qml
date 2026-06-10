@@ -12,51 +12,209 @@ ApplicationWindow {
     title: qsTr("IVI Dashboard")
     flags: Qt.FramelessWindowHint | Qt.Window
 
-    property bool splashDone: true
+    property bool splashDone: false
 
-    // Splash screen
-    // Item {
-    //     id: splashScreen
-    //     anchors.fill: parent
-    //     visible: !mainWindow.splashDone
-    //     z: 10
+    Item {
+        id: splashScreen
+        anchors.fill: parent
+        visible: !mainWindow.splashDone
+        z: 10
 
-    //     opacity: 1.0 
-    //     property bool fadingOut: false 
+        // Background
+        // Starts white, transitions to main screen dark color at the end
+        Rectangle {
+            id: splashBg
+            anchors.fill: parent
+            color: "white"
 
-    //     Behavior on opacity {
-    //         NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
-    //     }
-    //     Behavior on scale {
-    //         NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
-    //     }
+            // Gradient overlay (matches your main screen)
+            Rectangle {
+                id: splashBgGradient
+                anchors.fill: parent
+                opacity: 0  // Starts invisible, fades in at end
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#0a1628" }
+                    GradientStop { position: 0.5; color: "#080e1c" }
+                    GradientStop { position: 1.0; color: "#05070a" }
+                }
+            }
+        }
 
-    //     Video {
-    //         id: splashVideo
-    //         anchors.fill: parent
-    //         source: "qrc:/assets/videos/splash.webm"
-    //         autoPlay: true
-    //         loops: MediaPlayer.Once
-    //         fillMode: VideoOutput.PreserveAspectCrop
-            
-    //         playbackRate: 1.25 
+        // ITI Logo
+        Image {
+            id: itiLogo
+            source: "qrc:/assets/images/iti.png"
+            anchors.centerIn: parent
+            width: 260
+            height: 260
+            fillMode: Image.PreserveAspectFit
+            scale: 0.2
+            opacity: 1
+            transformOrigin: Item.Center
+        }
 
-    //         onPositionChanged: {
-    //             if(duration > 0 && !splashScreen.fadingOut){
-    //                 if((duration - position) <= 500){
-    //                     splashScreen.fadingOut = true;
-    //                     splashScreen.opacity = 0; // Triggers the Behavior on opacity
-    //                 }
-    //             }
-    //         }
+        // Car
+        Image {
+            id: carImage
+            source: "qrc:/assets/images/car.png"
+            width: 130
+            height: 65
+            fillMode: Image.PreserveAspectFit
+            opacity: 0
+            x: parent.width / 2 - width / 2
+            y: parent.height / 2 + 20
+        }
 
-    //         onPlaybackStateChanged: {
-    //             if(playbackState === MediaPlayer.StoppedState){
-    //                 mainWindow.splashDone = true 
-    //             }
-    //         }
-    //     }
-    // }
+        // Smoke Container
+        Item {
+            id: smokeContainer
+            anchors.fill: parent
+        }
+
+        // Smoke Puff Component
+        Component {
+            id: smokePuff
+            Rectangle {
+                id: puff
+                width: 16 + Math.random() * 14
+                height: width
+                radius: width / 2
+                color: Qt.rgba(0.45, 0.45, 0.45, 0.55)
+                opacity: 0.5
+                x: spawnX
+                y: spawnY
+                property real spawnX: 0
+                property real spawnY: 0
+
+                ParallelAnimation {
+                    running: true
+                    NumberAnimation { target: puff; property: "opacity"; from: 0.5; to: 0; duration: 650 }
+                    NumberAnimation { target: puff; property: "scale"; from: 0.4; to: 2.2; duration: 650 }
+                    NumberAnimation { target: puff; property: "x"; from: puff.spawnX; to: puff.spawnX + 60 + Math.random() * 50; duration: 650 }
+                    onFinished: puff.destroy()
+                }
+            }
+        }
+
+        // Smoke Spawner Timer
+        Timer {
+            id: smokeTimer
+            interval: 110
+            repeat: true
+            running: false
+            property int count: 0
+            onTriggered: {
+                if (count >= 7) { running = false; return; }
+                smokePuff.createObject(smokeContainer, {
+                    spawnX: carImage.x + carImage.width - 10,
+                    spawnY: carImage.y + carImage.height - 12
+                });
+                count++;
+            }
+        }
+
+        // Main Splash Animation (~4.3s total)
+        SequentialAnimation {
+            id: splashAnim
+            running: true
+
+            // Phase 1: ITI Logo expands (0 → 1.5s)
+            NumberAnimation {
+                target: itiLogo
+                property: "scale"
+                from: 0.2
+                to: 1.0
+                duration: 1500
+                easing.type: Easing.OutBack
+            }
+
+            // Phase 2: Car drops from logo & moves right slowly (1.5 → 2.5s)
+            ParallelAnimation {
+                NumberAnimation {
+                    target: carImage
+                    property: "opacity"
+                    from: 0; to: 1; duration: 200
+                }
+                NumberAnimation {
+                    target: carImage
+                    property: "y"
+                    from: splashScreen.height / 2 + 10
+                    to: splashScreen.height / 2 + 80
+                    duration: 400
+                    easing.type: Easing.InQuad
+                }
+                NumberAnimation {
+                    target: carImage
+                    property: "x"
+                    from: splashScreen.width / 2 - carImage.width / 2
+                    to: splashScreen.width * 0.68 - carImage.width / 2
+                    duration: 1000
+                    easing.type: Easing.Linear
+                }
+                NumberAnimation {
+                    target: carImage
+                    property: "rotation"
+                    from: -6; to: 0; duration: 400
+                    easing.type: Easing.OutBack
+                }
+            }
+
+            // Phase 3: Car zooms left fast with smoke (2.5 → 3.3s)
+            ParallelAnimation {
+                NumberAnimation {
+                    target: carImage
+                    property: "x"
+                    from: splashScreen.width * 0.68 - carImage.width / 2
+                    to: -carImage.width * 2.5
+                    duration: 800
+                    easing.type: Easing.InQuad
+                }
+                NumberAnimation {
+                    target: carImage
+                    property: "rotation"
+                    from: 0; to: 4; duration: 800
+                }
+                ScriptAction {
+                    script: { smokeTimer.count = 0; smokeTimer.running = true; }
+                }
+            }
+
+            // Phase 4: ITI Logo fades out (3.3 → 3.8s)
+            NumberAnimation {
+                target: itiLogo
+                property: "opacity"
+                from: 1; to: 0; duration: 500
+            }
+
+            // Phase 5: Background transitions to main screen color (3.8 → 4.3s)
+            ParallelAnimation {
+                ColorAnimation {
+                    target: splashBg
+                    property: "color"
+                    from: "white"
+                    to: "#020408"
+                    duration: 500
+                    easing.type: Easing.InOutQuad
+                }
+                NumberAnimation {
+                    target: splashBgGradient
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: 500
+                    easing.type: Easing.InOutQuad
+                }
+            }
+
+            onFinished: {
+                mainWindow.splashDone = true
+            }
+        }
+
+        Component.onCompleted: {
+            console.log("Splash animation started")
+        }
+    }
 
     property real appBrightness: 1.0
 
@@ -461,32 +619,98 @@ ApplicationWindow {
                                     width: 48; height: 48; radius: 24
                                     color: speechManager && speechManager.listening ? "#ff4444" : "#2674cc"
                                     Behavior on color { ColorAnimation { duration: 150 } }
+
                                     Text {
                                         anchors.centerIn: parent
                                         text: speechManager && speechManager.listening ? "🔴" : "🎤"
                                         font.pixelSize: 22
                                     }
+
                                     MouseArea {
                                         anchors.fill: parent
-                                        onPressed:  if (speechManager) speechManager.startListening()
-                                        onReleased: if (speechManager) speechManager.stopListening()
+                                        preventStealing: true
+                                        pressAndHoldInterval: 100
+                                        onPressed: {
+                                            console.log("MIC PRESSED - speechManager:", speechManager)
+                                            if (speechManager) speechManager.startListening()
+                                        }
+                                        onReleased: {
+                                            console.log("MIC RELEASED")
+                                            if (speechManager) speechManager.stopListening()
+                                        }
+                                        onCanceled: {
+                                            console.log("MIC CANCELED")
+                                            if (speechManager) speechManager.stopListening()
+                                        }
                                     }
                                 }
 
-                                Text {
+                                Column {
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: parent.width - 70
-                                    clip: true                  // clips overflow
-                                    elide: Text.ElideRight 
-                                    text: speechManager && speechManager.listening
-                                          ? (speechManager.partialResult !== "" ? speechManager.partialResult : "Listening...")
-                                          : "Hold to speak"
-                                    color: speechManager && speechManager.listening ? "#ffffff" : "#8899bb"
-                                    font { pixelSize: 14; italic: !speechManager || !speechManager.listening; family: "Arial" }
+                                    spacing: 4
+
+                                    Text {
+                                        width: parent.width
+                                        clip: true
+                                        elide: Text.ElideRight
+                                        text: speechManager && speechManager.listening
+                                            ? (speechManager.partialResult !== "" ? speechManager.partialResult : "Listening...")
+                                            : "Hold to speak"
+                                        color: speechManager && speechManager.listening ? "#ffffff" : "#8899bb"
+                                        font {
+                                            pixelSize: 14
+                                            italic: !speechManager || !speechManager.listening
+                                            family: "Arial"
+                                        }
+                                    }
+
+                                    // Status indicator row
+                                    Row {
+                                        spacing: 6
+                                        visible: speechManager !== null
+
+                                        Rectangle {
+                                            width: 8; height: 8; radius: 4
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            color: {
+                                                if (!speechManager) return "#444"
+                                                if (speechManager.listening) return "#ff4444"
+                                                return "#444"
+                                            }
+                                            Behavior on color { ColorAnimation { duration: 150 } }
+
+                                            // Pulsing animation when listening
+                                            SequentialAnimation on opacity {
+                                                running: speechManager && speechManager.listening
+                                                loops: Animation.Infinite
+                                                NumberAnimation { to: 0.3; duration: 500 }
+                                                NumberAnimation { to: 1.0; duration: 500 }
+                                                onStopped: parent.opacity = 1.0
+                                            }
+                                        }
+
+                                        Text {
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            text: {
+                                                if (!speechManager) return "Unavailable"
+                                                if (speechManager.listening) return "Recording..."
+                                                return "Ready"
+                                            }
+                                            color: {
+                                                if (!speechManager) return "#555"
+                                                if (speechManager.listening) return "#ff8888"
+                                                return "#556677"
+                                            }
+                                            font.pixelSize: 11
+                                            font.family: "Arial"
+                                        }
+                                    }
                                 }
                             }
 
                             HoverHandler {
+                                acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
                                 onHoveredChanged: parent.hovered = hovered
                             }
 
@@ -495,7 +719,7 @@ ApplicationWindow {
                                 function onResultReady(text) {
                                     console.log("Recognized:", text)
                                     var lowerText = text.toLowerCase().trim()
-                                    if(lowerText.includes("weather"))
+                                    if (lowerText.includes("weather"))
                                         launcherItem.openWeather()
                                     else if (lowerText.includes("hvac") || lowerText.includes("climate") || lowerText.includes("ac"))
                                         launcherItem.openClimateControl()
@@ -506,7 +730,7 @@ ApplicationWindow {
                                     else if (lowerText.includes("about"))
                                         launcherItem.openCarInfo()
                                     // VOLUME COMMANDS
-                                    else if(lowerText.includes("volume up") || lowerText.includes("increase volume")) {
+                                    else if (lowerText.includes("volume up") || lowerText.includes("increase volume")) {
                                         var newVol = Math.min(100, systemVolume.volume + 11)
                                         systemVolume.volume = newVol
                                         console.log("Volume up →", newVol + "%")
@@ -521,7 +745,7 @@ ApplicationWindow {
                                             systemVolume.toggleMute()
                                         console.log("Volume muted")
                                     }
-                                    else if (lowerText.includes("volume") || lowerText.includes("unmute")) {
+                                    else if (lowerText.includes("unmute")) {
                                         if (systemVolume.muted)
                                             systemVolume.toggleMute()
                                         console.log("Volume unmuted")
@@ -548,6 +772,10 @@ ApplicationWindow {
                                         launcherItem.hvacTemp = newTemp
                                         console.log("Temp down →", newTemp + "°")
                                     }
+                                }
+
+                                function onListeningChanged() {
+                                    console.log("Listening state changed:", speechManager.listening)
                                 }
                             }
                         }

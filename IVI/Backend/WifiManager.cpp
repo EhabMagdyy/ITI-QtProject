@@ -356,9 +356,7 @@ void WifiManager::connectToSelectedNetwork(const QString &ssid)
                 .value("ssid")
                 .toByteArray();
 
-            QString profileSsid = QString::fromUtf8(profileSsidBytes);
-
-            if (profileSsid == ssid) {
+            if (QString::fromUtf8(profileSsidBytes) == ssid) {
                 QDBusMessage reply = m_nmInterface->call(
                     "ActivateConnection",
                     QVariant::fromValue(connPath),
@@ -377,7 +375,7 @@ void WifiManager::connectToSelectedNetwork(const QString &ssid)
         }
     }
 
-    // No saved profile found — ask QML for password
+    // No saved profile — ask for password
     emit passwordRequired(ssid);
 }
 
@@ -410,10 +408,8 @@ void WifiManager::onActiveConnPropertiesChanged(QString interface,
 
     uint state = changedProps["State"].toUInt();
 
-    // NM Active Connection States:
-    // 1 = Activating, 2 = Activated, 3 = Deactivating, 4 = Deactivated
     switch (state) {
-        case 2:
+        case 2: // Activated
             emit connectSuccess(m_pendingSsid);
             updateConnectedSsid();
             QDBusConnection::systemBus().disconnect(
@@ -425,8 +421,11 @@ void WifiManager::onActiveConnPropertiesChanged(QString interface,
                 SLOT(onActiveConnPropertiesChanged(QString, QVariantMap, QStringList))
             );
             break;
-        case 4:
-            emit connectFailed("Could not connect to: " + m_pendingSsid);
+
+        case 4: // Deactivated = failed
+            // Delete the bad profile so next attempt asks for password again
+            forgetNetwork(m_pendingSsid);
+            emit connectFailed("Wrong password or could not connect to: " + m_pendingSsid);
             updateConnectedSsid();
             QDBusConnection::systemBus().disconnect(
                 "org.freedesktop.NetworkManager",
@@ -434,10 +433,50 @@ void WifiManager::onActiveConnPropertiesChanged(QString interface,
                 "org.freedesktop.DBus.Properties",
                 "PropertiesChanged",
                 this,
-                SLOT(onActiveConnPropertiesChanged(QString, QVariantMap, QStringList))
+                SLOT(onActiveConnPropertiesChanged(QString, QMetaType::QVariantMap, QStringList))
             );
             break;
+
         default:
             break;
+    }
+}
+
+void WifiManager::forgetNetwork(const QString &ssid)
+{
+    QDBusInterface settingsIface(
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager/Settings",
+        "org.freedesktop.NetworkManager.Settings",
+        QDBusConnection::systemBus()
+    );
+
+    QDBusReply<QList<QDBusObjectPath>> connList =
+        settingsIface.call("ListConnections");
+
+    if (!connList.isValid()) return;
+
+    for (const QDBusObjectPath &connPath : connList.value()) {
+        QDBusInterface connIface(
+            "org.freedesktop.NetworkManager",
+            connPath.path(),
+            "org.freedesktop.NetworkManager.Settings.Connection",
+            QDBusConnection::systemBus()
+        );
+
+        QDBusReply<NMConnectionSettings> settings = connIface.call("GetSettings");
+        if (!settings.isValid()) continue;
+
+        QByteArray profileSsidBytes = settings.value()
+            .value("802-11-wireless")
+            .value("ssid")
+            .toByteArray();
+
+        if (QString::fromUtf8(profileSsidBytes) == ssid) {
+            QDBusMessage reply = connIface.call("Delete");
+            if (reply.type() != QDBusMessage::ErrorMessage)
+                emit forgetSuccess(ssid);
+            return;
+        }
     }
 }

@@ -8,6 +8,19 @@ Rectangle {
     color: "transparent"
     required property StackView stackView
 
+    Timer {
+        id: retryTimer
+        interval: 1500
+        property string pendingSsid: ""
+        onTriggered: {
+            if (pendingSsid !== "") {
+                passwordPopupSsid.text = pendingSsid
+                passwordPopup.open()
+                pendingSsid = ""
+            }
+        }
+    }
+
     // Background
     Rectangle {
         z: -1
@@ -69,9 +82,6 @@ Rectangle {
                     networkListModel.get(i).name === ssid)
             }
         }
-        function onConnectFailed(reason) {
-            showToast(reason, true)
-        }
         function onPasswordRequired(ssid) {
             passwordPopupSsid.text = ssid
             passwordPopup.open()
@@ -83,6 +93,16 @@ Rectangle {
             }
             if (ssid === "")
                 showToast("Disconnected", false)
+        }
+        function onForgetSuccess(ssid) {
+            showToast("Forgotten: " + ssid, false)
+        }
+
+        function onConnectFailed(reason) {
+            showToast(reason, true)
+            // If it failed, re-prompt for password after a short delay
+            retryTimer.pendingSsid = reason.replace("Wrong password or could not connect to: ", "")
+            retryTimer.start()
         }
     }
 
@@ -342,7 +362,7 @@ Rectangle {
                             font.family: "Arial"
                             anchors.verticalCenter: parent.verticalCenter
                             width: parent.width
-                                   - (connected ? disconnectBtn.width : connectBtn.width)
+                                   - (connected ? disconnectBtn.width * 2 + 5 : connectBtn.width)
                                    - parent.parent.height * 0.4
                                    - parent.spacing * 2
                             elide: Text.ElideRight
@@ -374,6 +394,38 @@ Rectangle {
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 onClicked: WifiManager.connectToSelectedNetwork(netRow.name)
+                            }
+                        }
+
+                        Rectangle {
+                            id: forgetBtn
+                            visible: netRow.connected
+                            width: wifiPage.width * 0.14
+                            height: parent.parent.height * 0.5
+                            radius: height / 3
+                            color: forgetArea.containsMouse ? "#774400" : "#3d2200"
+                            anchors.verticalCenter: parent.verticalCenter
+                            border.color: "#D08831"
+                            border.width: 1
+                            Behavior on color { ColorAnimation { duration: 150 } }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Forget"
+                                font.pixelSize: parent.height * 0.45
+                                color: "#D08831"
+                                font.bold: true
+                                font.family: "Arial"
+                            }
+
+                            MouseArea {
+                                id: forgetArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: {
+                                    WifiManager.forgetNetwork(netRow.name)
+                                    WifiManager.disconnectFromNetwork()
+                                }
                             }
                         }
 

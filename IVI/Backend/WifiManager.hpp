@@ -22,6 +22,7 @@ public:
     Q_INVOKABLE void connectToNetwork(const QString &ssid, const QString &password);
     Q_INVOKABLE void connectToSelectedNetwork(const QString &ssid);
     Q_INVOKABLE void disconnectFromNetwork();
+    Q_INVOKABLE void forgetNetwork(const QString &ssid);
 
 signals:
     void wifiEnabledChanged(bool enabled);
@@ -32,6 +33,7 @@ signals:
     void connectFailed(const QString &reason);
     void passwordRequired(const QString &ssid);
     void connectedSsidChanged(const QString &ssid);
+    void forgetSuccess(const QString &ssid);
 
 private slots:
     void onPropertiesChanged(QString interface,

@@ -14,30 +14,88 @@ ApplicationWindow {
 
     property bool splashDone: false
 
-    Item {
+        Item {
         id: splashScreen
         anchors.fill: parent
         visible: !mainWindow.splashDone
         z: 10
+        opacity: 1
 
-        // Background
-        // Starts white, transitions to main screen dark color at the end
+        // Background Layers 
         Rectangle {
             id: splashBg
             anchors.fill: parent
-            color: "white"
+            color: "#020408"
 
-            // Gradient overlay (matches your main screen)
+            // Animated ambient orbs (modern glassmorphism feel)
             Rectangle {
-                id: splashBgGradient
-                anchors.fill: parent
-                opacity: 0  // Starts invisible, fades in at end
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#0a1628" }
-                    GradientStop { position: 0.5; color: "#080e1c" }
-                    GradientStop { position: 1.0; color: "#05070a" }
-                }
+                id: orb1
+                width: 400; height: 400; radius: 200
+                color: "#1a4a7c"; opacity: 0
+                x: parent.width * 0.15; y: parent.height * 0.2
+                Behavior on opacity { NumberAnimation { duration: 800 } }
             }
+            Rectangle {
+                id: orb2
+                width: 350; height: 350; radius: 175
+                color: "#3d1b6e"; opacity: 0
+                x: parent.width * 0.6; y: parent.height * 0.45
+                Behavior on opacity { NumberAnimation { duration: 800 } }
+            }
+            Rectangle {
+                id: orb3
+                width: 250; height: 250; radius: 125
+                color: "#0d4a3a"; opacity: 0
+                x: parent.width * 0.35; y: parent.height * 0.55
+                Behavior on opacity { NumberAnimation { duration: 800 } }
+            }
+
+            // Subtle grid pattern overlay
+            Rectangle {
+                id: gridOverlay
+                anchors.fill: parent
+                color: "transparent"
+                opacity: 0
+
+                Canvas {
+                    anchors.fill: parent
+                    onPaint: {
+                        var ctx = getContext("2d");
+                        ctx.strokeStyle = "rgba(255,255,255,0.03)";
+                        ctx.lineWidth = 0.5;
+                        var step = 40;
+                        for (var x = 0; x < width; x += step) {
+                            ctx.beginPath();
+                            ctx.moveTo(x, 0);
+                            ctx.lineTo(x, height);
+                            ctx.stroke();
+                        }
+                        for (var y = 0; y < height; y += step) {
+                            ctx.beginPath();
+                            ctx.moveTo(0, y);
+                            ctx.lineTo(width, y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                Behavior on opacity { NumberAnimation { duration: 1000 } }
+            }
+        }
+
+        // Glow Effect Behind Logo 
+        Rectangle {
+            id: logoGlow
+            anchors.centerIn: itiLogo
+            width: 400; height: 400; radius: 200
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.rgba(0.2, 0.5, 0.9, 0.0) }
+                GradientStop { position: 0.5; color: Qt.rgba(0.2, 0.5, 0.9, 0.15) }
+                GradientStop { position: 1.0; color: Qt.rgba(0.2, 0.5, 0.9, 0.0) }
+            }
+            opacity: 0
+            scale: 0.5
+            transformOrigin: Item.Center
         }
 
         // ITI Logo
@@ -45,11 +103,11 @@ ApplicationWindow {
             id: itiLogo
             source: "qrc:/assets/images/iti.png"
             anchors.centerIn: parent
-            width: 260
-            height: 260
+            width: 300
+            height: 300
             fillMode: Image.PreserveAspectFit
-            scale: 0.2
-            opacity: 1
+            scale: 0.05
+            opacity: 0
             transformOrigin: Item.Center
         }
 
@@ -57,30 +115,188 @@ ApplicationWindow {
         Image {
             id: carImage
             source: "qrc:/assets/images/car.png"
-            width: 130
-            height: 65
+            width: 160
+            height: 80
             fillMode: Image.PreserveAspectFit
             opacity: 0
             x: parent.width / 2 - width / 2
-            y: parent.height / 2 + 20
+            y: parent.height / 2 + 30
+            scale: 0.8
+
+            // Car glow trail
+            Rectangle {
+                id: carGlow
+                anchors.right: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                width: 80; height: 40; radius: 20
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: Qt.rgba(0.2, 0.6, 1.0, 0.4) }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+                opacity: 0
+                scale: 0.5
+            }
         }
 
-        // Smoke Container
+        // Particle Dust (ambient floating dots) 
+        Item {
+            id: dustContainer
+            anchors.fill: parent
+        }
+
+        Component {
+            id: dustParticle
+            Rectangle {
+                id: dust
+                width: 2 + Math.random() * 3
+                height: width
+                radius: width / 2
+                color: Qt.rgba(0.6, 0.8, 1.0, 0.3 + Math.random() * 0.3)
+                x: Math.random() * splashScreen.width
+                y: Math.random() * splashScreen.height
+                opacity: 0
+
+                SequentialAnimation {
+                    running: true
+                    NumberAnimation { target: dust; property: "opacity"; from: 0; to: 0.6; duration: 800 + Math.random() * 1000 }
+                    NumberAnimation { target: dust; property: "y"; to: dust.y - 30 - Math.random() * 50; duration: 3000 + Math.random() * 2000; easing.type: Easing.Linear }
+                    NumberAnimation { target: dust; property: "opacity"; to: 0; duration: 800 }
+                    onFinished: dust.destroy()
+                }
+            }
+        }
+
+        Timer {
+            id: dustTimer
+            interval: 300
+            repeat: true
+            running: false
+            onTriggered: dustParticle.createObject(dustContainer)
+        }
+
+        // Advanced Smoke System 
         Item {
             id: smokeContainer
             anchors.fill: parent
         }
 
-        // Smoke Puff Component
+        // Realistic smoke puff with turbulence
         Component {
             id: smokePuff
+            Item {
+                id: puffRoot
+                x: spawnX
+                y: spawnY
+                property real spawnX: 0
+                property real spawnY: 0
+                property int puffSize: 20 + Math.random() * 25
+                property real driftX: (Math.random() - 0.3) * 80
+                property real driftY: -20 - Math.random() * 40
+                property real lifeTime: 900 + Math.random() * 600
+
+                // Multiple overlapping circles for realistic volume
+                Rectangle {
+                    id: puffCore
+                    width: puffRoot.puffSize
+                    height: width
+                    radius: width / 2
+                    color: Qt.rgba(0.5, 0.5, 0.5, 0.6)
+                    anchors.centerIn: parent
+                }
+                Rectangle {
+                    id: puffInner
+                    width: puffRoot.puffSize * 0.7
+                    height: width
+                    radius: width / 2
+                    color: Qt.rgba(0.7, 0.7, 0.75, 0.4)
+                    anchors.centerIn: parent
+                }
+                Rectangle {
+                    id: puffHighlight
+                    width: puffRoot.puffSize * 0.4
+                    height: width
+                    radius: width / 2
+                    color: Qt.rgba(0.85, 0.85, 0.9, 0.25)
+                    anchors.centerIn: parent
+                    x: -puffRoot.puffSize * 0.1
+                    y: -puffRoot.puffSize * 0.1
+                }
+
+                ParallelAnimation {
+                    running: true
+                    // Fade out
+                    NumberAnimation {
+                        target: puffRoot
+                        property: "opacity"
+                        from: 0.9
+                        to: 0
+                        duration: puffRoot.lifeTime
+                        easing.type: Easing.OutCubic
+                    }
+                    // Expand - separate animations for each element
+                    NumberAnimation {
+                        target: puffCore
+                        property: "scale"
+                        from: 0.3
+                        to: 2.5 + Math.random() * 1.5
+                        duration: puffRoot.lifeTime
+                        easing.type: Easing.OutQuad
+                    }
+                    NumberAnimation {
+                        target: puffInner
+                        property: "scale"
+                        from: 0.3
+                        to: 2.5 + Math.random() * 1.5
+                        duration: puffRoot.lifeTime
+                        easing.type: Easing.OutQuad
+                    }
+                    NumberAnimation {
+                        target: puffHighlight
+                        property: "scale"
+                        from: 0.3
+                        to: 2.5 + Math.random() * 1.5
+                        duration: puffRoot.lifeTime
+                        easing.type: Easing.OutQuad
+                    }
+                    // Drift with slight turbulence
+                    NumberAnimation {
+                        target: puffRoot
+                        property: "x"
+                        from: puffRoot.spawnX
+                        to: puffRoot.spawnX + puffRoot.driftX
+                        duration: puffRoot.lifeTime
+                        easing.type: Easing.OutQuad
+                    }
+                    NumberAnimation {
+                        target: puffRoot
+                        property: "y"
+                        from: puffRoot.spawnY
+                        to: puffRoot.spawnY + puffRoot.driftY
+                        duration: puffRoot.lifeTime
+                        easing.type: Easing.OutQuad
+                    }
+                    // Slight rotation for realism
+                    NumberAnimation {
+                        target: puffRoot
+                        property: "rotation"
+                        from: Math.random() * 360
+                        to: Math.random() * 360 + 90
+                        duration: puffRoot.lifeTime
+                    }
+                    onFinished: puffRoot.destroy()
+                }
+            }
+        }
+
+        // Smoke trail (lingering smoke on ground)
+        Component {
+            id: smokeTrail
             Rectangle {
-                id: puff
-                width: 16 + Math.random() * 14
-                height: width
-                radius: width / 2
-                color: Qt.rgba(0.45, 0.45, 0.45, 0.55)
-                opacity: 0.5
+                id: trail
+                width: 60 + Math.random() * 40
+                height: 15 + Math.random() * 10
+                radius: height / 2
+                color: Qt.rgba(0.4, 0.4, 0.4, 0.3)
                 x: spawnX
                 y: spawnY
                 property real spawnX: 0
@@ -88,131 +304,236 @@ ApplicationWindow {
 
                 ParallelAnimation {
                     running: true
-                    NumberAnimation { target: puff; property: "opacity"; from: 0.5; to: 0; duration: 650 }
-                    NumberAnimation { target: puff; property: "scale"; from: 0.4; to: 2.2; duration: 650 }
-                    NumberAnimation { target: puff; property: "x"; from: puff.spawnX; to: puff.spawnX + 60 + Math.random() * 50; duration: 650 }
-                    onFinished: puff.destroy()
+                    NumberAnimation { target: trail; property: "opacity"; from: 0.3; to: 0; duration: 1200 }
+                    NumberAnimation { target: trail; property: "scale"; from: 1; to: 3; duration: 1200 }
+                    NumberAnimation { target: trail; property: "x"; to: trail.x - 30; duration: 1200 }
+                    onFinished: trail.destroy()
                 }
             }
         }
 
-        // Smoke Spawner Timer
+        // Smoke Spawner 
         Timer {
             id: smokeTimer
-            interval: 110
+            interval: 80
             repeat: true
             running: false
             property int count: 0
             onTriggered: {
-                if (count >= 7) { running = false; return; }
+                if (count >= 12) { running = false; return; }
+                // Main exhaust smoke
                 smokePuff.createObject(smokeContainer, {
-                    spawnX: carImage.x + carImage.width - 10,
-                    spawnY: carImage.y + carImage.height - 12
+                    spawnX: carImage.x + (carImage.width * 0.15),
+                    spawnY: carImage.y + carImage.height - 8
                 });
+                // Secondary smaller puffs
+                if (count % 2 === 0) {
+                    smokePuff.createObject(smokeContainer, {
+                        spawnX: carImage.x + (carImage.width * 0.2),
+                        spawnY: carImage.y + carImage.height - 5
+                    });
+                }
+                // Ground trail
+                if (count % 3 === 0) {
+                    smokeTrail.createObject(smokeContainer, {
+                        spawnX: carImage.x + 10,
+                        spawnY: carImage.y + carImage.height - 2
+                    });
+                }
                 count++;
             }
         }
 
-        // Main Splash Animation (~4.3s total)
+        // Main Splash Animation (~4.5s total) 
         SequentialAnimation {
             id: splashAnim
             running: true
 
-            // Phase 1: ITI Logo expands (0 → 1.5s)
-            NumberAnimation {
-                target: itiLogo
-                property: "scale"
-                from: 0.2
-                to: 1.0
-                duration: 1500
-                easing.type: Easing.OutBack
+            // Phase 0: Background setup (0 → 0.2s)
+            ParallelAnimation {
+                ColorAnimation { target: splashBg; property: "color"; from: '#060c18'; to: "#020408"; duration: 100 }
+                NumberAnimation { target: orb1; property: "opacity"; from: 0; to: 0.12; duration: 150 }
+                NumberAnimation { target: orb2; property: "opacity"; from: 0; to: 0.1; duration: 150; easing.type: Easing.OutQuad }
+                NumberAnimation { target: gridOverlay; property: "opacity"; from: 0; to: 0.6; duration: 200 }
             }
 
-            // Phase 2: Car drops from logo & moves right slowly (1.5 → 2.5s)
+            // Phase 1: ITI Logo appears FAST then expands slowly (0.2 → 1.7s)
             ParallelAnimation {
+                // Logo appears immediately (fast opacity)
+                NumberAnimation {
+                    target: itiLogo
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: 300
+                    easing.type: Easing.OutQuad
+                }
+                // Logo expands slowly over full duration
+                NumberAnimation {
+                    target: itiLogo
+                    property: "scale"
+                    from: 0.05
+                    to: 1.0
+                    duration: 1500
+                    easing.type: Easing.OutBack
+                    easing.overshoot: 1.8
+                }
+                // Glow fades in and expands with logo
+                NumberAnimation {
+                    target: logoGlow
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: 800
+                }
+                NumberAnimation {
+                    target: logoGlow
+                    property: "scale"
+                    from: 0.3
+                    to: 1.2
+                    duration: 1500
+                    easing.type: Easing.OutQuad
+                }
+            }
+
+            // Phase 1.5: Logo holds, dust starts (1.7 → 2.1s)
+            ScriptAction {
+                script: { dustTimer.running = true; }
+            }
+            PauseAnimation { duration: 400 }
+
+            // Phase 2: Car drops from logo (2.1 → 3.3s)
+            ParallelAnimation {
+                // Car appears and drops
                 NumberAnimation {
                     target: carImage
                     property: "opacity"
-                    from: 0; to: 1; duration: 200
+                    from: 0; to: 1; duration: 300
                 }
                 NumberAnimation {
                     target: carImage
                     property: "y"
-                    from: splashScreen.height / 2 + 10
-                    to: splashScreen.height / 2 + 80
-                    duration: 400
-                    easing.type: Easing.InQuad
+                    from: splashScreen.height / 2 + 20
+                    to: splashScreen.height / 2 + 100
+                    duration: 500
+                    easing.type: Easing.OutBounce
                 }
                 NumberAnimation {
                     target: carImage
-                    property: "x"
-                    from: splashScreen.width / 2 - carImage.width / 2
-                    to: splashScreen.width * 0.68 - carImage.width / 2
-                    duration: 1000
-                    easing.type: Easing.Linear
-                }
-                NumberAnimation {
-                    target: carImage
-                    property: "rotation"
-                    from: -6; to: 0; duration: 400
+                    property: "scale"
+                    from: 0.5; to: 1.0; duration: 500
                     easing.type: Easing.OutBack
                 }
             }
 
-            // Phase 3: Car zooms left fast with smoke (2.5 → 3.3s)
+            // Phase 2.5: Car idles, moves right slowly (3.3 → 4.3s)
             ParallelAnimation {
                 NumberAnimation {
                     target: carImage
                     property: "x"
-                    from: splashScreen.width * 0.68 - carImage.width / 2
-                    to: -carImage.width * 2.5
-                    duration: 800
+                    from: splashScreen.width / 2 - carImage.width / 2
+                    to: splashScreen.width * 0.72 - carImage.width / 2
+                    duration: 1000
+                    easing.type: Easing.InOutSine
+                }
+                NumberAnimation {
+                    target: carImage
+                    property: "rotation"
+                    from: -3; to: 0; duration: 400
+                    easing.type: Easing.OutBack
+                }
+                // Subtle car bobbing
+                SequentialAnimation {
+                    NumberAnimation { target: carImage; property: "y"; to: splashScreen.height / 2 + 98; duration: 200; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: carImage; property: "y"; to: splashScreen.height / 2 + 100; duration: 200; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: carImage; property: "y"; to: splashScreen.height / 2 + 98; duration: 200; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: carImage; property: "y"; to: splashScreen.height / 2 + 100; duration: 200; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: carImage; property: "y"; to: splashScreen.height / 2 + 98; duration: 200; easing.type: Easing.InOutSine }
+                }
+            }
+
+            // Phase 3: Car zooms left FAST with effects (4.3 → 4.9s)
+            ParallelAnimation {
+                NumberAnimation {
+                    target: carImage
+                    property: "x"
+                    from: splashScreen.width * 0.72 - carImage.width / 2
+                    to: -carImage.width * 3
+                    duration: 600
                     easing.type: Easing.InQuad
                 }
                 NumberAnimation {
                     target: carImage
                     property: "rotation"
-                    from: 0; to: 4; duration: 800
+                    from: 0; to: -5; duration: 600
+                }
+                NumberAnimation {
+                    target: carGlow
+                    property: "opacity"
+                    from: 0; to: 0.8; duration: 200
+                }
+                NumberAnimation {
+                    target: carGlow
+                    property: "scale"
+                    from: 0.5; to: 2.0; duration: 400
+                }
+                // Logo starts fading
+                NumberAnimation {
+                    target: itiLogo
+                    property: "opacity"
+                    to: 0.3; duration: 400
+                }
+                NumberAnimation {
+                    target: logoGlow
+                    property: "opacity"
+                    to: 0; duration: 400
                 }
                 ScriptAction {
-                    script: { smokeTimer.count = 0; smokeTimer.running = true; }
+                    script: {
+                        smokeTimer.count = 0;
+                        smokeTimer.running = true;
+                    }
                 }
             }
 
-            // Phase 4: ITI Logo fades out (3.3 → 3.8s)
-            NumberAnimation {
-                target: itiLogo
-                property: "opacity"
-                from: 1; to: 0; duration: 500
-            }
-
-            // Phase 5: Background transitions to main screen color (3.8 → 4.3s)
+            // Phase 4: Final fade out (4.9 → 5.4s)
             ParallelAnimation {
-                ColorAnimation {
-                    target: splashBg
-                    property: "color"
-                    from: "white"
-                    to: "#020408"
-                    duration: 500
+                NumberAnimation {
+                    target: itiLogo
+                    property: "opacity"
+                    to: 0; duration: 500
                     easing.type: Easing.InOutQuad
                 }
                 NumberAnimation {
-                    target: splashBgGradient
+                    target: carImage
                     property: "opacity"
-                    from: 0
-                    to: 1
-                    duration: 500
-                    easing.type: Easing.InOutQuad
+                    to: 0; duration: 300
+                }
+                NumberAnimation {
+                    target: orb1
+                    property: "opacity"
+                    to: 0.08; duration: 500
+                }
+                NumberAnimation {
+                    target: orb2
+                    property: "opacity"
+                    to: 0.06; duration: 500
+                }
+                NumberAnimation {
+                    target: orb3
+                    property: "opacity"
+                    to: 0.05; duration: 500
                 }
             }
 
             onFinished: {
+                dustTimer.running = false
                 mainWindow.splashDone = true
             }
         }
 
         Component.onCompleted: {
-            console.log("Splash animation started")
+            console.log("Enhanced splash animation started")
         }
     }
 
@@ -460,7 +781,7 @@ ApplicationWindow {
                     Text {
                         id: dateText
                         color: "#8899bb"
-                        font { pixelSize: 13; family: "Arial" }
+                        font { pixelSize: 12; family: "Arial" }
                     }
                 }
 
@@ -1742,7 +2063,7 @@ ApplicationWindow {
                     id: climatePageInstance
                     onGoBack: stackView.pop()
 
-                    // ── init from shared state ──
+                    // init from shared state 
                     Component.onCompleted: {
                         syncActive       = launcherItem.hvacSyncActive
                         frontTempValue   = launcherItem.hvacTemp
@@ -1766,7 +2087,7 @@ ApplicationWindow {
                         }
                     }
 
-                    // ── page → home tile (write-back) ──
+                    // page → home tile (write-back) 
                     onSyncActiveChanged: {
                         launcherItem.hvacSyncActive = syncActive
                         if (syncActive) {
@@ -1791,7 +2112,7 @@ ApplicationWindow {
                     onBackModeIndexChanged:  { if (!syncActive) launcherItem.hvacRearMode  = backModeIndex }
                     onBackPowerOnChanged:    { if (!syncActive) launcherItem.hvacRearPower = backPowerOn }
 
-                    // ── home tile → page (read) ──
+                    // home tile → page (read) 
                     Connections {
                         target: launcherItem
                         function onHvacSyncActiveChanged() {

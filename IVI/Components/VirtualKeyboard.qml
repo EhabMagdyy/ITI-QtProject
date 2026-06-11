@@ -134,7 +134,12 @@ Rectangle {
                     color: shiftMouse.containsMouse ? "#D08831" : (shiftActive ? "#D08831" : "#10475E")
                     border.color: shiftMouse.containsMouse ? "#D08831" : "#3D717E"; border.width: 1
                     Behavior on color { ColorAnimation { duration: 80 } }
-                    Text { anchors.centerIn: parent; text: shiftActive ? "⇧" : "⇪"; color: "#e7f1ef"; font.pixelSize: 16; font.bold: true; font.family: "Arial" }
+                    Image {
+                        anchors.centerIn: parent;
+                        width: 23; height: 23;
+                        source: shiftActive ? "qrc:/assets/icons/upper.png" : "qrc:/assets/icons/lower.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
                     MouseArea { id: shiftMouse; anchors.fill: parent; hoverEnabled: true; onClicked: shiftActive = !shiftActive }
                 }
                 Repeater {
@@ -154,7 +159,12 @@ Rectangle {
                     color: bsMouse.containsMouse ? "#964405" : "#10475E"
                     border.color: bsMouse.containsMouse ? "#D08831" : "#3D717E"; border.width: 1
                     Behavior on color { ColorAnimation { duration: 80 } }
-                    Text { anchors.centerIn: parent; text: "⌫"; color: "#e7f1ef"; font.pixelSize: 16; font.bold: true; font.family: "Arial" }
+                    Image {
+                        anchors.centerIn: parent;
+                        width: 23; height: 23;
+                        source: "qrc:/assets/icons/back.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
                     MouseArea { id: bsMouse; anchors.fill: parent; hoverEnabled: true; onClicked: backspace() }
                 }
             }

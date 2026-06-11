@@ -35,5 +35,8 @@
         <file>assets/icons/next.png</file>
         <file>assets/images/iti.png</file>
         <file>assets/images/car.png</file>
+        <file>assets/icons/upper.png</file>
+        <file>assets/icons/lower.png</file>
+        <file>assets/icons/back.png</file>
     </qresource>
 </RCC>

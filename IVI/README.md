@@ -1,6 +1,8 @@
 # IVI Dashboard
 
-> A modern, feature-rich **In-Vehicle Infotainment (IVI)** system built with **Qt 6 / QML** and a **C++ backend**, designed to run on embedded Linux platforms including the Raspberry Pi 3B+.
+> A modern, feature-rich **In-Vehicle Infotainment (IVI)** system built with **Qt 6 / QML** and a **C++ backend**, designed to run on embedded Linux platforms.
+
+🎬 **[Demo Video](https://drive.google.com/file/d/1Oj1QQaDpHGheh9F3O2MxpUNavDnGgvdd/view?usp=drive_link)**
 
 ---
 
@@ -38,18 +40,6 @@
   - [WindowResize](#windowresize)
   - [CarInfoPopup](#carinfopopup)
 - [Design System & UI Conventions](#design-system--ui-conventions)
-- [Build System](#build-system)
-  - [Dependencies](#dependencies)
-  - [Building on Desktop](#building-on-desktop)
-- [Raspberry Pi Deployment (Yocto)](#raspberry-pi-deployment-yocto)
-  - [Step 1 — `local.conf` Additions](#step-1--localconf-additions)
-  - [Step 2 — Yocto Recipe for the App](#step-2--yocto-recipe-for-the-app)
-  - [Step 3 — Vosk Recipe](#step-3--vosk-recipe)
-  - [Step 4 — Update the Vosk Model Path](#step-4--update-the-vosk-model-path)
-  - [Step 5 — `config.txt` on the RPi](#step-5--configtxt-on-the-rpi)
-  - [Step 6 — Launch Script or systemd Service](#step-6--launch-script-or-systemd-service)
-  - [Step 7 — Build and Flash](#step-7--build-and-flash)
-  - [Yocto Package Checklist](#yocto-package-checklist)
 - [Author](#author)
 
 ---
@@ -122,7 +112,7 @@ The application follows a **layered architecture** that cleanly separates hardwa
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │                         QML / UI Layer                           │
-│  Main.qml · pages/ · MediaPages/ · SettingPages/ · Components/  │
+│  Main.qml · pages/ · MediaPages/ · SettingPages/ · Components/   │
 │  Pure declarative UI; binds to C++ properties and signals        │
 └────────────────────────────┬─────────────────────────────────────┘
                              │  Q_PROPERTY bindings, signals/slots
@@ -136,8 +126,8 @@ The application follows a **layered architecture** that cleanly separates hardwa
                              ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │                     C++ Backend Layer                            │
-│  BluetoothManager · BluetoothHWManager · WifiManager            │
-│  USBManager · SystemVolumeController · SpeechManager            │
+│  BluetoothManager · BluetoothHWManager · WifiManager             │
+│  USBManager · SystemVolumeController · SpeechManager             │
 │  Each is a QObject registered in QQmlContext                     │
 └────────────────────────────┬─────────────────────────────────────┘
                              │  Linux system APIs
@@ -848,10 +838,6 @@ A `Rectangle` with `parent: Overlay.overlay` and `z: 99999` sits above all conte
 - Page transitions: `StackView` default slide animation.
 - Floating idle animations on launcher tiles: `SequentialAnimation` looping `NumberAnimation` between ±3–5 px on the Y axis over 4–6 seconds with `Easing.InOutSine`.
 - Popup fade-in: `Behavior on opacity { NumberAnimation { duration: 200 } }` with `Component.onCompleted: opacity = 1`.
-
----
-## Demo
-> 🎬 **[Watch the full demo video →](https://drive.google.com/file/d/1Oj1QQaDpHGheh9F3O2MxpUNavDnGgvdd/view?usp=drive_link)**
 
 ---
 ## Author
